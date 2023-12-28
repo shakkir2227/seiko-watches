@@ -2,9 +2,9 @@ import Joi from "joi";
 const schema = Joi.object({
 
     name: Joi.string()
-        .pattern(/^[a-zA-Z]+$/)
+        .pattern(/^[a-zA-Z\s]+$/)
         .min(3)
-        .max(15)
+        .max(30)
         .required()
         .messages({
             'string.pattern.base': ' Name should contain only alphabets',
