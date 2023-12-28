@@ -27,9 +27,10 @@ app.use(session({
 
 //routes
 import userRouter from "./routes/user.routes.js"
-
+import adminRouter from "./routes/admin.routes.js"
 //routes declaration
 app.use("/user", userRouter)
+app.use("/admin", adminRouter)
 
 
 export { app }
