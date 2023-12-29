@@ -19,7 +19,7 @@ const uploadOnCloudinary = async (localFilePath) => {
 
         return response;
     } catch (error) {
-        fs.unlinkSync(localFilePath) //if uploading got failed,
+        fs.unlinkSync(localFilePath) //if uploading got failed also,
         //removing localfile added by multer.
 
     }

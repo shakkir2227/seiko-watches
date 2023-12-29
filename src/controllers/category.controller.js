@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { Category } from "../models/category.model.js";
-import { categoryValidationSchema } from "../utils/validation/category.validation.js"; "../utils/validation/category.validation.js";
+import { categoryValidationSchema } from "../utils/validation/category.validation.js";
 
 
 const addCategory = asyncHandler(async (req, res) => {
@@ -120,7 +120,7 @@ const editCategory = asyncHandler(async (req, res) => {
         if (existedCategories
             .some((existedCategory) => existedCategory.parentCategoryId.name === category.parentCategoryId.name)) {
             return res.send((`
-                Oops! This category name is already in use.
+            
                 `))
         }
     }

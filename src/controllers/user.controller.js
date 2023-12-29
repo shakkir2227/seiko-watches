@@ -9,7 +9,7 @@ const registerUser = asyncHandler(async (req, res) => {
     //taking fields from body
     //validate the fields
     //check if any user exists with this mobilenumber or email
-    //if not save the document as not verified 
+    //if not save the document as not verified
     // and send them the otp
     //if exists, check if them verified or not
     //if verified, display ALREADY REGISTERED
@@ -34,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
             email,
             mobileNumber,
             password,
-            isVerified: false 
+            isVerified: false
         });
 
 
@@ -44,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
         //mailgen
         let response = {
             body: {
-                name, 
+                name,
                 action: {
                     instructions: 'Use this OTP to get started with Us, :',
                     button: {
@@ -132,7 +132,7 @@ const verifyUser = asyncHandler(async (req, res) => {
 
     const OTP = req.session.OTP
     console.log(OTP);
-    
+
     const userEnteredOTP = req.body.OTP;
     console.log(userEnteredOTP);
 
@@ -158,7 +158,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
         res.send("This is not a valid Email address")
     }
 
-    
+
 
 
 

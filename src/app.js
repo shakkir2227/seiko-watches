@@ -29,11 +29,13 @@ app.use(session({
 import userRouter from "./routes/user.routes.js"
 import adminRouter from "./routes/admin.routes.js";
 import categoryRouter from "./routes/category.routes.js"
+import productRouter from "./routes/product.routes.js"
 
 //routes declaration
 app.use("/user", userRouter)
 app.use("/admin", adminRouter)
 app.use("/category", categoryRouter)
+app.use("/product", productRouter)
 
 
 export { app }

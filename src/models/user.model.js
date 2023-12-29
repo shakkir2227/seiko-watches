@@ -28,7 +28,12 @@ const userSchema = new Schema({
     isVerified: {
         type: Boolean,
         required: true,
-
+        default:false,
+    },
+    isBlocked:{
+        type:Boolean,
+        required:true,
+        default:false
     }
 
 }, {
