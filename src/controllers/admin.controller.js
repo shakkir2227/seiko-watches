@@ -2,6 +2,11 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import adminValidationSchema from "../utils/validation/admin.validation.js";
 import { User } from "../models/user.model.js"
 
+const adminLoginViewController = asyncHandler(async (req, res) => {
+    return res.render("page-account-login.ejs")
+
+})
+
 const adminLoginController = asyncHandler(async (req, res) => {
     //take email and password form req.body
     //validate it 
@@ -13,13 +18,13 @@ const adminLoginController = asyncHandler(async (req, res) => {
     const { error } = adminValidationSchema.validate({ email, password })
 
     if (error) {
-        return res.send(error.message)
+        return res.render("page-account-login.ejs", { message: error })
     }
 
     if (!(email === process.env.ADMIN_EMAIL) ||
         !(password === process.env.ADMIN_PASSWORD)
     ) {
-        return res.send("Invalid Credentials")
+        return res.render("page-account-login.ejs", { message: "Invalid Credentials" })
     }
 
     return res.send("Welcome to dashboard")
@@ -82,7 +87,7 @@ const unBlockUserController = asyncHandler(async (req, res) => {
 })
 
 const adminUserDetailsController = asyncHandler(async (req, res) => {
-    
+
     const users = await User.find({ isVerified: true });
     res.send(users)
 })
@@ -93,7 +98,8 @@ export {
     adminLoginController,
     blockUserController,
     adminUserDetailsController,
-    unBlockUserController
+    unBlockUserController,
+    adminLoginViewController
 
 }
 

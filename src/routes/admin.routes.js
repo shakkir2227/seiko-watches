@@ -3,12 +3,14 @@ import {
     adminLoginController
     , blockUserController,
     adminUserDetailsController,
-    unBlockUserController
+    unBlockUserController,
+    adminLoginViewController
 } from "../controllers/admin.controller.js";
 
 
 const router = Router();
 
+router.route("/login").get(adminLoginViewController)
 router.route("/login").post(adminLoginController)
 router.route("/block-user").put(blockUserController)
 router.route("/unblock-user").put(unBlockUserController)
