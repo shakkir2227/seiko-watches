@@ -2,16 +2,18 @@ import Joi from "joi";
 const schema = Joi.object({
 
     name: Joi.string()
-        .pattern(/^[a-zA-Z\s]+$/)
+        .pattern(/^[A-Z][A-Za-z\s]*$/)  // First letter uppercase, rest uppercase letters, lowercase letters, or spaces
         .min(3)
         .max(30)
         .required()
         .messages({
-            'string.pattern.base': ' Name should contain only alphabets',
-            'string.min': ' Name should have at least {#limit} characters',
-            'string.max': ' Name should not exceed {#limit} characters',
-            'any.required': 'Name is required',
+            'string.pattern.base': 'Name should start with an uppercase letter',
+            'string.min': 'Name should have at least {#limit} characters.',
+            'string.max': 'Name should not exceed {#limit} characters.',
+            'any.required': 'Name is required.',
         }),
+
+
 
     password: Joi.string()
         .min(3)

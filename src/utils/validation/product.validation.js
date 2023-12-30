@@ -2,16 +2,18 @@ import Joi from "joi"
 
 const addProductSchema = Joi.object({
     name: Joi.string()
-        .pattern(/^[a-zA-Z\s]+$/)
+        .pattern(/^[A-Z][A-Za-z\s]*$/)  // First letter uppercase, rest uppercase letters, lowercase letters, or spaces
         .min(3)
         .max(30)
         .required()
         .messages({
-            'string.pattern.base': ' Product name should contain only alphabets',
-            'string.min': ' Product name should have at least {#limit} characters',
-            'string.max': ' Product name should not exceed {#limit} characters',
-            'any.required': 'Product name is required',
+            'string.pattern.base': 'Product name should start with an uppercase letter',
+            'string.min': 'Product name should have at least {#limit} characters.',
+            'string.max': 'Product name should not exceed {#limit} characters.',
+            'any.required': 'Product name is required.',
         }),
+
+
 
     description: Joi.string()
         .min(10)
