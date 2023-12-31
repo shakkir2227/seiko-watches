@@ -18,16 +18,22 @@ const adminLoginController = asyncHandler(async (req, res) => {
     const { error } = adminValidationSchema.validate({ email, password })
 
     if (error) {
-        return res.render("page-account-login.ejs", { message: error })
+        let trimmedMessage = error.message.replace(/^Validation error: /, '');
+        return res.render("page-account-login.ejs", { message: trimmedMessage })
     }
 
     if (!(email === process.env.ADMIN_EMAIL) ||
         !(password === process.env.ADMIN_PASSWORD)
     ) {
-        return res.render("page-account-login.ejs", { message: "Invalid Credentials" })
+        return res.render("page-account-login.ejs", { message: "Invalid credentials" })
     }
 
-    return res.send("Welcome to dashboard")
+    return res.redirect("/admin/home")
+})
+
+const adminHomeController = asyncHandler(async (req, res) => {
+    
+    return res.render("index.ejs")
 })
 
 const blockUserController = asyncHandler(async (req, res) => {
@@ -41,7 +47,6 @@ const blockUserController = asyncHandler(async (req, res) => {
     const user = await User.findOne(
         { $and: [{ _id: userId }, { isVerified: true }] }
     )
-
     if (!user) {
         return res.send(`User not found. 
         Please check the provided details and try again.`);
@@ -55,7 +60,7 @@ const blockUserController = asyncHandler(async (req, res) => {
 
     user.isBlocked = true;
     const blockeduser = await user.save()
-    return res.send(`user ${blockeduser.name} has been successfully blocked.`)
+    return res.redirect(303, "/admin/users")
 })
 
 const unBlockUserController = asyncHandler(async (req, res) => {
@@ -66,6 +71,7 @@ const unBlockUserController = asyncHandler(async (req, res) => {
     //if it is, then show already blocked nothing done
     //else make him block
     const { userId } = req.body;
+   
     const user = await User.findOne(
         { $and: [{ _id: userId }, { isVerified: true }] }
     )
@@ -83,13 +89,14 @@ const unBlockUserController = asyncHandler(async (req, res) => {
 
     user.isBlocked = false;
     const blockeduser = await user.save()
-    return res.send(`user ${blockeduser.name} has been successfully unblocked.`)
+    // return res.send(`user ${blockeduser.name} has been successfully unblocked.`)
+    return res.redirect(303, "/admin/users")
 })
 
 const adminUserDetailsController = asyncHandler(async (req, res) => {
 
     const users = await User.find({ isVerified: true });
-    res.send(users)
+    return res.render("page-sellers-list.ejs", { users })
 })
 
 
@@ -99,7 +106,9 @@ export {
     blockUserController,
     adminUserDetailsController,
     unBlockUserController,
-    adminLoginViewController
+    adminLoginViewController,
+    adminHomeController,
+
 
 }
 

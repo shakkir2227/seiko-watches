@@ -9,6 +9,7 @@ const adminValidationSchema = Joi.object({
             'any.required': 'Email is required',
         }),
     password: Joi.string()
+        .min(3)
         .max(20)
         .required()
         .messages({

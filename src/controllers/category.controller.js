@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { Category } from "../models/category.model.js";
 import { categoryValidationSchema } from "../utils/validation/category.validation.js";
+import { get } from "mongoose";
 
 
 const addCategory = asyncHandler(async (req, res) => {
@@ -15,7 +16,8 @@ const addCategory = asyncHandler(async (req, res) => {
     const { name, parentCategoryName } = req.body;
     const { error } = categoryValidationSchema.validate({ name })
     if (error) {
-        return res.send(error.message)
+        return res.render("page-categories.ejs", { message: error.message })
+
     }
 
     const existedCategories = await Category.find({ name }).populate("parentCategoryId");
@@ -46,22 +48,39 @@ const addCategory = asyncHandler(async (req, res) => {
 
         });
 
-        return res.send(category)
+        return res.render("page-categories.ejs")
 
     }
 
 })
 
 const viewCategory = asyncHandler(async (req, res) => {
-    //Find out the categorires which have a parent
-    //and also which are not blocked
-    //Then show them with it's parent name
+    const getCategoryPath = async (categoryId) => {
+        const category = await Category.findById(categoryId).exec();
+        const categoryName = category.name;
+        let pathArr = [categoryName];
 
-    const subCategories =
-        await Category.aggregate([{ $match: { parentCategoryId: { $ne: null }, isBlocked: false } }]);
-    return res.send(subCategories)
+        if (category.parentCategoryId) {
+            const parentPathArr = await getCategoryPath(category.parentCategoryId);
+            pathArr = pathArr.concat(parentPathArr);
+        }
 
-})
+        return pathArr;
+    };
+
+    const categoriesWithoutSubcategories = await Category.find({ _id: { $nin: await Category.distinct('parentCategoryId') } }).exec();
+
+    const categoryPathArr = await Promise.all(
+        categoriesWithoutSubcategories.map(async (category) => {
+            return {
+                path: await getCategoryPath(category._id),
+            };
+        })
+    );
+
+    return res.render("page-categories.ejs")
+});
+
 
 const blockCategoryAndSubCategories = asyncHandler(async (req, res) => {
     //Find the category from database

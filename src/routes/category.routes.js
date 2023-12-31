@@ -8,8 +8,8 @@ import {
 }
     from "../controllers/category.controller.js"
 
-router.route("/add-category").post(addCategory)
-router.route("/view-category").get(viewCategory)
+router.route("/add").post(addCategory)
+router.route("/view").get(viewCategory)
 router.route("/block-category").post(blockCategoryAndSubCategories)
 router.route("/edit-category").post(editCategory)
 

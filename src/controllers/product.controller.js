@@ -116,7 +116,7 @@ const blockProductController = asyncHandler(async (req, res) => {
     product.isBlocked = true;
     const blockedProduct = await product.save()
     return res.send(`Product ${blockedProduct.name} has been successfully blocked.`)
-
+   
 })
 
 const unblockProductController = asyncHandler(async (req, res) => {
@@ -165,10 +165,15 @@ const updateProductController = asyncHandler(async (req, res) => {
 
 })
 
+const adminProductViewController = asyncHandler (async(req, res) => {
+    return res.render("page-products-list.ejs")   
+})
+
 
 export {
     addProductController,
     blockProductController,
     updateProductController,
-    unblockProductController
+    unblockProductController,
+    adminProductViewController
 }

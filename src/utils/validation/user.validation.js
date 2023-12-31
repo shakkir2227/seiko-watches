@@ -36,12 +36,12 @@ const schema = Joi.object({
         }),
 
     mobileNumber: Joi.string()
-        .length(3)
+        .length(10)
         .pattern(/^[0-9]+$/)
         .required()
         .messages({
             'string.base': 'Mobile number must be a string',
-            'string.length': 'Mobile number must be exactly 3 digits',
+            'string.length': 'Mobile number must be exactly 10 digits',
             'string.pattern.base': 'Mobile number must contain only numeric digits',
             'any.required': 'Mobile number is required',
         }),

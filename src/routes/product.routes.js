@@ -5,6 +5,7 @@ import {
     blockProductController,
     unblockProductController,
     updateProductController,
+    adminProductViewController
 }
     from "../controllers/product.controller.js";
 
@@ -14,6 +15,7 @@ router.post("/create", upload.array("images"), addProductController)
 router.put("/block", blockProductController)
 router.put("/unblock", unblockProductController)
 router.put("/update", updateProductController)
+router.get("/view-admin", adminProductViewController)
 
 
 export default router;
