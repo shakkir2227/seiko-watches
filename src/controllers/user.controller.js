@@ -164,7 +164,13 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 })
 
+
+const userHomeController = asyncHandler(async(req, res) => {
+    return res.render("user.home.ejs")
+})
+
 export {
     registerUser,
-    verifyUser
+    verifyUser,
+    userHomeController
 }

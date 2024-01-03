@@ -34,7 +34,7 @@ app.use(flash())
 
 // setting view engine
 app.set("view engine", "ejs");
-app.set("views", ["views/admin.view", "views/user.view"])
+app.set("views", ["views/admin.views", "views/user.views"])
 
 app.use(express.static("../public"))
  
