@@ -13,11 +13,15 @@ const addCategory = asyncHandler(async (req, res) => {
     // if parent category is not "none" include that.. 
     //also in creation of the category
 
+    //todo== what same named category, the existing doesnot have parent
+    
+
     const { name, parentCategoryName } = req.body;
     const { error } = categoryValidationSchema.validate({ name })
     if (error) {
-        return res.render("page-categories.ejs", { message: error.message })
-
+        req.flash('error', `${error.message}`);
+        return res.redirect("/category/view")
+       
     }
 
     const existedCategories = await Category.find({ name }).populate("parentCategoryId");
@@ -25,10 +29,11 @@ const addCategory = asyncHandler(async (req, res) => {
     if (existedCategories.length > 0) {
         if (existedCategories
             .some((category) => category.parentCategoryId.name === parentCategoryName)) {
-            return res.send((`
-             This Category Name already exists. 
-             Try a new one !!
-             `))
+
+            let message = encodeURIComponent("");
+            req.flash('error', `This Category Name already exists. Try a new one!!`);
+            return res.redirect("/category/view")
+            
         }
     }
 
@@ -36,7 +41,9 @@ const addCategory = asyncHandler(async (req, res) => {
         const category = await Category.create({
             name,
         });
-        return res.send(category)
+
+        req.flash('success', `Category ${category.name} created successfully`);
+        return res.redirect("/category/view")
     }
     else {
 
@@ -48,16 +55,26 @@ const addCategory = asyncHandler(async (req, res) => {
 
         });
 
-        return res.render("page-categories.ejs")
-
+        req.flash('success', `Category ${category.name} has been added in ${parentCategory.name} successfully`);
+        return res.redirect("/category/view")
+       
     }
 
 })
 
 const viewCategory = asyncHandler(async (req, res) => {
+
+    //find all categories
+    //get all categories which don't have a subcategory
+    //find out it's complete parent categories/ path of a category
+    // also take messagees from query, which are came from redirecting
+
+    // const message = req.query.message
+
     const getCategoryPath = async (categoryId) => {
         const category = await Category.findById(categoryId).exec();
         const categoryName = category.name;
+
         let pathArr = [categoryName];
 
         if (category.parentCategoryId) {
@@ -65,20 +82,37 @@ const viewCategory = asyncHandler(async (req, res) => {
             pathArr = pathArr.concat(parentPathArr);
         }
 
-        return pathArr;
+        return pathArr.join(">>")
     };
 
-    const categoriesWithoutSubcategories = await Category.find({ _id: { $nin: await Category.distinct('parentCategoryId') } }).exec();
+    const allCategories = await Category.find({})
 
     const categoryPathArr = await Promise.all(
-        categoriesWithoutSubcategories.map(async (category) => {
+        allCategories.map(async (category) => {
             return {
+                category,
                 path: await getCategoryPath(category._id),
             };
         })
     );
 
-    return res.render("page-categories.ejs")
+    // const categoriesWithoutSubcategories = await Category.find({ _id: { $nin: await Category.distinct('parentCategoryId') } }).exec();
+    // const categoryPathArr = await Promise.all(
+    //     categoriesWithoutSubcategories.map(async (category) => {
+    //         return {
+    //             category,
+    //             path: await getCategoryPath(category._id),
+    //         };
+    //     })
+    // );
+
+    const errorMessage = req.flash("error")[0]
+    const successMessage = req.flash('success')[0];
+ 
+    return res.render("page-categories.ejs", { allCategories, categoryPathArr, errorMessage, successMessage })
+
+    // return res.render("page-categories.ejs", { allCategories, categoryPathArr, message })
+
 });
 
 
@@ -89,16 +123,16 @@ const blockCategoryAndSubCategories = asyncHandler(async (req, res) => {
     //block them, and block it's subcategories also..
     //using recursion and give the condition if it exists.
 
-    const { name } = req.body;
+    const { _id } = req.body;
 
-    const category = await Category.findOne({ name })
+    const category = await Category.findOne({ _id })
     category.isBlocked = true;
     await category.save();
 
     async function blockSubCategories(category) {
         const subCategories = await Category.find({ parentCategoryId: category._id });
         if (subCategories.length === 0) {
-            return res.send("Category Blocked succesfully")
+            return null
         }
 
         subCategories.forEach(async (subCategory) => {
@@ -109,9 +143,46 @@ const blockCategoryAndSubCategories = asyncHandler(async (req, res) => {
 
     }
 
-    blockSubCategories(category);
+    await blockSubCategories(category);
+
+    let message = `${category.name} has been blocked successfully`
+    
+    return res.send({ status: 'blocked', category });
 
 
+})
+
+const unblockCategoryAndSubCategories = asyncHandler(async (req, res) => {
+
+    //tocomplete: if main category is in unblocked state, we shouldnot be able
+    //to unblock the subcategories of it. then we should display the messaee
+    //of first unblock the main category
+
+
+    const { _id } = req.body;
+
+    const category = await Category.findOne({ _id })
+
+    category.isBlocked = false;
+    await category.save();
+
+    async function unBlockSubCategories(category) {
+        const subCategories = await Category.find({ parentCategoryId: category._id });
+        if (subCategories.length === 0) {
+            return null
+        }
+
+        subCategories.forEach(async (subCategory) => {
+            subCategory.isBlocked = false;
+            await subCategory.save();
+            unBlockSubCategories(subCategory)
+        })
+
+    }
+
+    await unBlockSubCategories(category);
+
+    return res.send({ status: 'Unblocked', category });
 })
 
 const editCategory = asyncHandler(async (req, res) => {
@@ -156,5 +227,6 @@ export {
     addCategory,
     viewCategory,
     blockCategoryAndSubCategories,
+    unblockCategoryAndSubCategories,
     editCategory
 }

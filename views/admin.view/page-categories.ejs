@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Evara Dashboard</title>
+    <title>Categories List</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
-            <a href="index.html" class="brand-wrap">
+            <a href="/admin/home" class="brand-wrap">
                 <img src="/assets/imgs/theme/seiko-logo.png" class="logo" alt="Evara Dashboard">
             </a>
             <div>
@@ -32,12 +32,12 @@
         </div>
         <ul class="menu-aside">
             <li class="menu-item ">
-                <a class="menu-link" href="index.html"> <i class="icon material-icons md-home"></i>
+                <a class="menu-link" href="/admin/home"> <i class="icon material-icons md-home"></i>
                     <span class="text">Dashboard </span>
                 </a>
             </li>
             <li class="menu-item">
-                <a class="menu-link" href="page-sellers-list.html"> <i class="icon material-icons md-comment"></i>
+                <a class="menu-link" href="/admin/users"> <i class="icon material-icons md-comment"></i>
                     <span class="text">Customers</span>
                 </a>
             </li>
@@ -53,7 +53,7 @@
                             </div>
                         </li> -->
             <li class="menu-item active">
-                <a class="menu-link" href="page-products-list.html"> <i class="icon material-icons md-comment"></i>
+                <a class="menu-link" href="/product/view-admin"> <i class="icon material-icons md-comment"></i>
                     <span class="text">Products</span>
                 </a>
             </li>
@@ -226,136 +226,263 @@
             </div>
         </header>
 
-       <% if (typeof(message) !=="undefined" ) { %>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: true,
-                    timer: null ,
-                   
+        <% if (typeof(errorMessage) !=="undefined" ) { %>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: '<%= errorMessage %>',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-danger', // Add custom class for styling
+                        },
+                    });
                 });
+            </script>
+            <% } %>
+        
+                <% if (typeof(successMessage) !=="undefined" ) { %>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: '<%= successMessage %>',
+                                showConfirmButton: true,
+                                confirmButtonText: 'OK',
+                                customClass: {
+                                    confirmButton: 'btn btn-success', // Add custom class for styling
+                                },
+                            });
+                        });
+                    </script>
+                    <% } %>
 
-                Toast.fire({
-                    icon: "error",
-                    title: `<%= message %>`
-                });
-            });
-        </script>
-        <% } %>
 
-
-        <section class="content-main">
-            <div class="content-header">
-                <div>
-                    <h2 class="content-title card-title">Categories </h2>
-                    <p>Add, edit or unlist a category</p>
-                </div>
-                <!-- <div>
+                <section class="content-main">
+                    <div class="content-header">
+                        <div>
+                            <h2 class="content-title card-title">Categories </h2>
+                            <p>Add, edit or unlist a category</p>
+                        </div>
+                        <!-- <div>
                     <input type="text" placeholder="Search Categories" class="form-control bg-white">
                 </div> -->
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <form action="/category/add" method="post">
-                                <div class="mb-4">
-                                    <label for="product_name"  class="form-label">Name</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_name" name="name" />
-                                </div>
-                                <!-- <div class="mb-4">
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <form action="/category/add" method="post">
+                                        <div class="mb-4">
+                                            <label for="product_name" class="form-label">Name</label>
+                                            <input type="text" placeholder="Type here" class="form-control"
+                                                id="product_name" name="name" />
+                                        </div>
+                                        <!-- <div class="mb-4">
                                     <label for="product_slug" class="form-label">Slug</label>
                                     <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
                                 </div> -->
-                                <div class="mb-4">
-                                    <label class="form-label">Parent</label>
-                                    <select class="form-select">
-                                        <option>Clothes</option>
-                                        <option>T-Shirts</option>
-                                    </select>
-                                </div>
-                                <!-- <div class="mb-4">
+                                        <div class="mb-4">
+                                            <label class="form-label">Parent category</label>
+                                            <select class="form-select" name="parentCategoryName">
+                                                <option value="none" selected >None</option>
+                                                <% if(typeof(allCategories) !=="undefined" ) { for(let i=0;
+                                                    i<allCategories.length; i++) { %>
+                                                    <option value="<%= categoryPathArr[i].category.name %>">
+                                                        <%= categoryPathArr[i].path %>
+                                                    </option>
+                                                    <% } }%>
+                                            </select>
+
+                                        </div>
+                                        <!-- <div class="mb-4">
                                     <label class="form-label">Description</label>
                                     <textarea placeholder="Type here" class="form-control"></textarea>
                                 </div> -->
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary">Create category</button>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary">Create category</button>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
+                                <div class="col-md-9">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" />
+                                                        </div>
+                                                    </th>
+                                                    <th>Order</th>
+                                                    <!-- <th>ID</th> -->
+                                                    <th>Hierarchy</th>
+                                                    <!-- <th>Description</th> -->
+                                                    <!-- <th>Slug</th> -->
+                                                    <th>Status</th>
+                                                    <th >Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                
+
+                                               <% if(typeof(allCategories) !== "undefined") {
+
+                                                    for(let i=0; i<allCategories.length; i++) {
+
+                                                        
+                                                        %>
+                                                    
+                                                        <tr>
+                                                            <td class="text-center">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" value="" />
+                                                                </div>
+                                                            </td>
+                                                            <!-- <td>21</td> -->
+                                                            <td><%= i+1 %></td>
+                                                            
+                                                            <!-- <td>Men clothes</td> -->
+                                                            <!-- <td>/men</td> -->
+                                                            <td><b><%= categoryPathArr[i].path %></b></td>
+                                                            <% if(categoryPathArr[i].category.isBlocked===true) { %>
+                                                                <td><span class="badge rounded-pill alert-danger">
+                                                                        Blocked
+                                                                    </span>
+                                                                </td>
+                                                                <% } %>
+                                                            
+                                                                    <% if(categoryPathArr[i].category.isBlocked===false) { %>
+                                                                        <td><span class="badge rounded-pill alert-success">
+                                                                                Active
+                                                                            </span>
+                                                                        </td>
+                                                                        <% } %>
+
+
+
+                                                                        <td >
+                                                                            <button  onclick="toggleUserBlock('<%= categoryPathArr[i].category._id %>', `<%=  categoryPathArr[i].category.isBlocked %>`)" type="button"
+                                                                                class="btn btn-sm font-sm rounded btn-brand">
+                                                                                <i class="material-icons"></i>
+                                                                                <span >
+                                                                                    <% if(categoryPathArr[i].category.isBlocked===true) { %>
+                                                                                        Unblock
+                                                                                        <% } else { %>
+                                                                                            Block
+                                                                                            <% } %>
+                                                                                </span>
+                                                                            </button>
+                                                                        </td>
+                                                            <!-- <td class="text-end">
+                                                                <div class="dropdown">
+                                                                    <a href="#" data-bs-toggle="dropdown"
+                                                                        class="btn btn-light rounded btn-sm font-sm"> <i
+                                                                            class="material-icons md-more_horiz"></i> </a>
+                                                                    <div class="dropdown-menu">
+                                                                        <a class="dropdown-item" href="#">View detail</a>
+                                                                <a class="dropdown-item" href="#">Edit info</a> -->
+                                                                        <!-- <a class="dropdown-item text" href="#">Activate</a>
+                                                                        <a class="dropdown-item text-danger" href="#">Block</a>
+                                                                    </div>
+                                                                </div>  dropdown //end -->
+                                                            <!-- </td>  -->
+                                                     
+                                                            
+                                                        </tr>
+                                                    <%    
+                                                    }
+                                                }
+
+                                                %>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> <!-- .col// -->
+                            </div> <!-- .row // -->
+                        </div> <!-- card body .// -->
+                    </div> <!-- card .// -->
+                </section> <!-- content-main end// -->
+                <footer class="main-footer font-xs">
+                    <div class="row pb-30 pt-15">
+                        <div class="col-sm-6">
+                            <script>
+                                document.write(new Date().getFullYear())
+                            </script> ©, Evara - HTML Ecommerce Template .
                         </div>
-                        <div class="col-md-9">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="" />
-                                                </div>
-                                            </th>
-                                            <th>Order</th>
-                                            <!-- <th>ID</th> -->
-                                            <th>Name</th>
-                                            <!-- <th>Description</th> -->
-                                            <!-- <th>Slug</th> -->
-                                            <th>Status</th>
-                                            <th class="text-end">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-center">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="" />
-                                                </div>
-                                                 </td>
-                                            <!-- <td>21</td> -->
-                                            <td>1</td>
-                                            <td><b>Men clothes</b></td>
-                                            <!-- <td>Men clothes</td> -->
-                                            <!-- <td>/men</td> -->
-                                            <td><b>Active</b></td>
-                                            <td class="text-end">
-                                                <div class="dropdown">
-                                                    <a href="#" data-bs-toggle="dropdown"
-                                                        class="btn btn-light rounded btn-sm font-sm"> <i
-                                                            class="material-icons md-more_horiz"></i> </a>
-                                                    <div class="dropdown-menu">
-                                                        <!-- <a class="dropdown-item" href="#">View detail</a>
-                                                        <a class="dropdown-item" href="#">Edit info</a> -->
-                                                        <a class="dropdown-item text" href="#">Activate</a>
-                                                        <a class="dropdown-item text-danger" href="#">Block</a>
-                                                    </div>
-                                                </div> <!-- dropdown //end -->
-                                            </td>
-                                        </tr>
-
-
-                                    </tbody>
-                                </table>
+                        <div class="col-sm-6">
+                            <div class="text-sm-end">
+                                All rights reserved
                             </div>
-                        </div> <!-- .col// -->
-                    </div> <!-- .row // -->
-                </div> <!-- card body .// -->
-            </div> <!-- card .// -->
-        </section> <!-- content-main end// -->
-        <footer class="main-footer font-xs">
-            <div class="row pb-30 pt-15">
-                <div class="col-sm-6">
-                    <script>
-                        document.write(new Date().getFullYear())
-                    </script> ©, Evara - HTML Ecommerce Template .
-                </div>
-                <div class="col-sm-6">
-                    <div class="text-sm-end">
-                        All rights reserved
+                        </div>
                     </div>
-                </div>
-            </div>
-        </footer>
+                </footer>
     </main>
+
+    <script>
+           async function toggleUserBlock(id, isBlocked) {
+                const params = new URLSearchParams();
+                params.append('_id', id);
+
+                const response = await fetch(isBlocked === "false" ? "/category/block" : "/category/unblock", {
+                    method: "put",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString(),
+                });
+
+                // const Toast = Swal.mixin({
+                //     toast: true,
+                //     position: "top-end",
+                //     showConfirmButton: false,
+                //     timer: 1000,
+                //     timerProgressBar: true,
+                //     didOpen: (toast) => {
+                //         toast.onmouseenter = Swal.stopTimer;
+                //         toast.onmouseleave = Swal.resumeTimer;
+                //     }
+                // });
+
+
+               if (response.ok) {
+                   const { status, category } = await response.json();
+
+                  const successMessage = `Category ${category.name} is being ${status === 'blocked' ? 'Blocked' : 'Unblocked'}!`;
+
+
+
+                const Toast = Swal.mixin({
+                       toast: true,
+                       position: "top-end",
+                       showConfirmButton: false,
+                       timer: 1300,
+                       timerProgressBar: true,
+                       didOpen: (toast) => {
+                           toast.onmouseenter = Swal.stopTimer;
+                           toast.onmouseleave = Swal.resumeTimer;
+                       }
+                   });
+
+                   Toast.fire({
+                       icon: "info",
+                       title: successMessage,
+                   });
+                   
+
+                }
+                setTimeout(() => {
+                    // Redirect after the success message is displayed
+                    window.location.href = ""; // Replace with the desired redirect URL
+                }, 1300); // Adjust the timeout duration as needed
+            }
+            
+
+    </script>
     <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/vendors/select2.min.js"></script>
@@ -364,6 +491,7 @@
     <!-- Main Script -->
     <script src="/assets/js/main.js" type="text/javascript"></script>
 
+    <!--Sweet alert CDN-->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 </body>
 

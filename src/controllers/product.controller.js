@@ -4,6 +4,46 @@ import { Category } from "../models/category.model.js"
 import { addProductSchema, updateProductSchema } from "../utils/validation/product.validation.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
+import colors from "colors"
+
+
+const addProductViewController = asyncHandler(async (req, res) => {
+
+    //To display in the category option finding out the cat-path
+
+
+    const getCategoryPath = async (categoryId) => {
+        const category = await Category.findById(categoryId).exec();
+        const categoryName = category.name;
+
+        let pathArr = [categoryName];
+
+        if (category.parentCategoryId) {
+            const parentPathArr = await getCategoryPath(category.parentCategoryId);
+            pathArr = pathArr.concat(parentPathArr);
+        }
+
+        return pathArr.join(">>")
+    };
+
+    const allCategories = await Category.find({})
+
+    const categoryPathArr = await Promise.all(
+        allCategories.map(async (category) => {
+            return {
+                category,
+                path: await getCategoryPath(category._id),
+            };
+        })
+    );
+
+
+
+    const errorMessage = req.flash("error")[0]
+    const successMessage = req.flash('success')[0];
+    return res.render("page-form-product.ejs", { categoryPathArr, errorMessage, successMessage })
+
+})
 
 const addProductController = asyncHandler(async (req, res) => {
     //----This is the note for view-category----
@@ -20,15 +60,24 @@ const addProductController = asyncHandler(async (req, res) => {
     //else validate image with joi
     //if OK, 
     // Atleast 3 images should be there
+
+    //Todo, in existed product, we want to check the same product name
+    //exist for the same variation, then only we have to block user from
+    //addin that. so change accrodingly
+
     const {
         name
         , description
-        , categoryName
+        , categoryPath
         , price
         , stock
         , bandMaterial
         , dialColor
     } = req.body;
+
+    if (categoryPath) {
+        var categoryName = categoryPath.split(">>")[0];
+    }
 
     const { error } = addProductSchema.validate({
         name
@@ -36,34 +85,44 @@ const addProductController = asyncHandler(async (req, res) => {
         , categoryName
         , price
         , stock
+        , bandMaterial
+        , dialColor
     })
     if (error) {
-        console.log(error);
-        return res.send(error.message);
+
+        req.flash('error', error.message);
+        return res.redirect("/product/add")
     }
+
 
     const existedProduct = await Product.findOne({ name });
     if (existedProduct) {
-        console.log(req.files);
-        return res.send("Oops! This Product name is already in use.")
+
+        req.flash('error', "Oops! This Product name is already in use.");
+        return res.redirect("/product/add")
     }
 
     //image validation
     if (req.files.length < 3 || req.files.length > 5) {
         for (let i = 0; i < req.files.length; i++) {
-            console.log(req.files[i]);
+
             fs.unlinkSync(req.files[i].path)
 
         }
 
-        return res.send(`Please upload 3 to 5 photos
-         to enhance the platform's visual appeal. Thank you.`)
+        req.flash('error', "Please upload 3 to 5 photos to enhance the platform visual appeal. Thankyou !!");
+        return res.redirect("/product/add")
+
     }
 
     if ((req.files).some((file) => {
         file.path === ""
     })) {
-        return res.send(`Please ensure all uploaded files have valid paths.`)
+
+        req.flash('error', `Please ensure all uploaded files have valid paths.`);
+        return res.redirect("/product/add")
+
+
     };
 
     let images = [];
@@ -74,7 +133,7 @@ const addProductController = asyncHandler(async (req, res) => {
     }
 
     const category = await Category.findOne({ name: categoryName })
-    console.log(category);
+
 
     const product = await Product.create({
         name,
@@ -87,7 +146,9 @@ const addProductController = asyncHandler(async (req, res) => {
         dialColor,
     })
 
-    return res.send(product)
+    req.flash('success', `${product.name} has been added successfully `);
+    return res.redirect("/product/add")
+
 
 
 
@@ -102,7 +163,7 @@ const blockProductController = asyncHandler(async (req, res) => {
     const { productId } = req.body;
     const product = await Product.findOne({ _id: productId });
 
-    
+
     if (!product) {
         return res.send(`Sorry, the product  you're trying to block doesn't exist
         in our records. Please verify the product details and try again.`)
@@ -116,7 +177,7 @@ const blockProductController = asyncHandler(async (req, res) => {
     product.isBlocked = true;
     const blockedProduct = await product.save()
     return res.send(`Product ${blockedProduct.name} has been successfully blocked.`)
-   
+
 })
 
 const unblockProductController = asyncHandler(async (req, res) => {
@@ -147,26 +208,122 @@ const unblockProductController = asyncHandler(async (req, res) => {
 
 })
 
+const updateProductViewController = asyncHandler(async (req, res) => {
+    const productId = req.params.id;
+    const product = await Product.findOne({ _id: productId }).populate("category")
+
+    const errorMessage = req.flash("error")[0]
+    const successMessage = req.flash('success')[0];
+    return res.render("page-form-edit.ejs", { product, errorMessage, successMessage })
+
+})
+
 const updateProductController = asyncHandler(async (req, res) => {
-    const { productId, description, price, stock } = req.body;
+
+    //User sends an array of removed images array
+    //we have to get that array, and remove the corresponding url
+    //from our product image array
+
+    const { productId, description, price, stock, removedImages, status } = req.body;
+
+    const product = await Product.findOne({ _id: productId })
 
     const { error } = updateProductSchema.validate({ description, price, stock })
+
     if (error) {
-        return res.send(error.message)
+        req.flash('error', error.message);
+        return res.redirect(`/product/update/${product._id}`)
+
     }
-    const product = await Product.findOne({ _id: productId })
 
     product.description = description;
     product.price = price;
     product.stock = stock;
+    product.isBlocked = status === "Active" ? false : true;
+
+
+    if(!removedImages && req.files.length === 0) {
+        
+        const updatedProduct = await product.save();
+        req.flash('success', `Your request to update ${updatedProduct.name} has been processed succesfully`);
+        return res.redirect("/product/view-admin")
+    }
+
+    if ((product.images.length + req.files.length) < 3 || (product.images.length + req.files.length) > 5  ){
+
+        for (let i = 0; i < req.files.length; i++) {
+            fs.unlinkSync(req.files[i].path)
+        }
+
+        req.flash('error', "Ensure 3 to 5 photos are present for the product to enhance the platform visual appeal. Thankyou !!");
+        return res.redirect(`/product/update/${product._id}`)
+
+    }
+
+    if(!removedImages) {
+        for (let i = 0; i < req.files.length; i++) {
+            const uploadedImage = await uploadOnCloudinary(req.files[i].path);
+            product.images.push({ url: uploadedImage.url })
+        }
+
+        const updatedProduct = await product.save()
+
+        req.flash('success', `Your request to update ${updatedProduct.name} has been processed succesfully`);
+        return res.redirect("/product/view-admin")
+    }
+
+
+    let updatedImages = product.images.filter((image) => {
+        return !removedImages.includes(image.url)
+    })
+
+    let totalImageCount = req.files.length + updatedImages.length;
+
+    if ((totalImageCount < 3 || totalImageCount > 5)) {
+        for (let i = 0; i < req.files.length; i++) {
+            fs.unlinkSync(req.files[i].path)
+        }
+
+        req.flash('error', "Ensure 3 to 5 photos are present for the product to enhance the platform visual appeal. Thankyou !!");
+        return res.redirect(`/product/update/${product._id}`)
+
+    }
+
+    if ((req.files).some((file) => {
+        file.path === ""
+    })) {
+
+        req.flash('error', `Please ensure all uploaded files have valid paths.`);
+        return res.redirect(`/product/update/${product._id}`)
+
+
+    };
+
+    for (let i = 0; i < req.files.length; i++) {
+        const uploadedImage = await uploadOnCloudinary(req.files[i].path);
+        updatedImages.push({ url: uploadedImage.url })
+    }
+
+    product.images = updatedImages;
 
     const updatedProduct = await product.save()
-    return res.send(updatedProduct);
+
+    req.flash('success', `Your request to update ${updatedProduct.name} has been processed succesfully`);
+    return res.redirect("/product/view-admin")
 
 })
 
-const adminProductViewController = asyncHandler (async(req, res) => {
-    return res.render("page-products-list.ejs")   
+const adminProductViewController = asyncHandler(async (req, res) => {
+
+    //Take all products from database
+    //display one image, name, cat name, stock, isBlocked or not
+    //And editing option
+
+    const errorMessage = req.flash("error")[0]
+    const successMessage = req.flash('success')[0];
+    const products = await Product.find({}).populate("category")
+
+    return res.render("page-products-list.ejs", { products, errorMessage, successMessage })
 })
 
 
@@ -175,5 +332,8 @@ export {
     blockProductController,
     updateProductController,
     unblockProductController,
-    adminProductViewController
+    adminProductViewController,
+    addProductViewController,
+    updateProductViewController,
+
 }

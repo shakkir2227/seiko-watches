@@ -33,7 +33,7 @@ const adminLoginController = asyncHandler(async (req, res) => {
 
 const adminHomeController = asyncHandler(async (req, res) => {
     
-    return res.render("index.ejs")
+    return res.render("page-admin-home.ejs")
 })
 
 const blockUserController = asyncHandler(async (req, res) => {
@@ -96,7 +96,7 @@ const unBlockUserController = asyncHandler(async (req, res) => {
 const adminUserDetailsController = asyncHandler(async (req, res) => {
 
     const users = await User.find({ isVerified: true });
-    return res.render("page-sellers-list.ejs", { users })
+    return res.render("page-users-list.ejs", { users })
 })
 
 

@@ -15,7 +15,7 @@ const productSchema = new Schema({
     images: [
         {
             url: String,
-            
+
         }
     ],
 
@@ -28,14 +28,14 @@ const productSchema = new Schema({
 
     price: {
         type: Number,
-        default:0,
+        default: 0,
     },
 
     stock: {
         type: Number,
         default: 0
     },
-    
+
 
     bandMaterial: {
         type: String,
@@ -44,9 +44,11 @@ const productSchema = new Schema({
     },
 
     dialColor: {
-            type: String,
+        type: String,
         enum: ["Black", "Blue", "Brown"],
     },
+
+    
 
     isBlocked: {
         type: Boolean,
@@ -54,9 +56,9 @@ const productSchema = new Schema({
     }
 
 }, {
-        timestamps: true,
-    }
+    timestamps: true,
+}
 
 )
 
-export const Product =  mongoose.model("Prodcut", productSchema);
+export const Product = mongoose.model("Prodcut", productSchema);

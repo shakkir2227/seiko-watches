@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import nocache from "nocache";
+import flash from "express-flash";
 
 const app = express();
 
@@ -29,11 +30,14 @@ app.use(session({
     cookie: { secure: false }
 }))
 
+app.use(flash())
+
 // setting view engine
 app.set("view engine", "ejs");
-app.set("views", "views/admin.view")
-app.use(express.static("../public"))
+app.set("views", ["views/admin.view", "views/user.view"])
 
+app.use(express.static("../public"))
+ 
 
 
 //routes

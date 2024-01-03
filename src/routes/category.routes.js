@@ -5,12 +5,14 @@ import {
     viewCategory,
     blockCategoryAndSubCategories,
     editCategory,
+    unblockCategoryAndSubCategories
 }
     from "../controllers/category.controller.js"
 
 router.route("/add").post(addCategory)
 router.route("/view").get(viewCategory)
-router.route("/block-category").post(blockCategoryAndSubCategories)
+router.route("/block").put(blockCategoryAndSubCategories)
+router.route("/unblock").put(unblockCategoryAndSubCategories)
 router.route("/edit-category").post(editCategory)
 
 export default router
