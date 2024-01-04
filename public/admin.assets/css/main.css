@@ -4598,4 +4598,21 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
     display: none;
   }
 }
+
+
+.small-swal {
+    width: 300px;
+  }
+
+  .small-swal-title {
+    font-size: 16px;
+  }
+
+  .small-swal-content {
+    font-size: 14px;
+  }
+
+  .small-swal-confirm {
+    font-size: 14px;
+  }
 /*# sourceMappingURL=main.css.map */

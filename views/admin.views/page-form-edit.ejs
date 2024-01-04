@@ -241,41 +241,39 @@
                             <h4>Basic</h4>
                         </div>
 
+<% if (typeof(errorMessage) !=="undefined" ) { %>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '<%= errorMessage %>',
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                customClass: {
+                    confirmButton: 'btn btn-danger', // Add custom class for styling
+                },
+            });
+        });
+    </script>
+    <% } %>
 
-                        <% if (typeof(errorMessage) !=="undefined" ) { %>
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error!',
-                                        text: '<%= errorMessage %>',
-                                        showConfirmButton: true,
-                                        confirmButtonText: 'OK',
-                                        customClass: {
-                                            confirmButton: 'btn btn-danger', // Add custom class for styling
-                                        },
-                                    });
-                                });
-                            </script>
-                            <% } %>
-                        
-                                <% if (typeof(successMessage) !=="undefined" ) { %>
-                                    <script>
-                                        document.addEventListener('DOMContentLoaded', function () {
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Success!',
-                                                text: '<%= successMessage %>',
-                                                showConfirmButton: true,
-                                                confirmButtonText: 'OK',
-                                                customClass: {
-                                                    confirmButton: 'btn btn-success', // Add custom class for styling
-                                                },
-                                            });
-                                        });
-                                    </script>
-                                    <% } %>
-
+        <% if (typeof(successMessage) !=="undefined" ) { %>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: '<%= successMessage %>',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-success', // Add custom class for styling
+                        },
+                    });
+                });
+            </script>
+            <% } %>
 
 
                         <div class="card-body">

@@ -1,151 +1,196 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { User } from "../models/user.model.js";
+import { Product } from "../models/product.model.js";
+import { Category } from "../models/category.model.js";
+
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import userValidationSchema from "../utils/validation/user.validation.js";
 import { tranporter, Mailgenerator } from "../utils/nodemailer.js";
 
-const registerUser = asyncHandler(async (req, res) => {
 
-    //taking fields from body
-    //validate the fields
-    //check if any user exists with this mobilenumber or email
-    //if not save the document as not verified
-    // and send them the otp
-    //if exists, check if them verified or not
-    //if verified, display ALREADY REGISTERED
-    //else proceed to sendOTP
+const registerController = {
 
-    const { name, email, mobileNumber, password } = req.body;
+    getRegisterPage: asyncHandler(async (req, res) => {
 
-    //Using JOI for validation
-    const { error } = userValidationSchema.validate({ name, email, password, mobileNumber });
-    if (error) {
-        return res.send(error.message)
-    }
+        const errorMessage = req.flash("error")[0]
+        const successMessage = req.flash('success')[0];
+        return res.render("page-account-register.ejs", { errorMessage, successMessage })
 
-    const existedUser = await User.findOne({
-        $or: [{ email }, { mobileNumber }]
+    }),
+
+
+    registerUser: asyncHandler(async (req, res) => {
+
+        //taking fields from body
+        //validate the fields
+        //check if any user exists with this mobilenumber or email
+        //if not save the document as not verified
+        // and send them the otp
+        //if exists, check if them verified or not
+        //if verified, display ALREADY REGISTERED
+        //else proceed to sendOTP
+
+        const { name, email, mobileNumber, password } = req.body;
+
+        //Using JOI for validation
+        const { error } = userValidationSchema.validate({ name, email, password, mobileNumber });
+        if (error) {
+            req.flash('error', `${error.message}`);
+            return res.redirect("/user/register")
+        }
+
+        const existedUser = await User.findOne({
+            $or: [{ email }, { mobileNumber }]
+        })
+
+
+        if (!existedUser) {
+            //saving the user as not verified
+            const user = await User.create({
+                name,
+                email,
+                mobileNumber,
+                password,
+                isVerified: false
+            });
+
+
+            //creating OTP to embed in the Email
+            let OTP = Math.floor(Math.random() * 10 ** 6)
+
+            //mailgen
+            let response = {
+                body: {
+                    name,
+                    action: {
+                        instructions: 'Use this OTP to get started with Us, :',
+                        button: {
+                            color: '#48cfad', // Optional action button color
+                            text: `${OTP}`,
+
+                        }
+                    }
+                }
+            }
+            let mail = Mailgenerator.generate(response)
+            let message = {
+                from: process.env.ADMIN_EMAIL,
+                to: email,
+                subject: "Verify your email address",
+                html: mail,
+            }
+
+            tranporter.sendMail(message).then(() => {
+                console.log("OTP sent successfully");
+            })
+
+            req.session.OTP = OTP;
+            req.session.userId = user._id;
+
+            console.log(OTP);
+
+            // return res.send("Verification Email has been sent")
+            req.flash('success', `Verification Email has been sent`);
+            return res.redirect("/user/verify")
+        };
+
+        if (!existedUser.isVerified) {
+            let OTP = Math.floor(Math.random() * 10 ** 6)
+
+            let response = {
+                body: {
+                    name,
+                    action: {
+                        instructions: 'Use this OTP to get started with Us, :',
+                        button: {
+                            color: '#48cfad', // Optional action button color
+                            text: `${OTP}`,
+
+                        }
+                    }
+                }
+            }
+            let mail = Mailgenerator.generate(response)
+            let message = {
+                from: process.env.ADMIN_EMAIL,
+                to: existedUser.email,
+                subject: "Verify your email address",
+                html: mail
+            }
+
+            tranporter.sendMail(message).then(() => {
+                console.log("OTP sent successfully");
+            })
+
+            req.session.OTP = OTP;
+            req.session.userId = existedUser._id;
+
+            console.log(OTP);
+
+            req.flash('success', `Verification Email has been sent`);
+            return res.redirect("/user/verify")
+        };
+
+        // return res.send("User with this Email or Mobile Number already exists!!")
+
+        req.flash('error', `User with this Email or Mobile Number already exists!!`);
+        return res.redirect("/user/register")
+
     })
-
-    if (!existedUser) {
-        //saving the user as not verified
-        const user = await User.create({
-            name,
-            email,
-            mobileNumber,
-            password,
-            isVerified: false
-        });
+}
 
 
-        //creating OTP to embed in the Email
-        let OTP = Math.floor(Math.random() * 10 ** 6)
 
-        //mailgen
-        let response = {
-            body: {
-                name,
-                action: {
-                    instructions: 'Use this OTP to get started with Us, :',
-                    button: {
-                        color: '#48cfad', // Optional action button color
-                        text: `${OTP}`,
+const verifyController = {
 
-                    }
-                }
-            }
-        }
-        let mail = Mailgenerator.generate(response)
-        let message = {
-            from: process.env.ADMIN_EMAIL,
-            to: email,
-            subject: "Verify your email address",
-            html: mail,
+    getverifyPage: asyncHandler(async (req, res) => {
+
+        const errorMessage = req.flash("error")[0]
+        const successMessage = req.flash('success')[0];
+        return res.render("page-account-verify.ejs", { errorMessage, successMessage })
+    }),
+
+    verifyUser: asyncHandler(async (req, res) => {
+
+        //Checking the user got deleted or not
+        //if deleted display OTP EXPIRED !!
+        //taking otp from route params
+        //match it with session OTP
+        //if match, make him verified
+        //remove the otp from session
+        //and add userid in session
+        //render HOME page;
+        //else display OTP not match message
+
+        const userId = req.session.userId;
+        const user = await User.findOne({ _id: userId });
+
+        if (!user) {
+            req.flash('error', `OTP expired. Please register again`);
+            return res.redirect("/user/verify")
         }
 
-        tranporter.sendMail(message).then(() => {
-            console.log("OTP sent successfully");
-        })
+        const OTP = req.session.OTP
+        console.log(OTP);
 
-        req.session.OTP = OTP;
-        req.session.userId = user._id;
+        const userEnteredOTP = req.body.OTP;
+        console.log(userEnteredOTP);
 
-        return res.send("Verification Email has been sent")
-    };
-
-    if (!existedUser.isVerified) {
-        let OTP = Math.floor(Math.random() * 10 ** 6)
-
-        let response = {
-            body: {
-                name,
-                action: {
-                    instructions: 'Use this OTP to get started with Us, :',
-                    button: {
-                        color: '#48cfad', // Optional action button color
-                        text: `${OTP}`,
-
-                    }
-                }
-            }
-        }
-        let mail = Mailgenerator.generate(response)
-        let message = {
-            from: process.env.ADMIN_EMAIL,
-            to: existedUser.email,
-            subject: "Verify your email address",
-            html: mail
+        if (userEnteredOTP != OTP) {
+            req.flash('error', `Invalid OTP`);
+            return res.redirect("/user/verify")
         }
 
-        tranporter.sendMail(message).then(() => {
-            console.log("OTP sent successfully");
-        })
+        await User.updateOne({ _id: userId }, { $set: { isVerified: true } })
+        const verifiedUser = await User.findOne({ _id: userId });
+        req.session.OTP = null;
 
-        req.session.OTP = OTP;
-        req.session.userId = existedUser._id;
+        req.session.user_id = verifiedUser._id;
+        return res.redirect("/user/home")
 
-        return res.send("Verification Email has been sent")
-    };
+    })
+}
 
-    return res.send("User with this Email or Mobile Number already exists!!")
-
-})
-
-
-const verifyUser = asyncHandler(async (req, res) => {
-
-    //Checking the user got deleted or not
-    //if deleted display OTP EXPIRED !!
-    //taking otp from route params
-    //match it with session OTP
-    //if match, make him verified
-    //remove the otp from session
-    //render HOME page;
-    //else display OTP not match message
-
-    const userId = req.session.userId;
-    const user = await User.findOne({ _id: userId });
-
-    if (!user) {
-        return res.send("OTP Expired")
-    }
-
-    const OTP = req.session.OTP
-    console.log(OTP);
-
-    const userEnteredOTP = req.body.OTP;
-    console.log(userEnteredOTP);
-
-    if (userEnteredOTP != OTP) {
-        return res.send("Invalid OTP")
-    }
-
-    await User.updateOne({ _id: userId }, { $set: { isVerified: true } })
-    const verifiedUser = await User.findOne({ _id: userId });
-    req.session.OTP = null;
-    return res.send(verifiedUser);
-
-})
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
@@ -165,12 +210,29 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 })
 
 
-const userHomeController = asyncHandler(async(req, res) => {
+const userHomeController = asyncHandler(async (req, res) => {
+    //taking userId from session. find the specific user
+    //find the new products and display it
+    //find the top and it's sub category only
+    //and display it on the page, with some appropriate cat-images
+    //last part of the section is for youtube videos
+
+    const userId = req.session.userId 
+    const user = await User.findOne({_id:userId})
+    
+
+   
+    
     return res.render("user.home.ejs")
+
 })
 
+
+
 export {
-    registerUser,
-    verifyUser,
-    userHomeController
+
+    userHomeController,
+    registerController,
+    verifyController
+
 }
