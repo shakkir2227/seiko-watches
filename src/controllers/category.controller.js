@@ -1,10 +1,15 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { Category } from "../models/category.model.js";
 import { categoryValidationSchema } from "../utils/validation/category.validation.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+
+import fs from "fs"
 import { get } from "mongoose";
 
 
+
 const addCategory = asyncHandler(async (req, res) => {
+
     //validate name only, parent-category is select mode
     //check if the category name exist
     //if exist check if any of the parent of these are same
@@ -12,16 +17,17 @@ const addCategory = asyncHandler(async (req, res) => {
     //Then check if parent category is none
     // if parent category is not "none" include that.. 
     //also in creation of the category
+    //added image upload also
 
     //todo== what same named category, the existing doesnot have parent
-    
+
 
     const { name, parentCategoryName } = req.body;
     const { error } = categoryValidationSchema.validate({ name })
     if (error) {
         req.flash('error', `${error.message}`);
         return res.redirect("/category/view")
-       
+
     }
 
     const existedCategories = await Category.find({ name }).populate("parentCategoryId");
@@ -33,13 +39,31 @@ const addCategory = asyncHandler(async (req, res) => {
             let message = encodeURIComponent("");
             req.flash('error', `This Category Name already exists. Try a new one!!`);
             return res.redirect("/category/view")
-            
+
         }
     }
 
+    if (!req.file) {
+        
+        req.flash('error', "Please ensure that you uploaded one image. Thankyou !!");
+        return res.redirect("/category/view")
+
+    }
+
+    if (req.file.path === "") {
+
+        req.flash('error', `Please ensure uploaded file have valid path.`);
+        return res.redirect("/category/view")
+
+    };
+
+    const image = await uploadOnCloudinary(req.file.path);
+
     if (parentCategoryName === "none") {
         const category = await Category.create({
-            name,
+            name,   
+            image:image.url,
+
         });
 
         req.flash('success', `Category ${category.name} created successfully`);
@@ -51,13 +75,14 @@ const addCategory = asyncHandler(async (req, res) => {
         const parentCategoryId = parentCategory._id;
         const category = await Category.create({
             name,
-            parentCategoryId
+            parentCategoryId,
+            image: image.url
 
         });
 
         req.flash('success', `Category ${category.name} has been added in ${parentCategory.name} successfully`);
         return res.redirect("/category/view")
-       
+
     }
 
 })
@@ -108,7 +133,7 @@ const viewCategory = asyncHandler(async (req, res) => {
 
     const errorMessage = req.flash("error")[0]
     const successMessage = req.flash('success')[0];
- 
+
     return res.render("page-categories.ejs", { allCategories, categoryPathArr, errorMessage, successMessage })
 
     // return res.render("page-categories.ejs", { allCategories, categoryPathArr, message })
@@ -146,7 +171,7 @@ const blockCategoryAndSubCategories = asyncHandler(async (req, res) => {
     await blockSubCategories(category);
 
     let message = `${category.name} has been blocked successfully`
-    
+
     return res.send({ status: 'blocked', category });
 
 

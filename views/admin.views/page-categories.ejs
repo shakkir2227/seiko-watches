@@ -275,12 +275,13 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <form action="/category/add" method="post">
+                                    <form action="/category/add" method="post" enctype="multipart/form-data">
                                         <div class="mb-4">
                                             <label for="product_name" class="form-label">Name</label>
                                             <input type="text" placeholder="Type here" class="form-control"
                                                 id="product_name" name="name" />
                                         </div>
+                                       
                                         <!-- <div class="mb-4">
                                     <label for="product_slug" class="form-label">Slug</label>
                                     <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
@@ -298,6 +299,13 @@
                                             </select>
 
                                         </div>
+
+                                        <div class="mb-4">
+                                            <label for="image" class="form-label">Category Image</label>
+                                            <input type="file" placeholder="Type here" class="form-control" id="category_image" name="image" />
+                                        </div>
+
+
                                         <!-- <div class="mb-4">
                                     <label class="form-label">Description</label>
                                     <textarea placeholder="Type here" class="form-control"></textarea>

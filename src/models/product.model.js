@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const productSchema = new Schema({
-
+    
     name: {
         type: String,
         required: true
@@ -48,8 +48,6 @@ const productSchema = new Schema({
         enum: ["Black", "Blue", "Brown"],
     },
 
-    
-
     isBlocked: {
         type: Boolean,
         default: false,
@@ -61,4 +59,4 @@ const productSchema = new Schema({
 
 )
 
-export const Product = mongoose.model("Prodcut", productSchema);
+export const Product = mongoose.model("Product", productSchema);

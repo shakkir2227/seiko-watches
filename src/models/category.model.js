@@ -11,8 +11,12 @@ const categorySchema = new Schema({
         ref: "Category",
         requried: true,
         default: null,
-
     },
+    image: {
+        type: String,
+        required: true,
+    },
+
     isBlocked: {
         type: Boolean,
         requried: true,

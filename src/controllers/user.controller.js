@@ -217,13 +217,30 @@ const userHomeController = asyncHandler(async (req, res) => {
     //and display it on the page, with some appropriate cat-images
     //last part of the section is for youtube videos
 
-    const userId = req.session.userId 
-    const user = await User.findOne({_id:userId})
-    
+    const userId = req.session.userId
+    const user = await User.findOne({ _id: userId })
 
-   
+    const newProducts =
+        await Product.aggregate([{ $match: { isBlocked: false } },
+        { $sort: { "createdAt": -1 } }, { $limit: 8 },
+        { $lookup: { from: "categories", foreignField: "_id", localField: "category", as: "category" } }])
+
+    const primaryCategories =
     
-    return res.render("user.home.ejs")
+        await Category.aggregate([{ $match: { parentCategoryId: null, isBlocked: false } }])
+
+    let secondaryCategories = [];
+
+    for (const primaryCategory of primaryCategories) {
+        const categories = await Category.aggregate([
+            { $match: { parentCategoryId: primaryCategory._id, isBlocked: false } }
+        ]);
+        secondaryCategories.push(...categories);
+    }
+
+    const categories = [...primaryCategories, ...secondaryCategories]
+
+    return res.render("user.home.ejs", { newProducts, categories })
 
 })
 

@@ -96,10 +96,13 @@ const addProductController = asyncHandler(async (req, res) => {
 
 
     const existedProduct = await Product.findOne({ name });
-    if (existedProduct) {
 
-        req.flash('error', "Oops! This Product name is already in use.");
-        return res.redirect("/product/add")
+    if (existedProduct) {
+        if (existedProduct.dialColor === dialColor && existedProduct.bandMaterial === bandMaterial) {
+
+            req.flash('error', "Oops! This Product name is already in use.");
+            return res.redirect("/product/add")
+        }
     }
 
     //image validation
@@ -242,14 +245,14 @@ const updateProductController = asyncHandler(async (req, res) => {
     product.isBlocked = status === "Active" ? false : true;
 
 
-    if(!removedImages && req.files.length === 0) {
-        
+    if (!removedImages && req.files.length === 0) {
+
         const updatedProduct = await product.save();
         req.flash('success', `Your request to update ${updatedProduct.name} has been processed succesfully`);
         return res.redirect("/product/view-admin")
     }
 
-    if ((product.images.length + req.files.length) < 3 || (product.images.length + req.files.length) > 5  ){
+    if ((product.images.length + req.files.length) < 3 || (product.images.length + req.files.length) > 5) {
 
         for (let i = 0; i < req.files.length; i++) {
             fs.unlinkSync(req.files[i].path)
@@ -260,7 +263,7 @@ const updateProductController = asyncHandler(async (req, res) => {
 
     }
 
-    if(!removedImages) {
+    if (!removedImages) {
         for (let i = 0; i < req.files.length; i++) {
             const uploadedImage = await uploadOnCloudinary(req.files[i].path);
             product.images.push({ url: uploadedImage.url })
@@ -313,18 +316,72 @@ const updateProductController = asyncHandler(async (req, res) => {
 
 })
 
-const adminProductViewController = asyncHandler(async (req, res) => {
+const productViewController = {
 
-    //Take all products from database
-    //display one image, name, cat name, stock, isBlocked or not
-    //And editing option
+    adminProductView: asyncHandler(async (req, res) => {
 
-    const errorMessage = req.flash("error")[0]
-    const successMessage = req.flash('success')[0];
-    const products = await Product.find({}).populate("category")
+        //Take all products from database
+        //display one image, name, cat name, stock, isBlocked or not
+        //And editing option
 
-    return res.render("page-products-list.ejs", { products, errorMessage, successMessage })
-})
+        const errorMessage = req.flash("error")[0]
+        const successMessage = req.flash('success')[0];
+        const products = await Product.find({}).populate("category")
+
+        return res.render("page-products-list.ejs", { products, errorMessage, successMessage })
+
+    }),
+
+    userProductView :  {
+
+        getSingleProductView: asyncHandler(async (req, res) => {
+            //we have to show the related products also
+            //so take the cat id of the product 
+            //list all the products of the same category except the current product
+            //while listing we should avoid same products
+
+
+            const productId = req.params.productId;
+
+            const product = await Product.findOne({ _id: productId }).populate("category");
+            const productWithVariations = await Product.aggregate([{
+                $match: { name: product.name, isBlocked: false, _id: { $ne: product._id } },
+            }])
+
+            let relatedProducts = await Product.aggregate([{ $match: { isBlocked: false, category: product.category._id, _id: { $ne: product._id }, name: { $ne: product.name } } }, {
+                $group: {
+                    _id: "$name",
+                    uniqueProduct: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$uniqueProduct" }
+            }])
+
+            return res.render("shop-product-full.ejs", { product, relatedProducts, productWithVariations })
+        }),
+
+
+        //taking the categoryId from the query params
+        //finding the category, and all its subcategories
+        //finding all products of the category, and it's 
+        //subcategories. making an array and render it
+
+
+        getAllProductsView : asyncHandler(async(req, res) => {
+
+            const categoryId = req.query.categoryId;
+
+            return res.render("shop-grid-left.ejs")
+
+        })
+
+
+    } 
+    
+    
+   
+}
 
 
 export {
@@ -332,7 +389,7 @@ export {
     blockProductController,
     updateProductController,
     unblockProductController,
-    adminProductViewController,
+    productViewController,
     addProductViewController,
     updateProductViewController,
 

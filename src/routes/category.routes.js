@@ -1,5 +1,8 @@
+
 import { Router } from "express";
+import { upload } from "../middlewares/multer.middleware.js";
 const router = Router();
+
 import {
     addCategory,
     viewCategory,
@@ -9,7 +12,7 @@ import {
 }
     from "../controllers/category.controller.js"
 
-router.route("/add").post(addCategory)
+router.route("/add").post(upload.single("image"), addCategory)
 router.route("/view").get(viewCategory)
 router.route("/block").put(blockCategoryAndSubCategories)
 router.route("/unblock").put(unblockCategoryAndSubCategories)
