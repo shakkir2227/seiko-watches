@@ -277,24 +277,7 @@
 
                 <!--When user press logout button show him a confirm button, and when he -->
                 <!--click confirm then only move to the logout controller-->
-                <script>
-                    function confirmLogout() {
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: 'You will be logged out!',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, logout!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // User confirmed, navigate to the logout link
-                                window.location.href = '/user/logout';
-                            }
-                        });
-                    }
-                </script>
+                
 
                 <!-- Vendor JS-->
                 <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>

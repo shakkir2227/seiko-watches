@@ -92,7 +92,7 @@ const addProductSchema = Joi.object({
 const updateProductSchema = Joi.object({
     description: Joi.string()
         .min(10)
-        .max(500)
+        .max(1000)
         .required()
         .messages({
             'string.base': 'Description must be a string',
