@@ -9,14 +9,14 @@ const schema = Joi.object({
         .messages({
             'string.pattern.base': 'Name should start with an uppercase letter',
             'string.min': 'Name should have at least {#limit} characters.',
-            'string.max': 'Name should not exceed {#limit} characters.',
+            'string.max': ' Name should not exceed {#limit} characters.',
             'any.required': 'Name is required.',
         }),
 
 
 
     password: Joi.string()
-        .min(3)
+        .min(8)
         .max(30)
         // .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/)
         .required()

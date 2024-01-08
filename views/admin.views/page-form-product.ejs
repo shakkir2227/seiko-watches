@@ -212,7 +212,8 @@
                     <li class="dropdown nav-item">
                         <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
                             aria-expanded="false">
-                            <img class="img-xs rounded-circle" src="/admin.assets/imgs/people/avatar2.jpg" alt="User"></a>
+                            <img class="img-xs rounded-circle" src="/admin.assets/imgs/people/avatar2.jpg"
+                                alt="User"></a>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
                             <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit
                                 Profile</a>
@@ -247,66 +248,76 @@
                 </script>
                 <% } %>
 
-                <% if (typeof(successMessage) !=="undefined" ) { %>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: '<%= successMessage %>',
-                                showConfirmButton: true,
-                                confirmButtonText: 'OK',
-                                customClass: {
-                                    confirmButton: 'btn btn-success', // Add custom class for styling
-                                },
+                    <% if (typeof(successMessage) !=="undefined" ) { %>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: '<%= successMessage %>',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-success', // Add custom class for styling
+                                    },
+                                });
                             });
-                        });
-                    </script>
-                    <% } %>
+                        </script>
+                        <% } %>
 
 
 
-                    <div class="row">
-                        <div class="col-9">
-                            <div class="content-header">
-                                <h2 class="content-title">Add New Product</h2>
+                            <div class="row">
+                                <div class="col-9">
+                                    <div class="content-header">
+                                        <h2 class="content-title">Add New Product</h2>
 
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h4>Basic</h4>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <form action="" method="post" enctype="multipart/form-data">
-                                        <div class="mb-4">
-                                            <label for="product_name" class="form-label">Product name</label>
-                                            <input type="text" placeholder="Type here" class="form-control"
-                                                id="product_name" name="name" autocomplete="on">
+                                <div class="col-lg-6">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h4>Basic</h4>
                                         </div>
-                                        <div class="mb-4">
-                                            <label class="form-label">Full description</label>
-                                            <textarea placeholder="Type here" class="form-control" rows="4"
-                                                name="description"></textarea>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-4">
+                                        <div class="card-body">
+                                            <form action="" method="post" enctype="multipart/form-data"
+                                                onsubmit="return validateForm()">
                                                 <div class="mb-4">
-                                                    <label class="form-label">Price</label>
-                                                    <div class="row gx-2">
-                                                        <input placeholder="&#8377;" type="text" class="form-control"
-                                                            name="price">
+                                                    <label for="product_name" class="form-label">Product name</label>
+                                                    <input type="text" placeholder="Type here" class="form-control"
+                                                        id="name" name="name" autocomplete="on" id="name"
+                                                        oninput="validateFieldName()">
+                                                    <div id="nameError" class="text-danger"></div>
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label class="form-label">Full description</label>
+                                                    <textarea placeholder="Type here" class="form-control" rows="4"
+                                                        name="description" oninput="validateProductDescription()"
+                                                        id="description"></textarea>
+                                                    <div id="descriptionError" class="text-danger"></div>
+
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-4">
+                                                            <label class="form-label">Price</label>
+                                                            <div class="row gx-2">
+                                                                <input placeholder="&#8377;" type="text"
+                                                                    class="form-control" name="price" id="price"
+                                                                    oninput="validatePrice()">
+                                                            </div>
+                                                            <div id="priceError" class="text-danger"></div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">Current Stock</label>
-                                                    <input placeholder="" type="text" class="form-control" name="stock">
-                                                </div>
-                                            </div>
-                                            <!-- <div class="col-lg-4">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-4">
+                                                            <label class="form-label">Current Stock</label>
+                                                            <input placeholder="" type="text" class="form-control"
+                                                                name="stock" oninput="validateStock()" id="stock">
+                                                        </div>
+                                                        <div id="stockError" class="text-danger"></div>
+                                                    </div>
+                                                    <!-- <div class="col-lg-4">
                                         <label class="form-label">Currency</label>
                                         <select class="form-select">
                                             <option> USD </option>
@@ -314,44 +325,44 @@
                                             <option> RUBL </option>
                                         </select>
                                     </div> -->
-                                        </div>
-                                        <!-- <div class="mb-4">
+                                                </div>
+                                                <!-- <div class="mb-4">
                                             <label class="form-label">Band Material</label>
                                             <input type="text" placeholder="" class="form-control" id="product_name"
                                                 name="bandMaterial">
                                         </div> -->
 
-                                        <label class="mb-4"></label>
-                                        <select class="form-select" name="bandMaterial">
-                                            <option selected disabled> Band material </option>
-                                            <option> Titanium </option>
-                                            <option> Metal </option>
-                                            <option> Leather </option>
+                                                <label class="mb-4"></label>
+                                                <select class="form-select" name="bandMaterial">
+                                                    <option selected disabled> Band material </option>
+                                                    <option> Titanium </option>
+                                                    <option> Metal </option>
+                                                    <option> Leather </option>
 
-                                        </select>
+                                                </select>
 
-                                        <label class="mb-4"></label>
-                                        <select class="form-select" name="dialColor">
-                                            <option selected disabled> Dial color </option>
+                                                <label class="mb-4"></label>
+                                                <select class="form-select" name="dialColor">
+                                                    <option selected disabled> Dial color </option>
 
-                                            <option> Black </option>
-                                            <option> Blue </option>
-                                            <option> Brown </option>
+                                                    <option> Black </option>
+                                                    <option> Blue </option>
+                                                    <option> Brown </option>
 
-                                        </select>
-                                        <!-- <div class="mb-4">
+                                                </select>
+                                                <!-- <div class="mb-4">
                                             <label class="form-label">Dial Color</label>
                                             <input type="text" placeholder="" class="form-control" id="product_name"
                                                 name="dialColor">
                                         </div> -->
-                                        <!-- <label class="form-check mb-4">
+                                                <!-- <label class="form-check mb-4">
                                     <input class="form-check-input" type="checkbox" value="">
                                     <span class="form-check-label"> Make a template </span>
                                 </label> -->
 
-                                </div>
-                            </div> <!-- card end// -->
-                            <!-- <div class="card mb-4">
+                                        </div>
+                                    </div> <!-- card end// -->
+                                    <!-- <div class="card mb-4">
                         <div class="card-header">
                             <h4>Shipping</h4>
                         </div>
@@ -382,41 +393,43 @@
                             </form>
                         </div>
                     </div>  -->
-                        </div>
-                        <div class="col-lg-5">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h4>Media</h4>
                                 </div>
-                                <div class="card-body">
-                                    <div class="input-upload">
-                                        <img src="/admin.assets/imgs/theme/upload.svg" alt="">
-                                        <input class="form-control" type="file" multiple name="images">
-                                    </div>
-                                </div>
-                            </div> <!-- card end// -->
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <!-- <h4>Category</h4> -->
-                                </div>
-                                <div class="card-body">
-                                    <div class="row gx-2">
-
-
-                                        <div class="col-sm-12 mb-3">
-                                            <label class="form-label"></label>
-
-                                            <select class="form-select" name="categoryPath">
-                                                <option value="" selected disabled>Category</option>
-                                                <% if(typeof(categoryPathArr)!=="undefined" ) %>
-                                                    <% for(let i=0; i<categoryPathArr.length; i++) { %>
-                                                        <option>
-                                                            <%= categoryPathArr[i].path %>
-                                                        </option>
-                                                        <%}%>
-                                            </select>
+                                <div class="col-lg-5">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h4>Media</h4>
                                         </div>
-                                        <!-- <div class="col-sm-6 mb-3">
+                                        <div class="card-body">
+                                            <div class="input-upload">
+                                                <img src="/admin.assets/imgs/theme/upload.svg" alt="">
+                                                <input class="form-control" type="file" multiple name="images"
+                                                    id="images" onchange="validateImageUpload()">
+                                                <div id="imagesError" class="text-danger"></div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- card end// -->
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <!-- <h4>Category</h4> -->
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row gx-2">
+
+
+                                                <div class="col-sm-12 mb-3">
+                                                    <label class="form-label"></label>
+
+                                                    <select class="form-select" name="categoryPath">
+                                                        <option value="" selected disabled>Category</option>
+                                                        <% if(typeof(categoryPathArr)!=="undefined" ) %>
+                                                            <% for(let i=0; i<categoryPathArr.length; i++) { %>
+                                                                <option>
+                                                                    <%= categoryPathArr[i].path %>
+                                                                </option>
+                                                                <%}%>
+                                                    </select>
+                                                </div>
+                                                <!-- <div class="col-sm-6 mb-3">
                                             <label class="form-label">Sub-category</label>
                                             <select class="form-select">
                                                 <option> Nissan </option>
@@ -425,21 +438,22 @@
                                                 <option> Chevrolet </option>
                                             </select>
                                         </div> -->
-                                        <!-- <div class="mb-4">
+                                                <!-- <div class="mb-4">
                                     <label for="product_name" class="form-label">Tags</label>
                                     <input type="text" class="form-control">
                                 </div> -->
 
-                                    </div> <!-- row.// -->
-                                    <div>
-                                        <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> -->
-                                        <button type="submit" class="btn btn-md rounded font-sm hover-up">Save</button>
-                                    </div>
+                                            </div> <!-- row.// -->
+                                            <div>
+                                                <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> -->
+                                                <button type="submit"
+                                                    class="btn btn-md rounded font-sm hover-up">Save</button>
+                                            </div>
+                                        </div>
+                                        </form>
+                                    </div> <!-- card end// -->
                                 </div>
-                                </form>
-                            </div> <!-- card end// -->
-                        </div>
-                    </div>
+                            </div>
         </section> <!-- content-main end// -->
         <footer class="main-footer font-xs">
             <div class="row pb-30 pt-15">
@@ -456,6 +470,83 @@
             </div>
         </footer>
     </main>
+
+    <script>
+        function validateFieldName() {
+            const element = document.getElementById("name");
+            const nameErrorElement = document.getElementById("nameError");
+
+            if (element.value.length < 3 || element.value.length > 30 || !/^[A-Z]/.test(element.value)) {
+                nameErrorElement.innerHTML = "Name should be 3 to 30 characters and start with an uppercase letter";
+            } else {
+                nameErrorElement.innerHTML = "";
+            }
+        }
+
+        function validateProductDescription() {
+            const descriptionElement = document.getElementById("description");
+            const descriptionErrorElement = document.getElementById("descriptionError");
+
+            const descriptionValue = descriptionElement.value.trim();
+
+            if (descriptionValue.length < 10 || descriptionValue.length > 1000) {
+                descriptionErrorElement.innerHTML = "Product description should be between 10 and 1000 characters";
+            } else {
+                descriptionErrorElement.innerHTML = "";
+            }
+        }
+        function validatePrice() {
+            const priceElement = document.getElementById("price");
+            const priceErrorElement = document.getElementById("priceError");
+
+            const priceValue = priceElement.value.trim();
+
+            if (priceValue === "") {
+                priceErrorElement.innerHTML = "Price cannot be empty";
+            } else if (isNaN(priceValue) || !/^\d+(\.\d{1,2})?$/.test(priceValue)) {
+                priceErrorElement.innerHTML = "Price must be a valid number";
+            } else if (priceValue < 0) {
+                priceErrorElement.innerHTML = "Price cannot be negative";
+            } else {
+                priceErrorElement.innerHTML = "";
+            }
+        }
+
+        function validateStock() {
+            const stockElement = document.getElementById("stock");
+            const stockErrorElement = document.getElementById("stockError");
+
+            const stockValue = stockElement.value.trim();
+
+            if (stockValue === "") {
+                stockErrorElement.innerHTML = "Stock cannot be empty";
+            } else if (isNaN(stockValue) || !/^\d+(\.\d{1,2})?$/.test(stockValue)) {
+                stockErrorElement.innerHTML = "Stock must be a valid number";
+            } else if (parseFloat(stockValue) < 0) {
+                stockErrorElement.innerHTML = "Stock cannot be negative";
+            } else {
+                stockErrorElement.innerHTML = "";
+            }
+        }
+
+        function validateImageUpload() {
+            const imagesElement = document.getElementById("images");
+            const imagesErrorElement = document.getElementById("imagesError");
+
+            const selectedFiles = imagesElement.files;
+            const numFiles = selectedFiles.length;
+
+            if (numFiles < 3 || numFiles > 5) {
+                imagesErrorElement.innerHTML = "Please select 3 to 5 images";
+            } else {
+                imagesErrorElement.innerHTML = "";
+            }
+        }
+
+
+
+    </script>
+
     <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/admin.assets/js/vendors/select2.min.js"></script>

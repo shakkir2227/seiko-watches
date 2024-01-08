@@ -1,23 +1,29 @@
 import { Router } from "express";
+import { isAdmin } from "../middlewares/auth.middleware.js";
 import {
-    adminLoginController
-    , blockUserController,
+    adminLoginController,
+    blockUserController,
     adminUserDetailsController,
     unBlockUserController,
-    adminLoginViewController,
-    adminHomeController
- 
+    adminHomeController,
+    adminLogoutController
+
+
 } from "../controllers/admin.controller.js";
 
 
 const router = Router();
 
-router.route("/login").get(adminLoginViewController)
-router.route("/login").post(adminLoginController)
-router.route("/home").get(adminHomeController)
-router.route("/block-user").put(blockUserController)
-router.route("/unblock-user").put(unBlockUserController)
-router.route("/users").get(adminUserDetailsController)
+router.route("/login")
+    .get(adminLoginController.getLoginPage)
+    .post(adminLoginController.loginAdmin)
+     
+router.route("/home").get(isAdmin, adminHomeController)
+router.route("/block-user").put(isAdmin, blockUserController)
+router.route("/unblock-user").put(isAdmin, unBlockUserController)
+router.route("/users").get(isAdmin, adminUserDetailsController)
+router.route("/logout").get(adminLogoutController)
+
 
 
 export default router;

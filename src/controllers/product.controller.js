@@ -6,156 +6,159 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
 import colors from "colors"
 
+const addProductController = {
 
-const addProductViewController = asyncHandler(async (req, res) => {
+    renderAddProductPage: asyncHandler(async (req, res) => {
 
-    //To display in the category option finding out the cat-path
+        //To display in the category option finding out the cat-path
 
 
-    const getCategoryPath = async (categoryId) => {
-        const category = await Category.findById(categoryId).exec();
-        const categoryName = category.name;
+        const getCategoryPath = async (categoryId) => {
+            const category = await Category.findById(categoryId).exec();
+            const categoryName = category.name;
 
-        let pathArr = [categoryName];
+            let pathArr = [categoryName];
 
-        if (category.parentCategoryId) {
-            const parentPathArr = await getCategoryPath(category.parentCategoryId);
-            pathArr = pathArr.concat(parentPathArr);
+            if (category.parentCategoryId) {
+                const parentPathArr = await getCategoryPath(category.parentCategoryId);
+                pathArr = pathArr.concat(parentPathArr);
+            }
+
+            return pathArr.join(">>")
+        };
+
+        const allCategories = await Category.find({})
+
+        const categoryPathArr = await Promise.all(
+            allCategories.map(async (category) => {
+                return {
+                    category,
+                    path: await getCategoryPath(category._id),
+                };
+            })
+        );
+
+
+
+        const errorMessage = req.flash("error")[0]
+        const successMessage = req.flash('success')[0];
+        return res.render("page-form-product.ejs", { categoryPathArr, errorMessage, successMessage })
+
+    }),
+
+    handleAddProductForm: asyncHandler(async (req, res) => {
+        //----This is the note for view-category----
+        //Only one category drop down should be there
+        //and pressing that creates another HTML element
+        // so finally product will only have ONE category ID
+        //And band material and color is fixed. so make it drop down
+        //----End----//
+
+        //Take details from body,
+        //validate it with JOI except image
+        //check any prodcut name exist with this name
+        // if yes, display this name is in use
+        //else validate image with joi
+        //if OK, 
+        // Atleast 3 images should be there
+
+        //Todo, in existed product, we want to check the same product name
+        //exist for the same variation, then only we have to block user from
+        //addin that. so change accrodingly
+
+        const {
+            name
+            , description
+            , categoryPath
+            , price
+            , stock
+            , bandMaterial
+            , dialColor
+        } = req.body;
+
+        if (categoryPath) {
+            var categoryName = categoryPath.split(">>")[0];
         }
 
-        return pathArr.join(">>")
-    };
-
-    const allCategories = await Category.find({})
-
-    const categoryPathArr = await Promise.all(
-        allCategories.map(async (category) => {
-            return {
-                category,
-                path: await getCategoryPath(category._id),
-            };
+        const { error } = addProductSchema.validate({
+            name
+            , description
+            , categoryName
+            , price
+            , stock
+            , bandMaterial
+            , dialColor
         })
-    );
+        if (error) {
 
-
-
-    const errorMessage = req.flash("error")[0]
-    const successMessage = req.flash('success')[0];
-    return res.render("page-form-product.ejs", { categoryPathArr, errorMessage, successMessage })
-
-})
-
-const addProductController = asyncHandler(async (req, res) => {
-    //----This is the note for view-category----
-    //Only one category drop down should be there
-    //and pressing that creates another HTML element
-    // so finally product will only have ONE category ID
-    //And band material and color is fixed. so make it drop down
-    //----End----//
-
-    //Take details from body,
-    //validate it with JOI except image
-    //check any prodcut name exist with this name
-    // if yes, display this name is in use
-    //else validate image with joi
-    //if OK, 
-    // Atleast 3 images should be there
-
-    //Todo, in existed product, we want to check the same product name
-    //exist for the same variation, then only we have to block user from
-    //addin that. so change accrodingly
-
-    const {
-        name
-        , description
-        , categoryPath
-        , price
-        , stock
-        , bandMaterial
-        , dialColor
-    } = req.body;
-
-    if (categoryPath) {
-        var categoryName = categoryPath.split(">>")[0];
-    }
-
-    const { error } = addProductSchema.validate({
-        name
-        , description
-        , categoryName
-        , price
-        , stock
-        , bandMaterial
-        , dialColor
-    })
-    if (error) {
-
-        req.flash('error', error.message);
-        return res.redirect("/product/add")
-    }
-
-
-    const existedProduct = await Product.findOne({ name });
-
-    if (existedProduct) {
-        if (existedProduct.dialColor === dialColor && existedProduct.bandMaterial === bandMaterial) {
-
-            req.flash('error', "Oops! This Product name is already in use.");
+            req.flash('error', error.message);
             return res.redirect("/product/add")
         }
-    }
 
-    //image validation
-    if (req.files.length < 3 || req.files.length > 5) {
-        for (let i = 0; i < req.files.length; i++) {
 
-            fs.unlinkSync(req.files[i].path)
+        const existedProduct = await Product.findOne({ name });
+
+        if (existedProduct) {
+            if (existedProduct.dialColor === dialColor && existedProduct.bandMaterial === bandMaterial) {
+
+                req.flash('error', "Oops! This Product name is already in use.");
+                return res.redirect("/product/add")
+            }
+        }
+
+        //image validation
+        if (req.files.length < 3 || req.files.length > 5) {
+            for (let i = 0; i < req.files.length; i++) {
+
+                fs.unlinkSync(req.files[i].path)
+
+            }
+
+            req.flash('error', "Please upload 3 to 5 photos to enhance the platform visual appeal. Thankyou !!");
+            return res.redirect("/product/add")
 
         }
 
-        req.flash('error', "Please upload 3 to 5 photos to enhance the platform visual appeal. Thankyou !!");
+        if ((req.files).some((file) => {
+            file.path === ""
+        })) {
+
+            req.flash('error', `Please ensure all uploaded files have valid paths.`);
+            return res.redirect("/product/add")
+
+
+        };
+
+        let images = [];
+
+        for (let i = 0; i < req.files.length; i++) {
+            const uploadedImage = await uploadOnCloudinary(req.files[i].path);
+            images.push({ url: uploadedImage.url })
+        }
+
+        const category = await Category.findOne({ name: categoryName })
+
+
+        const product = await Product.create({
+            name,
+            description,
+            images,
+            category: category._id,
+            price,
+            stock,
+            bandMaterial,
+            dialColor,
+        })
+
+        req.flash('success', `${product.name} has been added successfully `);
         return res.redirect("/product/add")
 
-    }
-
-    if ((req.files).some((file) => {
-        file.path === ""
-    })) {
-
-        req.flash('error', `Please ensure all uploaded files have valid paths.`);
-        return res.redirect("/product/add")
 
 
-    };
 
-    let images = [];
-
-    for (let i = 0; i < req.files.length; i++) {
-        const uploadedImage = await uploadOnCloudinary(req.files[i].path);
-        images.push({ url: uploadedImage.url })
-    }
-
-    const category = await Category.findOne({ name: categoryName })
-
-
-    const product = await Product.create({
-        name,
-        description,
-        images,
-        category: category._id,
-        price,
-        stock,
-        bandMaterial,
-        dialColor,
     })
+}
 
-    req.flash('success', `${product.name} has been added successfully `);
-    return res.redirect("/product/add")
-
-
-
-
-})
 
 const blockProductController = asyncHandler(async (req, res) => {
     //take product id from body
@@ -358,7 +361,8 @@ const productViewController = {
                 $replaceRoot: { newRoot: "$uniqueProduct" }
             }])
 
-            return res.render("shop-product-full.ejs", { product, relatedProducts, productWithVariations })
+            return res.render("shop-product-full.ejs", { product, relatedProducts, productWithVariations, categories: res.locals.categories })
+
         }),
 
 
@@ -371,8 +375,8 @@ const productViewController = {
         getAllProductsView : asyncHandler(async(req, res) => {
 
             const categoryId = req.query.categoryId;
-
-            return res.render("shop-grid-left.ejs")
+            const category = Category.findOne({_id:categoryId})
+            return res.render("shop-grid-left.ejs", category)
 
         })
 
@@ -390,7 +394,6 @@ export {
     updateProductController,
     unblockProductController,
     productViewController,
-    addProductViewController,
     updateProductViewController,
 
 }
