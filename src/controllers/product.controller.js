@@ -367,17 +367,35 @@ const productViewController = {
         }),
 
 
-        //taking the categoryId from the query params
-        //finding the category, and all its subcategories
-        //finding all products of the category, and it's 
-        //subcategories. making an array and render it
+        // Taking the categoryId from the query params
+        // Finding the category, and all its subcategories
+        // Finding it's parent Category if it exist.
+        // Finding all products of the category, and it's subcategoires
+
 
 
         getAllProductsView: asyncHandler(async (req, res) => {
 
-            const categoryId = req.query.categoryId;
-            const category = Category.findOne({ _id: categoryId })
-            return res.render("shop-grid-left.ejs", category)
+            const categoryId = req.query.category;
+
+            const selectedCategory = await Category.findOne({ _id: categoryId });
+
+            let parentCategory;
+            if (selectedCategory.parentCategoryId) {
+                parentCategory = await Category.findOne({ _id: selectedCategory.parentCategoryId })
+            }
+
+            // Finding all top categories and it's immediate sub categories
+            const topCategories = await Category.find({ parentCategoryId: null });
+
+            const subCategoriesofTopCategories = [];
+            for (const category of topCategories) {
+                const subCategories = await Category.find({ parentCategoryId: category._id })
+                subCategoriesofTopCategories.push(...subCategories)
+            }
+
+            console.log(topCategories);
+            return res.render("shop-grid-left.ejs", {selectedCategory, parentCategory, topCategories, subCategoriesofTopCategories})
 
         })
 
