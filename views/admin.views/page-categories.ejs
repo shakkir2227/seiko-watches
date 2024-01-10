@@ -1,178 +1,208 @@
 <%- include('./layouts/head.ejs', { pageTitle: 'Categories List' }) %>
 
 
-<body>
-    <div class="screen-overlay"></div>
-   
+    <body>
+        <div class="screen-overlay"></div>
+
         <%- include ('./partials/admin.aside.ejs') %>
 
 
-    <main class="main-wrap">
-        
+            <main class="main-wrap">
+
 
                 <%- include ('./partials/admin.home.header.ejs') %>
 
 
-        <% if (typeof(errorMessage) !=="undefined" ) { %>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: '<%= errorMessage %>',
-                        showConfirmButton: true,
-                        confirmButtonText: 'OK',
-                        customClass: {
-                            confirmButton: 'btn btn-danger', // Add custom class for styling
-                        },
-                    });
-                });
-            </script>
-            <% } %>
-        
-                <% if (typeof(successMessage) !=="undefined" ) { %>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: '<%= successMessage %>',
-                                showConfirmButton: true,
-                                confirmButtonText: 'OK',
-                                customClass: {
-                                    confirmButton: 'btn btn-success', // Add custom class for styling
-                                },
+                    <% if (typeof(errorMessage) !=="undefined" ) { %>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: '<%= errorMessage %>',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-danger', // Add custom class for styling
+                                    },
+                                });
                             });
-                        });
-                    </script>
-                    <% } %>
+                        </script>
+                        <% } %>
+
+                            <% if (typeof(successMessage) !=="undefined" ) { %>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success!',
+                                            text: '<%= successMessage %>',
+                                            showConfirmButton: true,
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'btn btn-success', // Add custom class for styling
+                                            },
+                                        });
+                                    });
+                                </script>
+                                <% } %>
 
 
-                <section class="content-main">
-                    <div class="content-header">
-                        <div>
-                            <h2 class="content-title card-title">Categories </h2>
-                            <p>Add, edit or unlist a category</p>
-                        </div>
-                        <!-- <div>
+                                    <section class="content-main">
+                                        <div class="content-header">
+                                            <div>
+                                                <h2 class="content-title card-title">Categories </h2>
+                                                <p>Add, edit or unlist a category</p>
+                                            </div>
+                                            <!-- <div>
                     <input type="text" placeholder="Search Categories" class="form-control bg-white">
                 </div> -->
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <form action="/category/add" method="post" enctype="multipart/form-data">
-                                        <div class="mb-4">
-                                            <label for="product_name" class="form-label">Name</label>
-                                            <input type="text" placeholder="Type here" class="form-control"
-                                                id="product_name" name="name" />
                                         </div>
-                                       
-                                        <!-- <div class="mb-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <form action="/category/add" method="post"
+                                                            enctype="multipart/form-data">
+                                                            <div class="mb-4">
+                                                                <label for="product_name"
+                                                                    class="form-label">Name</label>
+                                                                <input type="text" placeholder="Type here"
+                                                                    class="form-control" id="product_name"
+                                                                    name="name" />
+                                                            </div>
+
+                                                            <!-- <div class="mb-4">
                                     <label for="product_slug" class="form-label">Slug</label>
                                     <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
                                 </div> -->
-                                        <div class="mb-4">
-                                            <label class="form-label">Parent category</label>
-                                            <select class="form-select" name="parentCategoryName">
-                                                <option value="none" selected >None</option>
-                                                <% if(typeof(allCategories) !=="undefined" ) { for(let i=0;
-                                                    i<allCategories.length; i++) { %>
-                                                    <option value="<%= categoryPathArr[i].category.name %>">
-                                                        <%= categoryPathArr[i].path %>
-                                                    </option>
-                                                    <% } }%>
-                                            </select>
+                                                            <div class="mb-4">
+                                                                <label class="form-label">Parent category</label>
+                                                                <select class="form-select" name="parentCategoryName">
+                                                                    <option value="none" selected>None</option>
+                                                                    <% if(typeof(allCategories) !=="undefined" ) {
+                                                                        for(let i=0; i<allCategories.length; i++) { %>
+                                                                        <option
+                                                                            value="<%= categoryPathArr[i].category.name %>">
+                                                                            <%= categoryPathArr[i].path %>
+                                                                        </option>
+                                                                        <% } }%>
+                                                                </select>
 
-                                        </div>
+                                                            </div>
 
-                                        <div class="mb-4">
-                                            <label for="image" class="form-label">Category Image</label>
-                                            <input type="file" placeholder="Type here" class="form-control" id="category_image" name="image" />
-                                        </div>
+                                                            <div class="mb-4">
+                                                                <label for="image" class="form-label">Category
+                                                                    Image</label>
+                                                                <input type="file" placeholder="Type here"
+                                                                    class="form-control" id="category_image"
+                                                                    name="image" />
+                                                            </div>
 
 
-                                        <!-- <div class="mb-4">
+                                                            <!-- <div class="mb-4">
                                     <label class="form-label">Description</label>
                                     <textarea placeholder="Type here" class="form-control"></textarea>
                                 </div> -->
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary">Create category</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="col-md-9">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th class="text-center">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" value="" />
-                                                        </div>
-                                                    </th>
-                                                    <th>Order</th>
-                                                    <!-- <th>ID</th> -->
-                                                    <th>Hierarchy</th>
-                                                    <!-- <th>Description</th> -->
-                                                    <!-- <th>Slug</th> -->
-                                                    <th>Status</th>
-                                                    <th >Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                
-
-                                               <% if(typeof(allCategories) !== "undefined") {
-
-                                                    for(let i=0; i<allCategories.length; i++) {
-
-                                                        
-                                                        %>
-                                                    
-                                                        <tr>
-                                                            <td class="text-center">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="checkbox" value="" />
-                                                                </div>
-                                                            </td>
-                                                            <!-- <td>21</td> -->
-                                                            <td><%= i+1 %></td>
-                                                            
-                                                            <!-- <td>Men clothes</td> -->
-                                                            <!-- <td>/men</td> -->
-                                                            <td><b><%= categoryPathArr[i].path %></b></td>
-                                                            <% if(categoryPathArr[i].category.isBlocked===true) { %>
-                                                                <td><span class="badge rounded-pill alert-danger">
-                                                                        Blocked
-                                                                    </span>
-                                                                </td>
-                                                                <% } %>
-                                                            
-                                                                    <% if(categoryPathArr[i].category.isBlocked===false) { %>
-                                                                        <td><span class="badge rounded-pill alert-success">
-                                                                                Active
-                                                                            </span>
-                                                                        </td>
-                                                                        <% } %>
+                                                            <div class="d-grid">
+                                                                <button type="submit" class="btn btn-primary">Create
+                                                                    category</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="text-center">
+                                                                            <div class="form-check">
+                                                                                <input class="form-check-input"
+                                                                                    type="checkbox" value="" />
+                                                                            </div>
+                                                                        </th>
+                                                                        <th>Order</th>
+                                                                        <!-- <th>ID</th> -->
+                                                                        <th>Hierarchy</th>
+                                                                        <!-- <th>Description</th> -->
+                                                                        <!-- <th>Slug</th> -->
+                                                                        <th>Status</th>
+                                                                        <th>Action</th>
+                                                                        <th>Edit</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
 
 
+                                                                    <% if(typeof(allCategories) !=="undefined" ) {
+                                                                        for(let i=0; i<allCategories.length; i++) { %>
 
-                                                                        <td >
-                                                                            <button  onclick="toggleUserBlock('<%= categoryPathArr[i].category._id %>', `<%=  categoryPathArr[i].category.isBlocked %>`)" type="button"
-                                                                                class="btn btn-sm font-sm rounded btn-brand">
-                                                                                <i class="material-icons"></i>
-                                                                                <span >
-                                                                                    <% if(categoryPathArr[i].category.isBlocked===true) { %>
-                                                                                        Unblock
-                                                                                        <% } else { %>
-                                                                                            Block
-                                                                                            <% } %>
-                                                                                </span>
-                                                                            </button>
-                                                                        </td>
-                                                            <!-- <td class="text-end">
+                                                                        <tr>
+                                                                            <td class="text-center">
+                                                                                <div class="form-check">
+                                                                                    <input class="form-check-input"
+                                                                                        type="checkbox" value="" />
+                                                                                </div>
+                                                                            </td>
+                                                                            <!-- <td>21</td> -->
+                                                                            <td>
+                                                                                <%= i+1 %>
+                                                                            </td>
+
+                                                                            <!-- <td>Men clothes</td> -->
+                                                                            <!-- <td>/men</td> -->
+                                                                            <td><b>
+                                                                                    <%= categoryPathArr[i].path %>
+                                                                                </b></td>
+                                                                            <% if(categoryPathArr[i].category.isBlocked===true)
+                                                                                { %>
+                                                                                <td><span
+                                                                                        class="badge rounded-pill alert-danger">
+                                                                                        Blocked
+                                                                                    </span>
+                                                                                </td>
+                                                                                <% } %>
+
+                                                                                    <% if(categoryPathArr[i].category.isBlocked===false)
+                                                                                        { %>
+                                                                                        <td><span
+                                                                                                class="badge rounded-pill alert-success">
+                                                                                                Active
+                                                                                            </span>
+                                                                                        </td>
+                                                                                        <% } %>
+
+
+
+                                                                                            <td>
+                                                                                                <button
+                                                                                                    onclick="toggleCategoryBlock('<%= categoryPathArr[i].category._id %>', `<%=  categoryPathArr[i].category.isBlocked %>`)"
+                                                                                                    type="button"
+                                                                                                    class="btn btn-sm font-sm rounded btn-brand">
+                                                                                                    <i
+                                                                                                        class="material-icons"></i>
+                                                                                                    <span>
+                                                                                                        <% if(categoryPathArr[i].category.isBlocked===true)
+                                                                                                            { %>
+                                                                                                            Unblock
+                                                                                                            <% } else {
+                                                                                                                %>
+                                                                                                                Block
+                                                                                                                <% } %>
+                                                                                                    </span>
+                                                                                                </button>
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                
+
+                                                                                                    
+                                                                                            
+                                                                                                    
+                                                                                                     <a href="/category/update/<%=categoryPathArr[i].category._id %>">Update</a>
+                                                                                                         
+                                                                                              
+                                                                                            </td>
+                                                                                            <!-- <td class="text-end">
                                                                 <div class="dropdown">
                                                                     <a href="#" data-bs-toggle="dropdown"
                                                                         class="btn btn-light rounded btn-sm font-sm"> <i
@@ -180,106 +210,131 @@
                                                                     <div class="dropdown-menu">
                                                                         <a class="dropdown-item" href="#">View detail</a>
                                                                 <a class="dropdown-item" href="#">Edit info</a> -->
-                                                                        <!-- <a class="dropdown-item text" href="#">Activate</a>
+                                                                                            <!-- <a class="dropdown-item text" href="#">Activate</a>
                                                                         <a class="dropdown-item text-danger" href="#">Block</a>
                                                                     </div>
                                                                 </div>  dropdown //end -->
-                                                            <!-- </td>  -->
-                                                     
-                                                            
-                                                        </tr>
-                                                    <%    
+                                                                                            <!-- </td>  -->
+
+
+                                                                        </tr>
+                                                                        <% } } %>
+
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div> <!-- .col// -->
+                                                </div> <!-- .row // -->
+                                            </div> <!-- card body .// -->
+                                        </div> <!-- card .// -->
+                                    </section> <!-- content-main end// -->
+
+
+
+
+                                    <!--Footer-->
+
+                                    <%- include ('./partials/admin.footer.ejs') %>
+
+
+                                        <script>
+
+                                            async function toggleCategoryBlock(id, isBlocked) {
+
+                                                const action = isBlocked === "false" ? "Block" : "Unblock";
+
+
+                                                Swal.fire({
+                                                    icon: 'warning',
+                                                    title: `${action} Category?`,
+                                                    text: `This action will ${action} the Category`,
+                                                    showCancelButton: true,
+                                                    confirmButtonText: `${action}`,
+                                                    cancelButtonText: 'Cancel',
+                                                    confirmButtonColor: '#d33',
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+
+                                                        changeCategoryStatus();
+
                                                     }
+                                                });
+
+
+
+                                                async function changeCategoryStatus() {
+                                                    const params = new URLSearchParams();
+                                                    params.append('_id', id);
+
+                                                    const response = await fetch(isBlocked === "false" ? "/category/block" : "/category/unblock", {
+                                                        method: "put",
+                                                        headers: {
+                                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                                        },
+                                                        body: params.toString(),
+                                                    });
+
+                                                    if (response.ok) {
+
+                                                        const successResponse = await response.json()
+                                                        console.log(successResponse.status);
+
+                                                        Swal.fire({
+                                                            icon: 'success',
+                                                            title: `${successResponse.status} successfully`,
+                                                            text: '',
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            customClass: {
+                                                                confirmButton: 'btn btn-success', // Add custom class for styling
+                                                            },
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+
+                                                                window.location.reload()
+
+                                                            }
+                                                        });
+
+
+
+                                                    }
+                                                    else {
+
+                                                        const errorResposnse = await response.json()
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Error!',
+                                                            text: errorResposnse.error,
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            customClass: {
+                                                                confirmButton: 'btn btn-danger', // Add custom class for styling
+                                                            },
+                                                        })
+
+
+
+                                                    }
+
                                                 }
 
-                                                %>
-
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div> <!-- .col// -->
-                            </div> <!-- .row // -->
-                        </div> <!-- card body .// -->
-                    </div> <!-- card .// -->
-                </section> <!-- content-main end// -->
+                                            }
 
 
+                                        </script>
 
+                                        <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
+                                        <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
+                                        <script src="/admin.assets/js/vendors/select2.min.js"></script>
+                                        <script src="/admin.assets/js/vendors/perfect-scrollbar.js"></script>
+                                        <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
+                                        <!-- Main Script -->
+                                        <script src="/admin.assets/js/main.js" type="text/javascript"></script>
 
-                <!--Footer-->
-                
-                <%- include ('./partials/admin.footer.ejs') %>
+                                        <!--Sweet alert CDN-->
+                                        <script
+                                            src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+    </body>
 
-    <script>
-           async function toggleUserBlock(id, isBlocked) {
-                const params = new URLSearchParams();
-                params.append('_id', id);
-
-                const response = await fetch(isBlocked === "false" ? "/category/block" : "/category/unblock", {
-                    method: "put",
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: params.toString(),
-                });
-
-                // const Toast = Swal.mixin({
-                //     toast: true,
-                //     position: "top-end",
-                //     showConfirmButton: false,
-                //     timer: 1000,
-                //     timerProgressBar: true,
-                //     didOpen: (toast) => {
-                //         toast.onmouseenter = Swal.stopTimer;
-                //         toast.onmouseleave = Swal.resumeTimer;
-                //     }
-                // });
-
-
-               if (response.ok) {
-                   const { status, category } = await response.json();
-
-                  const successMessage = `Category ${category.name} is being ${status === 'blocked' ? 'Blocked' : 'Unblocked'}!`;
-
-
-
-                const Toast = Swal.mixin({
-                       toast: true,
-                       position: "top-end",
-                       showConfirmButton: false,
-                       timer: 1300,
-                       timerProgressBar: true,
-                       didOpen: (toast) => {
-                           toast.onmouseenter = Swal.stopTimer;
-                           toast.onmouseleave = Swal.resumeTimer;
-                       }
-                   });
-
-                   Toast.fire({
-                       icon: "info",
-                       title: successMessage,
-                   });
-                   
-
-                }
-                setTimeout(() => {
-                    // Redirect after the success message is displayed
-                    window.location.href = ""; // Replace with the desired redirect URL
-                }, 1300); // Adjust the timeout duration as needed
-            }
-            
-
-    </script>
-    <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/admin.assets/js/vendors/select2.min.js"></script>
-    <script src="/admin.assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="/admin.assets/js/main.js" type="text/javascript"></script>
-
-    <!--Sweet alert CDN-->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
-</body>
-
-</html>
+    </html>

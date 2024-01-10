@@ -1,0 +1,284 @@
+<%- include('./layouts/head.ejs', { pageTitle: 'Categories List' }) %>
+
+
+    <body>
+        <div class="screen-overlay"></div>
+
+        <%- include ('./partials/admin.aside.ejs') %>
+
+
+            <main class="main-wrap">
+
+
+                <%- include ('./partials/admin.home.header.ejs') %>
+
+
+                    <% if (typeof(errorMessage) !=="undefined" ) { %>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: '<%= errorMessage %>',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-danger', // Add custom class for styling
+                                    },
+                                });
+                            });
+                        </script>
+                        <% } %>
+
+                            <% if (typeof(successMessage) !=="undefined" ) { %>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success!',
+                                            text: '<%= successMessage %>',
+                                            showConfirmButton: true,
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'btn btn-success', // Add custom class for styling
+                                            },
+                                        });
+                                    });
+                                </script>
+                                <% } %>
+
+
+                                    <section class="content-main">
+                                        <div class="content-header">
+                                            <div>
+                                                <h2 class="content-title card-title">Categories </h2>
+                                                <p>Add, edit or unlist a category</p>
+                                            </div>
+                                            <!-- <div>
+                    <input type="text" placeholder="Search Categories" class="form-control bg-white">
+                </div> -->
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+
+
+                                                        <form action="/category/update" method="post"
+                                                            enctype="multipart/form-data" id="updateForm">
+                                                            <div class="mb-4">
+                                                                <label for="product_name"
+                                                                    class="form-label">Name</label>
+                                                                <input type="text" value="<%=category.name %>"
+                                                                    class="form-control" id="name" name="name" />
+                                                            </div>
+                                                            <input type="hidden" name="categoryId" id=""
+                                                                value="<%=category._id %>">
+
+                                                            <!-- <div class="mb-4">
+                                    <label for="product_slug" class="form-label">Slug</label>
+                                    <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
+                                </div> -->
+                                                            <div class="mb-4">
+                                                                <label class="form-label">Parent category</label>
+                                                                <select class="form-select" name="parentCategoryName"
+                                                                    disabled>
+
+
+                                                                    <option selected disabled
+                                                                        value="<%= categoryPath%>">
+                                                                        <%= categoryPath%>
+                                                                    </option>
+
+                                                                </select>
+
+                                                            </div>
+
+
+                                                            <li style="margin-bottom: 110px;"
+                                                                id="<%=category.image%>"> <img width="100"
+                                                                    style="float: left;" src="<%=category.image%>"
+                                                                    alt=""> <button type="button"
+                                                                    class="mt-45 mr-35 ml-35   btn-danger"
+                                                                    onclick="removeImage('<%=category.image %>')">Remove</button>
+                                                            </li>
+
+                                                            <div class="mb-4">
+                                                                <label for="image" class="form-label">Category
+                                                                    Image</label>
+                                                                <input type="file" placeholder="Type here"
+                                                                    class="form-control" id="category_image"
+                                                                    name="image" />
+                                                            </div>
+
+
+                                                            <!-- <div class="mb-4">
+                                    <label class="form-label">Description</label>
+                                    <textarea placeholder="Type here" class="form-control"></textarea>
+                                </div> -->
+                                                            <div class="d-grid">
+                                                                <button type="submit"
+                                                                    onclick="updateCategory('<%=category._id %>')"
+                                                                    class="btn btn-primary">Update
+                                                                    category</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <!-- .col// -->
+                                                </div> <!-- .row // -->
+                                            </div> <!-- card body .// -->
+                                        </div> <!-- card .// -->
+                                    </section> <!-- content-main end// -->
+
+
+
+
+                                    <!--Footer-->
+
+                                    <%- include ('./partials/admin.footer.ejs') %>
+
+
+                                        <script>
+
+                                            async function toggleCategoryBlock(id, isBlocked) {
+
+                                                const action = isBlocked === "false" ? "Block" : "Unblock";
+
+
+                                                Swal.fire({
+                                                    icon: 'warning',
+                                                    title: `${action} Category?`,
+                                                    text: `This action will ${action} the Category`,
+                                                    showCancelButton: true,
+                                                    confirmButtonText: `${action}`,
+                                                    cancelButtonText: 'Cancel',
+                                                    confirmButtonColor: '#d33',
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+
+                                                        changeCategoryStatus();
+
+                                                    }
+                                                });
+
+
+
+                                                async function changeCategoryStatus() {
+                                                    const params = new URLSearchParams();
+                                                    params.append('_id', id);
+
+                                                    const response = await fetch(isBlocked === "false" ? "/category/block" : "/category/unblock", {
+                                                        method: "put",
+                                                        headers: {
+                                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                                        },
+                                                        body: params.toString(),
+                                                    });
+
+                                                    if (response.ok) {
+
+                                                        const successResponse = await response.json()
+                                                        console.log(successResponse.status);
+
+                                                        Swal.fire({
+                                                            icon: 'success',
+                                                            title: `${successResponse.status} successfully`,
+                                                            text: '',
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            customClass: {
+                                                                confirmButton: 'btn btn-success', // Add custom class for styling
+                                                            },
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+
+                                                                window.location.reload()
+
+                                                            }
+                                                        });
+
+
+
+                                                    }
+                                                    else {
+
+                                                        const errorResposnse = await response.json()
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Error!',
+                                                            text: errorResposnse.error,
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            customClass: {
+                                                                confirmButton: 'btn btn-danger', // Add custom class for styling
+                                                            },
+                                                        })
+
+
+
+                                                    }
+
+                                                }
+
+                                            }
+
+                                            let removedImage;
+
+                                            function removeImage(categoryImage) {
+
+                                                  Swal.fire({
+                                                    icon: 'warning',
+                                                    title: 'Remove Image?',
+                                                    text: 'This action will remove the image from the view. To permanently delete, press "Update" after making all desired changes.',
+                                                    showCancelButton: true,
+                                                    confirmButtonText: 'Remove',
+                                                    cancelButtonText: 'Cancel',
+                                                    confirmButtonColor: '#d33',
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        removedImage = categoryImage;
+                                                        console.log(removedImage);
+                                                        document.getElementById(categoryImage).remove()
+
+                                                    }
+                                                });
+
+
+                                                
+                                            }
+
+                                            function updateCategory(categoryId) {
+
+                                                console.log("HELLO");
+
+                                                if (removedImage) {
+                                                    console.log("hello");
+                                                    const input = document.createElement("input");
+                                                    input.type = "hidden",
+                                                        input.name = "removedImage",
+                                                        input.value = removedImage,
+                                                        document.getElementById("updateForm").appendChild(input)
+                                                }
+                                                document.getElementById("updateForm").submit();
+
+
+                                            }
+
+
+
+                                        </script>
+
+                                        <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
+                                        <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
+                                        <script src="/admin.assets/js/vendors/select2.min.js"></script>
+                                        <script src="/admin.assets/js/vendors/perfect-scrollbar.js"></script>
+                                        <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
+                                        <!-- Main Script -->
+                                        <script src="/admin.assets/js/main.js" type="text/javascript"></script>
+
+                                        <!--Sweet alert CDN-->
+                                        <script
+                                            src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+    </body>
+
+    </html>

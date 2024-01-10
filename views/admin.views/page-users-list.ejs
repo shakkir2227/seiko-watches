@@ -1,102 +1,102 @@
 <%- include('./layouts/head.ejs', { pageTitle: 'Users List' }) %>
 
-<body>
+    <body>
 
-    <div class="screen-overlay"></div>
-    
+        <div class="screen-overlay"></div>
+
 
         <%- include ('./partials/admin.aside.ejs') %>
 
 
-    <main class="main-wrap">
-        
+            <main class="main-wrap">
+
                 <%- include ('./partials/admin.home.header.ejs') %>
 
 
 
-        <section class="content-main">
-            <div class="content-header">
-                <h2 class="content-title">Customers list</h2>
-                <!-- <div>
+                    <section class="content-main">
+                        <div class="content-header">
+                            <h2 class="content-title">Customers list</h2>
+                            <!-- <div>
                     <a href="#" class="btn btn-primary"><i class="material-icons md-plus"></i> Create new</a>
                 </div> -->
-            </div>
-            <div class="card mb-4">
-                <header class="card-header">
-                    <div class="row gx-3">
-                        <!-- <div class="col-lg-4 col-md-6 me-auto">
+                        </div>
+                        <div class="card mb-4">
+                            <header class="card-header">
+                                <div class="row gx-3">
+                                    <!-- <div class="col-lg-4 col-md-6 me-auto">
                             <input type="text" placeholder="Search..." class="form-control">
                         </div> -->
-                        <div class="col-lg-2 col-md-3 col-6">
-                            <select class="form-select">
-                                <option>Status</option>
-                                <option>Active</option>
-                                <option>Disabled</option>
-                                <option>Show all</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-md-3 col-6">
-                            <select class="form-select">
-                                <option>Show 20</option>
-                                <option>Show 30</option>
-                                <option>Show 40</option>
-                            </select>
-                        </div>
-                    </div>
-                </header> <!-- card-header end// -->
+                                    <div class="col-lg-2 col-md-3 col-6">
+                                        <select class="form-select">
+                                            <option>Status</option>
+                                            <option>Active</option>
+                                            <option>Disabled</option>
+                                            <option>Show all</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2 col-md-3 col-6">
+                                        <select class="form-select">
+                                            <option>Show 20</option>
+                                            <option>Show 30</option>
+                                            <option>Show 40</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </header> <!-- card-header end// -->
 
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Mobile number</th>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Mobile number</th>
 
-                                    <th>Status</th>
-                                    <th class="pl-15"> Action </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (typeof users !=="undefined" && Array.isArray(users)) { %>
-                                    <% users.forEach(function(user) { %>
-                                        <tr>
-                                            <td width="20%">
-                                                <a href="#" class="itemside">
-                                                    <!-- <div class="left">
+                                                <th>Status</th>
+                                                <th class="pl-15"> Action </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (typeof users !=="undefined" && Array.isArray(users)) { %>
+                                                <% users.forEach(function(user) { %>
+                                                    <tr>
+                                                        <td width="20%">
+                                                            <a href="#" class="itemside">
+                                                                <!-- <div class="left">
                                                 <img src="/admin.assets/imgs/people/avatar1.jpg" class="img-sm img-avatar" alt="Userpic">
                                             </div> -->
-                                                    <div class="info pl-3">
-                                                        <h6 class="mb-0 title">
-                                                            <%= user.name %>
-                                                        </h6>
+                                                                <div class="info pl-3">
+                                                                    <h6 class="mb-0 title">
+                                                                        <%= user.name %>
+                                                                    </h6>
 
-                                                    </div>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <%= user.email %>
-                                            </td>
-                                            <td>
-                                                <%= user.mobileNumber %>
-                                            </td>
-
-                                            <% if(user.isBlocked===true) { %>
-                                                <td><span class="badge rounded-pill alert-danger">
-                                                        Blocked
-                                                    </span>
-                                                </td>
-                                                <% } %>
-
-                                                    <% if(user.isBlocked===false) { %>
-                                                        <td><span class="badge rounded-pill alert-success">
-                                                                Active
-                                                            </span>
+                                                                </div>
+                                                            </a>
                                                         </td>
-                                                        <% } %>
+                                                        <td>
+                                                            <%= user.email %>
+                                                        </td>
+                                                        <td>
+                                                            <%= user.mobileNumber %>
+                                                        </td>
 
-                                                            <!-- <td class="text-end">
+                                                        <% if(user.isBlocked===true) { %>
+                                                            <td><span class="badge rounded-pill alert-danger">
+                                                                    Blocked
+                                                                </span>
+                                                            </td>
+                                                            <% } %>
+
+                                                                <% if(user.isBlocked===false) { %>
+                                                                    <td><span class="badge rounded-pill alert-success">
+                                                                            Active
+                                                                        </span>
+                                                                    </td>
+                                                                    <% } %>
+
+                                                                        <!-- <td class="text-end">
                                                                 <div class="dropdown">
                                                                     <a href="#" data-bs-toggle="dropdown"
                                                                         class="btn btn-light rounded btn-sm font-sm"> <i
@@ -105,116 +105,119 @@
                                                                     <div class="dropdown-menu">
                                                                  <a class="dropdown-item" href="#">View detail</a>
                                                                                             <a class="dropdown-item" href="#">Edit info</a> -->
-                                                            <!-- <a class="dropdown-item text"
+                                                                        <!-- <a class="dropdown-item text"
                                                                             href="#">Activate</a>
                                                                         <a class="dropdown-item text-danger"
                                                                             href="#">Block</a> -->
-                                                            <!-- </div>
+                                                                        <!-- </div>
                                                                 </div>  dropdown //end -->
-                                                            <!-- </td> -->
+                                                                        <!-- </td> -->
 
-                                                            <td>
-                                                                <button
-                                                                    onclick="toggleUserBlock('<%= user._id %>', `<%=  user.isBlocked %>`)"
-                                                                    type="button"
-                                                                    class="btn btn-md font-sm rounded btn-brand">
-                                                                    <i class="material-icons"></i>
-                                                                    <span>
-                                                                        <% if(user.isBlocked===true) { %>
-                                                                            Unblock
-                                                                            <% } else { %>
-                                                                                Block
-                                                                                <% } %>
-                                                                    </span>
-                                                                </button>
-                                                            </td>
+                                                                        <td>
+                                                                            <button
+                                                                                onclick="toggleUserBlock('<%= user._id %>', `<%=  user.isBlocked %>`)"
+                                                                                type="button"
+                                                                                class="btn btn-md font-sm rounded btn-brand">
+                                                                                <i class="material-icons"></i>
+                                                                                <span>
+                                                                                    <% if(user.isBlocked===true) { %>
+                                                                                        Unblock
+                                                                                        <% } else { %>
+                                                                                            Block
+                                                                                            <% } %>
+                                                                                </span>
+                                                                            </button>
+                                                                        </td>
 
-                                        </tr>
-                                        <% }); %>
-                                            <% } %>
-                            </tbody>
-                        </table> <!-- table-responsive.// -->
-                    </div>
-                </div> <!-- card-body end// -->
-            </div> <!-- card end// -->
-            <div class="pagination-area mt-15 mb-50">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-start">
-                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                        <li class="page-item"><a class="page-link" href="#">02</a></li>
-                        <li class="page-item"><a class="page-link" href="#">03</a></li>
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">16</a></li>
-                        <li class="page-item"><a class="page-link" href="#"><i
-                                    class="material-icons md-chevron_right"></i></a></li>
-                    </ul>
-                </nav>
-            </div>
-        </section> <!-- content-main end// -->
+                                                    </tr>
+                                                    <% }); %>
+                                                        <% } %>
+                                        </tbody>
+                                    </table> <!-- table-responsive.// -->
+                                </div>
+                            </div> <!-- card-body end// -->
+                        </div> <!-- card end// -->
+                        <div class="pagination-area mt-15 mb-50">
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-start">
+                                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">02</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">03</a></li>
+                                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">16</a></li>
+                                    <li class="page-item"><a class="page-link" href="#"><i
+                                                class="material-icons md-chevron_right"></i></a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </section> <!-- content-main end// -->
 
-        <!--Footer-->
-        <%- include ('./partials/admin.footer.ejs') %>
+                    <!--Footer-->
+                    <%- include ('./partials/admin.footer.ejs') %>
 
-    </main>
+            </main>
 
-    <script>
-       async function toggleUserBlock(id, isBlocked) {
-            const params = new URLSearchParams();
-            params.append('userId', id);
+            <script>
+                async function toggleUserBlock(id, isBlocked) {
 
-            const response = await fetch(isBlocked === "false" ? "/admin/block-user" : "/admin/unblock-user", {
-                method: "put",
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: params.toString(),
-            });
+                    console.log(isBlocked);
+                    const action = isBlocked === "false" ? "Block" : "Unblock";
+                    console.log(action);
 
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 1000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
+                    Swal.fire({
+                        icon: 'warning',
+                        title: `${action} User?`,
+                        text: `This action will ${action} the user`,
+                        showCancelButton: true,
+                        confirmButtonText: `${action}`,
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#d33',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+                            changeUserStatus();
+
+                        }
+                    });
+
+
+
+                    async function changeUserStatus() {
+                        const params = new URLSearchParams();
+                        params.append('userId', id);
+
+                        const response = await fetch(isBlocked === "false" ? "/admin/block-user" : "/admin/unblock-user", {
+                            method: "put",
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: params.toString(),
+                        });
+
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                        else {
+                            alert("User blocking failed")
+                        }
+
+                    }
+
                 }
-            });
 
 
-            if (response.ok) {
-                Toast.fire({
-                    icon: "info",
-                    title: "Request processing"
-                });
-            } else {
-                Toast.fire({
-                    icon: "error",
-                    title: "Operation failed"
-                });
-            }
+            </script>
 
-            
-            setTimeout(() => {
-                // Redirect after the success message is displayed
-                window.location.href = ""; // Replace with the desired redirect URL
-            }, 1000); // Adjust the timeout duration as needed
-        }
+            <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
+            <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
+            <script src="/admin.assets/js/vendors/select2.min.js"></script>
+            <script src="/admin.assets/js/vendors/perfect-scrollbar.js"></script>
+            <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
+            <!-- Main Script -->
+            <script src="/admin.assets/js/main.js" type="text/javascript"></script>
 
-        
-    </script>
+            <!--Sweet alert -->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+    </body>
 
-    <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/admin.assets/js/vendors/select2.min.js"></script>
-    <script src="/admin.assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="/admin.assets/js/main.js" type="text/javascript"></script>
-
-    <!--Sweet alert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
-</body>
-
-</html>
+    </html>
