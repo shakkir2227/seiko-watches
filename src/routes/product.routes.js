@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware.js";
-import { setCommonData } from "../middlewares/commonData.middleware.js";
+import { setCategoryData, setUserData } from "../middlewares/commonData.middleware.js";
+
 import { isAdmin } from "../middlewares/auth.middleware.js";
 import {
     addProductController,
@@ -15,7 +16,8 @@ import {
     from "../controllers/product.controller.js";
 
 const router = Router();
-router.use(setCommonData)
+router.use(setCategoryData)
+router.use(setUserData)
 
 //todo use router.route instead of this
 

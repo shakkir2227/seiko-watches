@@ -226,9 +226,9 @@ const updateProductViewController = asyncHandler(async (req, res) => {
 
 const updateProductController = asyncHandler(async (req, res) => {
 
-    //User sends an array of removed images array
-    //we have to get that array, and remove the corresponding url
-    //from our product image array
+    // User sends an array of removed images array
+    // We have to get that array, and remove the corresponding url
+    // from our product image array
 
     const { productId, description, price, stock, removedImages, status } = req.body;
 
@@ -335,7 +335,7 @@ const productViewController = {
 
     }),
 
-    userProductView :  {
+    userProductView: {
 
         getSingleProductView: asyncHandler(async (req, res) => {
             //we have to show the related products also
@@ -345,6 +345,7 @@ const productViewController = {
 
 
             const productId = req.params.productId;
+
 
             const product = await Product.findOne({ _id: productId }).populate("category");
             const productWithVariations = await Product.aggregate([{
@@ -361,7 +362,7 @@ const productViewController = {
                 $replaceRoot: { newRoot: "$uniqueProduct" }
             }])
 
-            return res.render("shop-product-full.ejs", { product, relatedProducts, productWithVariations, categories: res.locals.categories })
+            return res.render("shop-product-full.ejs", { product, relatedProducts, productWithVariations, categories: res.locals.categories, user: res.locals.user })
 
         }),
 
@@ -372,19 +373,19 @@ const productViewController = {
         //subcategories. making an array and render it
 
 
-        getAllProductsView : asyncHandler(async(req, res) => {
+        getAllProductsView: asyncHandler(async (req, res) => {
 
             const categoryId = req.query.categoryId;
-            const category = Category.findOne({_id:categoryId})
+            const category = Category.findOne({ _id: categoryId })
             return res.render("shop-grid-left.ejs", category)
 
         })
 
 
-    } 
-    
-    
-   
+    }
+
+
+
 }
 
 

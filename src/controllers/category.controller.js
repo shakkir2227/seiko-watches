@@ -2,9 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { Category } from "../models/category.model.js";
 import { categoryValidationSchema } from "../utils/validation/category.validation.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-
 import fs from "fs"
-import { get } from "mongoose";
 
 
 
@@ -44,7 +42,7 @@ const addCategory = asyncHandler(async (req, res) => {
     }
 
     if (!req.file) {
-        
+
         req.flash('error', "Please ensure that you uploaded one image. Thankyou !!");
         return res.redirect("/category/view")
 
@@ -61,8 +59,8 @@ const addCategory = asyncHandler(async (req, res) => {
 
     if (parentCategoryName === "none") {
         const category = await Category.create({
-            name,   
-            image:image.url,
+            name,
+            image: image.url,
 
         });
 
@@ -134,14 +132,15 @@ const viewCategory = asyncHandler(async (req, res) => {
     const errorMessage = req.flash("error")[0]
     const successMessage = req.flash('success')[0];
 
+
     return res.render("page-categories.ejs", { allCategories, categoryPathArr, errorMessage, successMessage })
 
     // return res.render("page-categories.ejs", { allCategories, categoryPathArr, message })
 
 });
 
-
 const blockCategoryAndSubCategories = asyncHandler(async (req, res) => {
+
     //Find the category from database
     //Make it's isBlocked value to TRUE
     //Findout the categories in which the parent category is THIS
@@ -160,11 +159,16 @@ const blockCategoryAndSubCategories = asyncHandler(async (req, res) => {
             return null
         }
 
-        subCategories.forEach(async (subCategory) => {
+        for (const subCategory of subCategories) {
             subCategory.isBlocked = true;
             await subCategory.save();
-            blockSubCategories(subCategory)
-        })
+            await blockSubCategories(subCategory)
+        }
+        // subCategories.forEach(async (subCategory) => {
+        //     subCategory.isBlocked = true;
+        //     await subCategory.save();
+        //     blockSubCategories(subCategory)
+        // })
 
     }
 
@@ -172,7 +176,7 @@ const blockCategoryAndSubCategories = asyncHandler(async (req, res) => {
 
     let message = `${category.name} has been blocked successfully`
 
-    return res.send({ status: 'blocked', category });
+    return res.json({ status: 'blocked', category });
 
 
 })
@@ -186,10 +190,7 @@ const unblockCategoryAndSubCategories = asyncHandler(async (req, res) => {
 
     const { _id } = req.body;
 
-    const category = await Category.findOne({ _id })
-
-    category.isBlocked = false;
-    await category.save();
+    const category = await Category.findOne({ _id }).populate("parentCategoryId");
 
     async function unBlockSubCategories(category) {
         const subCategories = await Category.find({ parentCategoryId: category._id });
@@ -197,55 +198,166 @@ const unblockCategoryAndSubCategories = asyncHandler(async (req, res) => {
             return null
         }
 
-        subCategories.forEach(async (subCategory) => {
+        for (const subCategory of subCategories) {
             subCategory.isBlocked = false;
             await subCategory.save();
-            unBlockSubCategories(subCategory)
-        })
+            await unBlockSubCategories(subCategory)
+        }
 
     }
+
+    if (!category.parentCategoryId) {
+
+        category.isBlocked = false;
+        await category.save();
+
+        await unBlockSubCategories(category);
+
+        return res.json({ status: 'Unblocked', category });
+    }
+
+
+    if (category.parentCategoryId.isBlocked) {
+
+        const error = new Error(`Please unblock the main category
+        ${category.parentCategoryId.name} before attempting to unblock its subcategories.`);
+        return res.status(500).json({ error: error.message });
+
+    }
+
+    async function mainCategoryBlocked(category) {
+
+        const parentCategory = await Category.findOne({ _id: category.parentCategoryId._id }).populate("parentCategoryId")
+        if (parentCategory.parentCategoryId?.isBlocked) {
+            return true
+        }
+
+        const grandParentCategory = await Category.findOne({ _id: parentCategory.parentCategoryId }).populate("parentCategoryId")
+        if (grandParentCategory) {
+
+            await mainCategoryBlocked(grandParentCategory)
+        }
+
+    }
+
+
+    if (await mainCategoryBlocked(category)) {
+
+        const error = new Error(`Please unblock the main category
+        before attempting to unblock its subcategories.`);
+        return res.status(500).json({ error: error.message });
+
+    }
+
+
+    category.isBlocked = false;
+    await category.save();
 
     await unBlockSubCategories(category);
 
-    return res.send({ status: 'Unblocked', category });
+    return res.json({ status: 'Unblocked', category });
+
 })
 
-const editCategory = asyncHandler(async (req, res) => {
-    //take category Id and new name from the user
-    //validate it
-    //check entered name is same, then display 
-    //check new name exist or not, if exist, check both parents are same or not
-    //if same, display category already exist
-    //else update the name
+const updateCategoryController = {
 
-    const { name, categoryId } = req.body;
-    const { error } = categoryValidationSchema.validate({ name });
-    if (error) {
-        res.send(error.message)
-    }
-    const category = await Category.findOne({ _id: categoryId }).populate("parentCategoryId");
+    getUpdatePage: asyncHandler(async (req, res) => {
 
-    if (name === category.name) {
-        return res.send("Thank you for keeping your profile information up-to-date.")
-    }
+        const categoryId = req.params.categoryId
+        const category = await Category.findOne({ _id: categoryId })
 
-    const existedCategories = await Category.find({ name }).populate("parentCategoryId");
+        const getCategoryPath = async (categoryId) => {
+            const category = await Category.findById(categoryId).exec();
+            const categoryName = category.name;
 
-    if (existedCategories.length > 0) {
-        if (existedCategories
-            .some((existedCategory) => existedCategory.parentCategoryId.name === category.parentCategoryId.name)) {
-            return res.send((`
-            
-                `))
+            let pathArr = [categoryName];
+
+            if (category.parentCategoryId) {
+                const parentPathArr = await getCategoryPath(category.parentCategoryId);
+                pathArr = pathArr.concat(parentPathArr);
+            }
+
+            return pathArr.join(">>")
+        };
+
+        let categoryPath = await getCategoryPath(category);
+        categoryPath = categoryPath.replace(category.name + ">>", "")
+
+        if (category.name === categoryPath) {
+            categoryPath = "None"
         }
-    }
 
 
-    console.log(category);
-    category.name = name;
-    const updatedCategory = await category.save();
-    return res.send(updatedCategory);
-})
+        const errorMessage = req.flash("error")[0]
+        const successMessage = req.flash('success')[0];
+
+        return res.render("page-edit-categories.ejs", { category, categoryPath, errorMessage, successMessage })
+    }),
+
+    updateCategory: asyncHandler(async (req, res) => {
+
+        // Take category Id and new name from the user
+        // Validate it 
+        // Check new name exist or not, if exist, check both parents are same or not
+        // If same, display category already exist
+        // Check req.file, if req.file and removed photo is not there,
+        // Update name and save.
+        // If removed photo is there, and not req.file, or viceverca throw error.
+        // Else upload the file into cloudinary, and update the document. 
+
+        const { name, categoryId, removedImage } = req.body;
+        console.log(req.body);
+        console.log(req.file);
+        const { error } = categoryValidationSchema.validate({ name });
+        if (error) {
+            req.flash("error", `${error.message}`)
+            return res.redirect(`/category/update/${categoryId}`)
+        }
+        const category = await Category.findOne({ _id: categoryId }).populate("parentCategoryId");
+
+        const existedCategories = await Category.find({ name, _id: {$ne: category._id} }).populate("parentCategoryId");
+
+        if (existedCategories.length > 0) {
+            if (existedCategories
+                .some((existedCategory) => existedCategory.parentCategoryId?.name === category.parentCategoryId.name)) {
+                req.flash("error", `Category name already exists. Please choose a different name.`)
+                return res.redirect(`/category/update/${categoryId}`)
+
+            }
+        }
+
+        if (!req.file && !removedImage) {
+            category.name = name;
+            const updatedCategory = await category.save();
+            req.flash("success", `Category updated successfully. Changes have been applied.`)
+            return res.redirect("/category/view")
+
+        }
+
+        if ((req.file && !removedImage) || (!req.file && removedImage)) {
+            req.flash('error', "Category image required for enhanced presentation. Please upload one image.");
+            return res.redirect(`/category/update/${categoryId}`)
+        }
+
+        if (req.file.path === "") {
+
+            req.flash('error', `Please ensure uploaded file have valid path.`);
+            return res.redirect(`/category/update/${categoryId}`)
+        };
+
+        const image = await uploadOnCloudinary(req.file.path);
+
+        console.log(category);
+
+        category.name = name;
+        category.image = image.url
+        const updatedCategory = await category.save();
+        req.flash("success", `Category updated successfully. Changes have been applied.`)
+        return res.redirect("/category/view")
+    })
+}
+
+
 
 
 export {
@@ -253,5 +365,6 @@ export {
     viewCategory,
     blockCategoryAndSubCategories,
     unblockCategoryAndSubCategories,
-    editCategory
+    updateCategoryController
+
 }

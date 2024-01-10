@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { User } from "../models/user.model.js";
 import { Product } from "../models/product.model.js";
 import { Category } from "../models/category.model.js";
-
+import { generateCroppedUrl, generateRoundedImageUrl, } from "../utils/cloudinary.js";
 import userValidationSchema from "../utils/validation/user.validation.js";
 import userLoginValidationSchema from "../utils/validation/user.login.validation.js";
 import { tranporter, Mailgenerator } from "../utils/nodemailer.js";
@@ -162,10 +162,10 @@ const verifyController = {
 
     verifyUser: asyncHandler(async (req, res) => {
 
-        //Checking the user got deleted or not
-        //if deleted display OTP EXPIRED !!
-        //taking otp from route params
-        //match it with session OTP
+        // Checking the user got deleted or not,
+        // if deleted display OTP EXPIRED !!
+        // Taking otp from route params
+        // Match it with session OTP
         //if match, make him verified
         //remove the otp from session
         //and add userid in session
@@ -268,7 +268,8 @@ const userLoginController = {
 
 
 const userAccountController = asyncHandler(async (req, res) => {
-    return res.render("page-account.ejs")
+    console.log(res.locals.user);
+    return res.render("page-account.ejs", { user: res.locals.user })
 })
 
 
@@ -292,6 +293,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 
 const userHomeController = asyncHandler(async (req, res) => {
+
     //taking userId from session. find the specific user
     //check the user is blocked, if blocked, flash an error message and redirect to login page
     // elsefind the new products and display it
@@ -303,6 +305,7 @@ const userHomeController = asyncHandler(async (req, res) => {
         req.flash('error', `We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.`);
         return res.redirect("/user/login")
     }
+
     const userId = req.session.userId;
     const user = await User.findOne({ _id: userId })
 
@@ -310,6 +313,12 @@ const userHomeController = asyncHandler(async (req, res) => {
         await Product.aggregate([{ $match: { isBlocked: false } },
         { $sort: { "createdAt": -1 } }, { $limit: 8 },
         { $lookup: { from: "categories", foreignField: "_id", localField: "category", as: "category" } }])
+
+    const categories = res.locals.categories;
+
+    for (const category of categories) {
+        category.image = generateRoundedImageUrl(category.image)
+    }
 
     return res.render("user.home.ejs", { user, newProducts, categories: res.locals.categories })
 

@@ -37,7 +37,7 @@ app.set("view engine", "ejs");
 app.set("views", ["views/admin.views", "views/user.views"])
 
 app.use(express.static("../public"))
- 
+
 
 
 //routes

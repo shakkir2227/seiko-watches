@@ -1,6 +1,8 @@
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { Category } from "../models/category.model.js";
+import { User } from "../models/user.model.js";
 
-async function setCommonData(req, res, next) {
+async function setCategoryData(req, res, next) {
 
     const primaryCategories =
 
@@ -22,5 +24,14 @@ async function setCommonData(req, res, next) {
 
 }
 
-export { setCommonData }
+const setUserData = asyncHandler(async (req, res, next) => {
+    const userId = req.session.userId;
+    const user = await User.findOne({ _id: userId })
+    res.locals.user = user;
+
+    next();
+})
+
+
+export { setCategoryData, setUserData }
 

@@ -1,17 +1,20 @@
 import { Router } from "express";
 import {
-    registerController, userLoginController
-    , verifyController, userHomeController,
+    registerController,
+    userLoginController,
+    verifyController,
+    userHomeController,
     userAccountController,
     userLogoutController
 } from "../controllers/user.controller.js"
 
-import { setCommonData } from "../middlewares/commonData.middleware.js";
+import { setCategoryData, setUserData } from "../middlewares/commonData.middleware.js";
 import { isAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.use(setCommonData)
+router.use(setCategoryData);
+router.use(setUserData);
 
 // router.route("/register").get()
 router.route("/register")

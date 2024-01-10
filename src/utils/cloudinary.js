@@ -25,4 +25,22 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-export { uploadOnCloudinary }
+function generateCroppedUrl(publicId, width, height) {
+    // Replacing the substring.
+    // https://res.cloudinary.com/demo/image/upload/c_fit,h_250,w_250/docs/models.jpg
+    let url = publicId.replace("/upload", `/upload/c_fit,h_${height},w_${width}`)
+    return url;
+}
+
+function generateRoundedImageUrl(publicId) {
+    //
+    let url = publicId.replace("/upload", `/upload/ar_1.0,c_thumb,g_face,w_0.6,z_0.7/r_max/co_black,e_outline/co_dimgrey,e_shadow,x_30,y_40`)
+    return url;
+}
+
+function generateCartoonifiedUrl (publicId){
+    let url = publicId.replace("/upload", `/upload/e_cartoonify/a_10/e_brightness:20`)
+    return url;
+}
+
+export { uploadOnCloudinary, generateCroppedUrl, generateRoundedImageUrl, generateCartoonifiedUrl }
