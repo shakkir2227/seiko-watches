@@ -92,11 +92,11 @@
                                                 <br>
 
                                                 <div class="attr-detail attr-size">
-                                                    <strong class="mr-10">Band material</strong>
+                                                    <strong class="mr-10">Band material <br><span style="margin-left: 26px;">+</span> <br> Dial color</strong>
                                                     <ul class="list-filter size-filter font-small">
                                                         <% if(typeof(product)!=="undefined" ) { %>
                                                             <li class="active" style="margin-left: 10px;"><a href="#">
-                                                                    <%=product.bandMaterial %>
+                                                                    <%=product.bandMaterial %> + <%=product.dialColor %>
                                                                 </a></li>
 
                                                             <% }%>
@@ -108,14 +108,20 @@
                                                                         <li>
                                                                             <a style="margin-left: 20px;"
                                                                                 onclick="findProductVariant('<%= product._id %>')">
-                                                                                <%= product.bandMaterial %>
+                                                                            <%=product.bandMaterial %> + <%=product.dialColor %>
                                                                             </a>
                                                                         </li>
                                                                         <% }) %>
                                                                             <% } %>
 
+
                                                     </ul>
+
+                                                    
+                                                    
                                                 </div>
+
+
                                                 <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                                 <div class="detail-extralink">
                                                     <div class="detail-qty border radius">

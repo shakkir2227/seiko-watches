@@ -10,8 +10,6 @@ import {
     updateProductViewController,
     updateProductController,
     productViewController,
-
-
 }
     from "../controllers/product.controller.js";
 

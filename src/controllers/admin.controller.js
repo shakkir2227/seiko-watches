@@ -78,6 +78,7 @@ const blockUserController = asyncHandler(async (req, res) => {
 })
 
 const unBlockUserController = asyncHandler(async (req, res) => {
+    
     //take user id from body
     //check if it exist or not
     //if not display user doesnot exist message

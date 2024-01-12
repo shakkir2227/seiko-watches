@@ -147,7 +147,7 @@
                                     <ul class="sub-menu">
                                         <% if (typeof(categories!=="undefined" )) { %>
                                             <% categories.forEach(element=> {%>
-                                                <li><a href="">
+                                                <li><a href="/product/view-user?category=<%=element._id %>">
                                                         <%=element.name %>
                                                     </a></li>
 

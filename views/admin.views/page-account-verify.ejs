@@ -1,85 +1,103 @@
 <%- include('./layouts/head.ejs', { pageTitle: 'Verification' }) %>
 
-<body>
-    <main>
-     
-        <%- include ('./partials/admin.header.ejs') %>
+    <body>
+        <main>
 
-        <section class="content-main mt-5 mb-80">
-            <div class="card mx-auto card-login">
-                <div class="card-body">
-                    <h4 class="card-title mb-4" style="text-align: center;">Verify your Email</h4>
+            <%- include ('./partials/admin.header.ejs') %>
 
-                    <% if (typeof(errorMessage) !=="undefined" ) { %>
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function () {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: '<%= errorMessage %>',
-                                    showConfirmButton: true,
-                                    confirmButtonText: 'OK',
-                                    customClass: {
-                                        confirmButton: 'btn btn-danger', // Add custom class for styling
-                                    },
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        // Redirect to the register page
-                                        window.location.href = '/user/register'; // Adjust the path as needed
-                                    }
-                                });
-                            });
-                        </script>
-                        <% } %>
+                <section class="content-main mt-5 mb-80">
+                    <div class="card mx-auto card-login">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4" style="text-align: center;">Verify your Email</h4>
 
 
-                            <% if (typeof(successMessage) !=="undefined" ) { %>
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Success!',
-                                            text: '<%= successMessage %>',
-                                            showConfirmButton: true,
-                                            confirmButtonText: 'OK',
-                                            customClass: {
-                                                confirmButton: 'btn btn-success', // Add custom class for styling
-                                            },
-                                        });
-                                    });
-                                </script>
+                            <% if (typeof(message)!=="undefined" ) { %>
+                                <h5 class="text-danger text-center mb-3">
+                                    <%= message %>
+                                </h5>
                                 <% } %>
 
+                                    <% if (typeof(errorMessage) !=="undefined" ) { %>
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', function () {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error!',
+                                                    text: '<%= errorMessage %>',
+                                                    showConfirmButton: true,
+                                                    confirmButtonText: 'OK',
+                                                    customClass: {
+                                                        confirmButton: 'btn btn-danger', // Add custom class for styling
+                                                    },
+                                                    // }).then((result) => {
+                                                    //     if (result.isConfirmed) {
+                                                    //         // // Redirect to the register page
+                                                    //         // window.location.href = '/user/register'; // Adjust the path as needed
+                                                    //     }
+                                                    // });
+                                                }));
+                                        </script>
+                                        <% } %>
 
-                                    <p style=" display: flex; flex-direction: column;">A text with a One Time Password
-                                        (OTP) has been sent to your Email. <br> <span class="text-danger ml-70"
-                                            id="timer-Display">10 seconds remaining</span></p>
+
+                                            <% if (typeof(successMessage) !=="undefined" ) { %>
+                                                <script>
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        Swal.fire({
+                                                            icon: 'success',
+                                                            title: 'Success!',
+                                                            text: '<%= successMessage %>',
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            customClass: {
+                                                                confirmButton: 'btn btn-success', // Add custom class for styling
+                                                            },
+                                                        });
+                                                    });
+                                                </script>
+                                                <% } %>
+
+
+                                                    <p style=" display: flex; flex-direction: column;">A text with a One
+                                                        Time
+                                                        Password
+                                                        (OTP) has been sent to your Email. <br> <span
+                                                            class="text-danger ml-70" id="timer-Display">10 seconds
+                                                            remaining</span></p>
 
 
 
 
 
-                                    <form action="" method="post">
-                                        <div class="mb-3">
-                                            <label for="OTP" class="mb-2">Enter OTP</label>
-                                            <input class="form-control" name="OTP" type="text">
-                                        </div> <!-- form-group// -->
+                                                    <form action="" method="post">
+                                                        <div class="mb-3">
+                                                            <label for="OTP" class="mb-2">Enter OTP</label>
+                                                            <input class="form-control" name="OTP" type="text">
+                                                        </div> <!-- form-group// -->
 
-                                        <!-- <div class="mb-3">
+                                                        <!-- <div class="mb-3">
                                     <a href="#" class="float-end font-sm text-muted">Forgot password?</a>
                                     <label class="form-check">
                                         <input type="checkbox" class="form-check-input" checked="">
                                         <span class="form-check-label">Remember</span>
                                     </label>
                                 </div>  -->
-                                        <div class="mb-4">
-                                            <button type="submit" class="btn btn-primary w-100"> Create your seiko
-                                                account </button>
-                                        </div> <!-- form-group// -->
-                                    </form>
-                                    <p class="text-center small text-muted mb-15">By creating an account or logging in,
-                                        you agree to seiko’s Conditions of Use and Privacy Policy.</p>
-                                    <!-- <div class="d-grid gap-3 mb-4">
+                                                        <div class="mb-10" id="resend-otp">
+                                                            <div class="ml-110 mb-4"> <a href="">Resend OTP</a> </div>
+                                                         </div>
+
+                                                        <div class="mb-4">
+                                                            <button type="submit" class="btn btn-primary w-100"> Create
+                                                                your
+                                                                seiko
+                                                                account </button>
+                                                        </div> <!-- form-group// -->
+                                                    </form>
+                                                    <p class="text-center small text-muted mb-15">By creating an account
+                                                        or
+                                                        logging in,
+                                                        you agree to seiko’s Conditions of Use and Privacy Policy.</p>
+                                                    <!-- <div class="d-grid gap-3 mb-4">
                                 <a href="#" class="btn w-100 btn-light font-sm">
                                     <svg aria-hidden="true" class="icon-svg" width="20" height="20" viewBox="0 0 20 20">
                                         <path
@@ -103,65 +121,59 @@
                                     </svg> Sign in using Facebook
                                 </a>
                             </div>  -->
-                                    <!-- <p class="text-center mb-4">Don't have account? <a href="#">Sign up</a></p> -->
-                </div>
-            </div>
-        </section>
-      
+                                                    <!-- <p class="text-center mb-4">Don't have account? <a href="#">Sign up</a></p> -->
+                        </div>
+                    </div>
+                </section>
+
                 <%- include ('./partials/admin.footer.ejs') %>
 
 
-    </main>
+        </main>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
 
-            let timer = 60;
-            const timerDisplay = document.getElementById("timer-Display");
+                let timer = 60;
+                const timerDisplay = document.getElementById("timer-Display");
 
-            setInterval(() => {
-
+                setInterval(() => {
                     timerDisplay.innerHTML = timer + " seconds remaining";
-                    if(timer>0) {
-
+                    if (timer > 0) {
                         timer = timer - 1;
-                    } 
-
-            },1000)
-
-            
-            
-            setTimeout(() => {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'OTP Expired',
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK',
-                    customClass: {
-                        confirmButton: 'btn btn-danger', // Add custom class for styling
-                    },
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Redirect to the register page
-                        window.location.href = '/user/register'; // Adjust the path as needed
                     }
-                });
+                }, 1000)
 
-            }, 60000)
-              
-            
-        })
+                setTimeout(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'OTP Expired',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-danger', // Add custom class for styling
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
 
-    </script>
-    <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
+                        }
+                    });
 
-    <!-- This script is for sweet alert-->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Main Script -->
-    <script src="/admin.assets/js/main.js" type="text/javascript"></script>
-</body>
+                }, 6000)
 
-</html>
+
+            })
+
+        </script>
+        <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
+        <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
+        <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
+
+        <!-- This script is for sweet alert-->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- Main Script -->
+        <script src="/admin.assets/js/main.js" type="text/javascript"></script>
+    </body>
+
+    </html>

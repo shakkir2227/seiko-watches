@@ -30,14 +30,27 @@ const addCategory = asyncHandler(async (req, res) => {
 
     const existedCategories = await Category.find({ name }).populate("parentCategoryId");
 
-    if (existedCategories.length > 0) {
-        if (existedCategories
-            .some((category) => category.parentCategoryId.name === parentCategoryName)) {
+    if (parentCategoryName === "none") {
+        if (existedCategories.length > 0) {
+            if (existedCategories
+                .some((category) => category.name === name)) {
 
-            let message = encodeURIComponent("");
-            req.flash('error', `This Category Name already exists. Try a new one!!`);
-            return res.redirect("/category/view")
+                req.flash('error', `This Category Name already exists. Try a new one!!`);
+                return res.redirect("/category/view")
 
+            }
+        }
+
+    } else {
+        if (existedCategories.length > 0) {
+            if (existedCategories
+                .some((category) => category.parentCategoryId.name === parentCategoryName)) {
+
+                let message = encodeURIComponent("");
+                req.flash('error', `This Category Name already exists. Try a new one!!`);
+                return res.redirect("/category/view")
+
+            }
         }
     }
 
@@ -67,21 +80,21 @@ const addCategory = asyncHandler(async (req, res) => {
         req.flash('success', `Category ${category.name} created successfully`);
         return res.redirect("/category/view")
     }
-    else {
 
-        const parentCategory = await Category.findOne({ name: parentCategoryName });
-        const parentCategoryId = parentCategory._id;
-        const category = await Category.create({
-            name,
-            parentCategoryId,
-            image: image.url
 
-        });
+    const parentCategory = await Category.findOne({ name: parentCategoryName });
+    const parentCategoryId = parentCategory._id;
+    const category = await Category.create({
+        name,
+        parentCategoryId,
+        image: image.url
 
-        req.flash('success', `Category ${category.name} has been added in ${parentCategory.name} successfully`);
-        return res.redirect("/category/view")
+    });
 
-    }
+    req.flash('success', `Category ${category.name} has been added in ${parentCategory.name} successfully`);
+    return res.redirect("/category/view")
+
+
 
 })
 
@@ -315,7 +328,7 @@ const updateCategoryController = {
         }
         const category = await Category.findOne({ _id: categoryId }).populate("parentCategoryId");
 
-        const existedCategories = await Category.find({ name, _id: {$ne: category._id} }).populate("parentCategoryId");
+        const existedCategories = await Category.find({ name, _id: { $ne: category._id } }).populate("parentCategoryId");
 
         if (existedCategories.length > 0) {
             if (existedCategories

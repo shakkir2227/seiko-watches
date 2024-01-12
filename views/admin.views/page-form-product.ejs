@@ -120,23 +120,27 @@
                                         </div> -->
 
                                                             <label class="mb-4"></label>
-                                                            <select class="form-select" name="bandMaterial">
-                                                                <option selected disabled> Band material </option>
-                                                                <option> Titanium </option>
-                                                                <option> Metal </option>
-                                                                <option> Leather </option>
+                                                            <select class="form-select" name="bandMaterial"
+                                                                id="bandMaterial">
+                                                                <option selected disabled value=""> Band material
+                                                                </option>
+                                                                <option value="Titanium"> Titanium </option>
+                                                                <option value="Metal"> Metal </option>
+                                                                <option value="Leather"> Leather </option>
 
                                                             </select>
+                                                            <div id="bandMaterialError" class="text-danger"></div>
 
                                                             <label class="mb-4"></label>
-                                                            <select class="form-select" name="dialColor">
-                                                                <option selected disabled> Dial color </option>
+                                                            <select class="form-select" name="dialColor" id="dialColor">
+                                                                <option selected disabled value=""> Dial color </option>
 
-                                                                <option> Black </option>
-                                                                <option> Blue </option>
-                                                                <option> Brown </option>
+                                                                <option value="Black"> Black </option>
+                                                                <option value="Blue"> Blue </option>
+                                                                <option value="Brown"> Brown </option>
 
                                                             </select>
+                                                            <div id="dialColorError" class="text-danger"></div>
                                                             <!-- <div class="mb-4">
                                             <label class="form-label">Dial Color</label>
                                             <input type="text" placeholder="" class="form-control" id="product_name"
@@ -190,13 +194,11 @@
                                                         <div class="input-upload">
                                                             <img src="/admin.assets/imgs/theme/upload.svg" alt="">
                                                             <input class="form-control" type="file" multiple
-                                                                name="images" id="images"
+                                                                name="images" id="images" accept="image/*"
                                                                 onchange="validateImageUpload()">
                                                             <div id="imgContainer"></div>
 
-                                                            <div id="descriptionErrordescriptionError"
-                                                                style="position: relative; display: inline-block"
-                                                                class="text-danger"></div>
+                                                            <div id="imagesError" class="text-danger"></div>
                                                         </div>
                                                     </div>
                                                 </div> <!-- card end// -->
@@ -211,20 +213,23 @@
                                                             <div class="col-sm-12 mb-3">
                                                                 <label class="form-label"></label>
 
-                                                                <select class="form-select" name="categoryPath">
+                                                                <select class="form-select" name="categoryPath" id="category">
                                                                     <option value="" selected disabled>Category</option>
                                                                     <% if(typeof(categoryPathArr)!=="undefined" ) %>
                                                                         <% for(let i=0; i<categoryPathArr.length; i++) {
                                                                             %>
-                                                                            <option>
+                                                                            <option
+                                                                                value="<%= categoryPathArr[i].path %>">
                                                                                 <%= categoryPathArr[i].path %>
                                                                             </option>
                                                                             <%}%>
                                                                 </select>
+
+                                                                <div id="categoryError" class="text-danger"></div>
                                                             </div>
                                                             <!-- <div class="col-sm-6 mb-3">
                                             <label class="form-label">Sub-category</label>
-                                            <select class="form-select">
+                                            <select class="form-select" >
                                                 <option> Nissan </option>
                                                 <option> Honda </option>
                                                 <option> Mercedes </option>
@@ -238,9 +243,9 @@
 
                                                         </div> <!-- row.// -->
                                                         <div>
-                                                           
+
                                                             <button type="submit"
-                                                                class="btn btn-md rounded font-sm hover-up">Save</button>
+                                                                class="btn btn-md rounded font-sm hover-up ml-130 mt-20">Save</button>
                                                         </div>
                                                     </div>
                                                     </form>
@@ -259,8 +264,8 @@
                     const element = document.getElementById("name");
                     const nameErrorElement = document.getElementById("nameError");
 
-                    if (element.value.length < 3 || element.value.length > 30 || !/^[A-Z]/.test(element.value)) {
-                        nameErrorElement.innerHTML = "Name should be 3 to 30 characters and start with an uppercase letter";
+                    if (element.value.length < 3 || element.value.length > 100 || !/^[A-Z]/.test(element.value)) {
+                        nameErrorElement.innerHTML = "Name should be 3 to 100 characters and start with an uppercase letter";
                     } else {
                         nameErrorElement.innerHTML = "";
                     }
@@ -310,65 +315,73 @@
                     } else {
                         stockErrorElement.innerHTML = "";
                     }
+
+                }
+
+                function validateBandMaterial() {
+                    const bandMaterialInput = document.getElementById("bandMaterial")
+                    const bandMaterialError = document.getElementById("bandMaterialError")
+
+
+                    let value = bandMaterialInput.value;
+                    if (!value) {
+                        bandMaterialError.innerHTML = "Select one Band Material"
+                    }
+                    else {
+                        bandMaterialError.innerHTML = ""
+                    }
+
+                }
+                function validateDialColor() {
+                    const dialColorInput = document.getElementById("dialColor")
+                    const dialColorError = document.getElementById("dialColorError")
+
+                    let value = dialColorInput.value;
+                    if (!value) {
+                       
+                        dialColorError.innerHTML = "Select one Dial Color"
+                    }
+                    else {
+                        dialColorError.innerHTML = ""
+                    }
+
                 }
 
 
 
                 function validateImageUpload() {
-                    const imgContainer = document.getElementById("imgContainer");
 
-                    // Clear previous images
-                    imgContainer.innerHTML = "";
+                    if (event.target.id === "images") {
 
-                    // Loop through all selected files
-                    for (const file of event.target.files) {
+                        const imgContainer = document.getElementById("imgContainer");
 
-                        const liElement = document.createElement("li")
+                        // Clear previous images
+                        imgContainer.innerHTML = "";
 
-                        // Create an image element
-                        const imgElement = document.createElement("img");
+                        for (const file of event.target.files) {
 
-                        // Set the object URL for the file
-                        imgElement.src = URL.createObjectURL(file);
+                            const liElement = document.createElement("li")
 
+                            // Create an image element
+                            const imgElement = document.createElement("img");
 
-                        // Create a remove button
-                        // const removeButton = document.createElement("a");
-                        // removeButton.textContent = "Remove";
-                        // removeButton.className = "btn-brand"
-                        // removeButton.classList.add("btn-md")
-                        // removeButton.style.float = "right";
-                        // removeButton.style.margin = "15px"
+                            // Set the object URL for the file
+                            imgElement.src = URL.createObjectURL(file);
 
+                            // Append the image element and remove button to the container
+                            imgContainer.appendChild(liElement);
+                            liElement.appendChild(imgElement);
+                            // liElement.appendChild(removeButton);
+                        }
 
-                        // removeButton.addEventListener("click", () => {
-                        //     // Remove the image and the button when clicked
-                        //     imgContainer.removeChild(liElement);
-
-                        //     let fileInput = document.getElementById("images")
-                        //     fileInput = Array.from(fileInput.files)
-                        //     fileInput.splice(1,1)
-                        //     console.log(fileInput);
-
-
-
-
-                        // });
-
-
-
-                        // Append the image element and remove button to the container
-                        imgContainer.appendChild(liElement);
-                        liElement.appendChild(imgElement);
-                        // liElement.appendChild(removeButton);
                     }
+                    // Loop through all selected files
 
                     const imagesElement = document.getElementById("images");
                     const imagesErrorElement = document.getElementById("imagesError");
 
-                    const selectedFiles = imagesElement.files;
-                    const numFiles = selectedFiles.length;
-
+                    const numFiles = imagesElement.files?.length;
+                  
                     if (numFiles < 3 || numFiles > 5) {
                         imagesErrorElement.innerHTML = "Please select 3 to 5 images";
                     } else {
@@ -378,29 +391,52 @@
 
                 }
 
+                function validateCategory() {
+                        const categoryInput = document.getElementById("category")
+                        const categoryError = document.getElementById("categoryError")
+
+
+                        let value = categoryInput.value;
+                        console.log(value);
+                        console.log(categoryInput);
+                        console.log(categoryError);
+                        if (!value) {
+                            categoryError.innerHTML = "Select category of your product"
+                        }
+                        else {
+                            categoryError.innerHTML = ""
+                        }
+
+                    }
+
                 function validateForm() {
 
                     // Call individual validation functions
                     validateFieldName();
                     validateProductDescription();
                     validatePrice();
-                    validateStock();
-                    validateImageUpload()
-
-                     console.log("HAI");
+                    validateStock();  
+                    validateBandMaterial();
+                    validateDialColor(); 
+                    validateImageUpload();
+                    validateCategory()
 
                     if (
                         nameError.innerHTML !== "" ||
                         descriptionErrorpriceError.innerHTML !== "" ||
                         priceError.innerHTML !== "" ||
-                        stockError.innerHTML !== ""||
-                        imagesError.innerHTML !== ""
+                        stockError.innerHTML !== "" ||
+                        bandMaterialError.innerHTML !== "" ||
+                        dialColorError.innerHTML !== "" ||
+                        imagesError.innerHTML !== "" ||
+                        categoryError.innerHTML !== ""
                     ) {
+
                         return false;
-                        console.log("HELLO");
+
                     }
 
-                     console.log("HELLO");
+                    console.log("HELLO");
                     // All fields are valid, continue with form submission
                     return true;
                 }

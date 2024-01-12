@@ -338,6 +338,7 @@ const productViewController = {
     userProductView: {
 
         getSingleProductView: asyncHandler(async (req, res) => {
+
             //we have to show the related products also
             //so take the cat id of the product 
             //list all the products of the same category except the current product
@@ -348,6 +349,12 @@ const productViewController = {
 
 
             const product = await Product.findOne({ _id: productId }).populate("category");
+
+            // Rendering 404 page if the product is Blocked.
+            if(product.isBlocked) {
+                return res.render("page-404.ejs");
+            }
+
             const productWithVariations = await Product.aggregate([{
                 $match: { name: product.name, isBlocked: false, _id: { $ne: product._id } },
             }])
@@ -372,8 +379,6 @@ const productViewController = {
         // Finding it's parent Category if it exist.
         // Finding all products of the category, and it's subcategoires
 
-
-
         getAllProductsView: asyncHandler(async (req, res) => {
 
             const categoryId = req.query.category;
@@ -393,9 +398,8 @@ const productViewController = {
                 const subCategories = await Category.find({ parentCategoryId: category._id })
                 subCategoriesofTopCategories.push(...subCategories)
             }
-
-            console.log(topCategories);
-            return res.render("shop-grid-left.ejs", {selectedCategory, parentCategory, topCategories, subCategoriesofTopCategories})
+            
+            return res.render("shop-grid-left.ejs", { selectedCategory, parentCategory, topCategories, subCategoriesofTopCategories })
 
         })
 

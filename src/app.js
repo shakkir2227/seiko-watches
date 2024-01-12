@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 import session from "express-session";
 import nocache from "nocache";
 import flash from "express-flash";
@@ -18,8 +17,6 @@ app.use(express.urlencoded({
 }))
 
 app.use(express.static("public"))
-
-app.use(cookieParser());
 
 app.use(nocache());
 

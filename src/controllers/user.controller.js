@@ -59,7 +59,7 @@ const registerController = {
             //creating OTP to embed in the Email
             let OTP = Math.floor(Math.random() * 10 ** 6)
 
-            //mailgen
+            // Mailgen
             let response = {
                 body: {
                     name,
@@ -84,7 +84,7 @@ const registerController = {
             tranporter.sendMail(message).then(() => {
                 console.log("OTP sent successfully");
             })
-
+            
             req.session.OTP = OTP;
             req.session.email = user.email;
 
@@ -189,6 +189,7 @@ const verifyController = {
         if (userEnteredOTP != OTP) {
             req.flash('error', `Invalid OTP`);
             return res.redirect("/user/verify")
+            // return res.send({ message: "Invalid OTP" })
         }
 
         await User.updateOne({ email }, { $set: { isVerified: true } })
@@ -219,7 +220,7 @@ const userLoginController = {
 
     loginUser: asyncHandler(async (req, res) => {
 
-        //take email and password form req.body
+        //take email and password form req.bodyr
         //validate it 
         //check the mail exist in database, if not throw invalid user credentials
         //if exist, check the password coorect or not
@@ -251,11 +252,19 @@ const userLoginController = {
             return res.redirect("/user/login")
         }
 
-        if (user.isBlocked) {
+        if (user.isBlocked && req.session.isBlocked) {
             req.flash("error", "We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.")
             return res.redirect("/user/login")
         }
 
+        if (user.isBlocked && !req.session.isBlocked) {
+            req.flash("error", "We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.")
+            req.session.isBlocked = true;
+            return res.redirect("/user/login");
+
+        }
+
+        req.session.isBlocked = false;
         req.session.userId = user._id;
 
         return res.redirect("/user/home")
@@ -311,7 +320,17 @@ const userHomeController = asyncHandler(async (req, res) => {
 
     const newProducts =
         await Product.aggregate([{ $match: { isBlocked: false } },
-        { $sort: { "createdAt": -1 } }, { $limit: 8 },
+        { $sort: { "createdAt": -1 } },
+        {
+            $group: {
+                _id: "$name",
+                uniqueProduct: { $first: "$$ROOT" }
+            }
+        },
+        {
+            $replaceRoot: { newRoot: "$uniqueProduct" }
+        },
+        { $limit: 8 },
         { $lookup: { from: "categories", foreignField: "_id", localField: "category", as: "category" } }])
 
     const categories = res.locals.categories;
