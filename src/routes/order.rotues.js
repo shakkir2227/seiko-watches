@@ -5,6 +5,7 @@ import { setUserData, setCategoryData } from "../middlewares/commonData.middlewa
 import { userCheckoutController } from "../controllers/order.controller.js";
 
 router.use(setCategoryData)
+router.use(setUserData)
 
 router.route("/buy").get(userCheckoutController.renderCheckoutPage)
 
