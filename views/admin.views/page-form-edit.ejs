@@ -6,12 +6,12 @@
 
         <%- include ('./partials/admin.aside.ejs') %>
 
-         
 
 
-                <main class="main-wrap">
-                    
-                    <%- include ('./partials/admin.home.header.ejs') %>
+
+            <main class="main-wrap">
+
+                <%- include ('./partials/admin.home.header.ejs') %>
 
                     <section class="content-main">
                         <div class="row">
@@ -66,19 +66,26 @@
                                                         <% if(typeof(product)!=="undefined" ) {%>
 
                                                             <form action="/product/update" method="post"
-                                                                enctype="multipart/form-data" id="updateForm">
+                                                                enctype="multipart/form-data" id="updateForm"
+                                                                onsubmit="return validateForm()">
                                                                 <div class="mb-4">
                                                                     <label for="product_name"
-                                                                        class="form-label"></label>
+                                                                        class="form-label">Name</label>
                                                                     <input type="text" placeholder="<%=product.name%>"
-                                                                        class="form-control" id="product_name" readonly
-                                                                        value="<%=product.name%>">
+                                                                        class="form-control" id="name" name="name"
+                                                                        value="<%=product.name%>"
+                                                                        oninput="validateFieldName()">
+                                                                    <div id="nameError" class="text-danger"></div>
                                                                 </div>
                                                                 <div class="mb-4">
                                                                     <label class="form-label">Full description</label>
                                                                     <textarea placeholder="Type here"
-                                                                        class="form-control" rows="4" id="description"
-                                                                        name="description"><%=product.description%></textarea>
+                                                                        class="form-control" rows="4" name="description"
+                                                                        oninput="validateProductDescription()"
+                                                                        id="description"><%=product.description%></textarea>
+
+                                                                    <div id="descriptionError" class="text-danger">
+                                                                    </div>
                                                                 </div>
                                                                 <div class="row">
                                                                     <div class="col-lg-4">
@@ -86,9 +93,12 @@
                                                                             <label class="form-label">Price</label>
                                                                             <div class="row gx-2">
                                                                                 <input placeholder="&#8377;" type="text"
-                                                                                    class="form-control" id="price"
-                                                                                    name="price"
+                                                                                    class="form-control" name="price"
+                                                                                    id="price" oninput="validatePrice()"
                                                                                     value="<%=product.price%>">
+
+                                                                                <div id="priceError"
+                                                                                    class="text-danger"></div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -97,8 +107,12 @@
                                                                             <label class="form-label">Current
                                                                                 Stock</label>
                                                                             <input placeholder="" type="text"
-                                                                                class="form-control" id="stock"
-                                                                                name="stock" value="<%=product.stock%>">
+                                                                                class="form-control" name="stock"
+                                                                                oninput="validateStock()" id="stock"
+                                                                                value="<%=product.stock%>">
+                                                                            <div id="stockError" class="text-danger">
+                                                                            </div>
+
                                                                         </div>
                                                                     </div>
                                                                     <!-- <div class="col-lg-4">
@@ -111,19 +125,44 @@
                                     </div> -->
                                                                 </div>
                                                                 <div class="mb-4">
-                                                                    <label for="band_material" class="form-label">Band
-                                                                        Material</label>
-                                                                    <input type="text" placeholder="Type here"
-                                                                        class="form-control" id="band_material" readonly
-                                                                        value="<%=product.bandMaterial%>">
+                                                                    <select class="form-select" name="bandMaterial"
+                                                                        id="bandMaterial">
+                                                                        <option selected value="<%=product.bandMaterial%>"> <%=product.bandMaterial%>
+                                                                        </option>
+                                                                        <% if (typeof(materialVariations) !=="undefined" ) { %>
+                                                                            <% materialVariations.forEach((element)=> {%>
+                                                                                <option value="<%=element %>">
+                                                                                    <%=element %>
+                                                                                </option>
+                                                                        
+                                                                                <% }) %>
+                                                                                    <% } %>
+
+
+                                                                    </select>
+
+                                                                    <div id="bandMaterialError" class="text-danger">
+                                                                    </div>
+
                                                                 </div>
 
                                                                 <div class="mb-4">
-                                                                    <label for="dial_color" class="form-label">Dial
-                                                                        Color</label>
-                                                                    <input type="text" placeholder="Type here"
-                                                                        class="form-control" id="dial_color" readonly
-                                                                        value="<%=product.dialColor%>">
+                                                                    <label class="mb-4"></label>
+                                                                    <select class="form-select" name="dialColor"
+                                                                        id="dialColor">
+                                                                        <option selected  value="<%=product.dialColor%>"> <%=product.dialColor%>
+                                                                        </option>
+
+                                                                        <% if (typeof(colorVariations) !== "undefined") { %>
+                                                                           <% colorVariations.forEach((element) => {%>
+                                                                            <option value="<%=element %>"> <%=element %> </option>
+
+                                                                            <% }) %>
+                                                                        <% } %>
+
+                            
+                                                                    </select>
+                                                                    <div id="dialColorError" class="text-danger"></div>
                                                                 </div>
                                                                 <!-- <label class="form-check mb-4">
                                     <input class="form-check-input" type="checkbox" value="">
@@ -200,12 +239,16 @@
                                         <div class="row gx-2">
                                             <div class="col-sm-12 mb-3">
                                                 <label class="form-label">Category</label>
-                                                <select class="form-select" disabled>
-                                                    <option selected>
-                                                        <%=product.category.name%>
-                                                    </option>
-
+                                                <select class="form-select" name="categoryPath" id="category">
+                                                    <option value="<%=product.category._id%>" selected ><%=categoryPathOfCurrentProduct %></option>
+                                                    <% if(typeof(categoryPathArr)!=="undefined" ) %>
+                                                        <% for(let i=0; i<categoryPathArr.length; i++) { %>
+                                                            <option value="<%= categoryPathArr[i].category._id %>">
+                                                                <%= categoryPathArr[i].path %>
+                                                            </option>
+                                                            <%}%>
                                                 </select>
+                                                <div id="categoryError" class="text-danger"></div>
                                             </div>
 
                                             <div class="col-sm-12 mb-3">
@@ -228,8 +271,8 @@
                                             </div>
                                             <div class="col-sm-12 mb-3">
                                                 <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> -->
-                                                <button class="btn btn-md rounded font-sm hover-up ml-100"
-                                                    onclick="updateProduct()">Update</button>
+                                                <button
+                                                    class="btn btn-md rounded font-sm hover-up ml-100" type="submit">Update</button>
                                             </div>
 
 
@@ -249,44 +292,172 @@
                             </form>
                         </div>
                     </section> <!-- content-main end// -->
-                    
-                                    <%- include ('./partials/admin.footer.ejs') %>
+
+                    <%- include ('./partials/admin.footer.ejs') %>
 
 
-                </main>
+            </main>
 
-                <script>
+            <script>
 
-                    let removedPhotos = [];
-                    const removePhoto = (imageUrl) => {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Remove Image?',
-                            text: 'This action will remove the image from the view. To permanently delete, press "Update" after making all desired changes.',
-                            showCancelButton: true,
-                            confirmButtonText: 'Remove',
-                            cancelButtonText: 'Cancel',
-                            confirmButtonColor: '#d33',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                removedPhotos.push(imageUrl);
-                                document.getElementById(imageUrl).remove()
+                // Validating the fields
+                function validateFieldName() {
+                    const element = document.getElementById("name");
+                    const nameErrorElement = document.getElementById("nameError");
 
-                            }
-                        });
+                    if (element.value.length < 3 || element.value.length > 100 || !/^[A-Z]/.test(element.value)) {
+                        nameErrorElement.innerHTML = "Name should be 3 to 100 characters and start with an uppercase letter";
+                    } else {
+                        nameErrorElement.innerHTML = "";
+                    }
+                }
+
+                function validateProductDescription() {
+                    const descriptionElement = document.getElementById("description");
+                    const descriptionErrorElement = document.getElementById("descriptionError");
+
+                    const descriptionValue = descriptionElement.value.trim();
+
+                    if (descriptionValue.length < 10 || descriptionValue.length > 1000) {
+                        descriptionErrorElement.innerHTML = "Product description should be between 10 and 1000 characters";
+                    } else {
+                        descriptionErrorElement.innerHTML = "";
+                    }
+                }
+                function validatePrice() {
+                    const priceElement = document.getElementById("price");
+                    const priceErrorElement = document.getElementById("priceError");
+
+                    const priceValue = priceElement.value.trim();
+
+                    if (priceValue === "") {
+                        priceErrorElement.innerHTML = "Price cannot be empty";
+                    } else if (isNaN(priceValue) || !/^\d+(\.\d{1,2})?$/.test(priceValue)) {
+                        priceErrorElement.innerHTML = "Price must be a valid number";
+                    } else if (priceValue < 0) {
+                        priceErrorElement.innerHTML = "Price cannot be negative";
+                    } else {
+                        priceErrorElement.innerHTML = "";
+                    }
+                }
+
+                function validateStock() {
+                    const stockElement = document.getElementById("stock");
+                    const stockErrorElement = document.getElementById("stockError");
+
+                    const stockValue = stockElement.value.trim();
+
+                    if (stockValue === "") {
+                        stockErrorElement.innerHTML = "Stock cannot be empty";
+                    } else if (isNaN(stockValue) || !/^\d+(\.\d{1,2})?$/.test(stockValue)) {
+                        stockErrorElement.innerHTML = "Stock must be a valid number";
+                    } else if (parseFloat(stockValue) < 0) {
+                        stockErrorElement.innerHTML = "Stock cannot be negative";
+                    } else {
+                        stockErrorElement.innerHTML = "";
                     }
 
-                    const updateProduct = () => {
+                }
 
-                        // const description = document.getElementById("description").textContent
-                        // const price = document.getElementById("price").textContent
-                        // const stock = document.getElementById("stock").textContent
-                        // const images = document.getElementById("stock").textContent
 
-                        // fetch("/product/update", 
+                function validateBandMaterial() {
+                    const bandMaterialInput = document.getElementById("bandMaterial")
+                    const bandMaterialError = document.getElementById("bandMaterialError")
+
+
+                    let value = bandMaterialInput.value;
+                    if (!value) {
+                        bandMaterialError.innerHTML = "Select one Band Material"
+                    }
+                    else {
+                        bandMaterialError.innerHTML = ""
+                    }
+
+                }
+
+
+                function validateDialColor() {
+                    const dialColorInput = document.getElementById("dialColor")
+                    const dialColorError = document.getElementById("dialColorError")
+
+                    let value = dialColorInput.value;
+                    if (!value) {
+
+                        dialColorError.innerHTML = "Select one Dial Color"
+                    }
+                    else {
+                        dialColorError.innerHTML = ""
+                    }
+
+                }
+
+                function validateCategory() {
+                    const categoryInput = document.getElementById("category")
+                    const categoryError = document.getElementById("categoryError")
+
+
+                    let value = categoryInput.value;
+                    console.log(value);
+                    console.log(categoryInput);
+                    console.log(categoryError);
+                    if (!value) {
+                        categoryError.innerHTML = "Select category of your product"
+                    }
+                    else {
+                        categoryError.innerHTML = ""
+                    }
+
+                }
+
+
+                let removedPhotos = [];
+
+                const removePhoto = (imageUrl) => {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Remove Image?',
+                        text: 'This action will remove the image from the view. To permanently delete, press "Update" after making all desired changes.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Remove',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#d33',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            removedPhotos.push(imageUrl);
+                            document.getElementById(imageUrl).remove()
+
+                        }
+                    });
+                }
+
+                const validateForm = () => {
+
+                    // Call individual validation functions
+                    validateFieldName()     
+                    validateProductDescription();
+                    validatePrice();                  
+                    validateStock();
+                    validateBandMaterial();
+                    validateDialColor();
+                    validateCategory()
+
+                    if (
+                        nameError.innerHTML !== "" ||
+                        descriptionError.innerHTML !== "" ||
+                        priceError.innerHTML !== "" ||
+                        stockError.innerHTML !== "" ||
+                        bandMaterialError.innerHTML !== "" ||
+                        dialColorError.innerHTML !== "" ||
+                        categoryError.innerHTML !== ""
+                    ) {
+
+                        return false;
+
+                    }
+                    else{
 
                         removedPhotos.forEach((removePhotoUrl) => {
-
+    
                             const input = document.createElement("input");
                             input.type = "hidden",
                                 input.name = "removedImages",
@@ -294,25 +465,23 @@
                                 document.getElementById("updateForm").appendChild(input)
                         })
 
-                        document.getElementById("updateForm").submit();
-
+                        return true;
                     }
 
+                }
 
+            </script>
 
+            <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
+            <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
+            <script src="/admin.assets/js/vendors/select2.min.js"></script>
+            <script src="/admin.assets/js/vendors/perfect-scrollbar.js"></script>
+            <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
+            <!-- Main Script -->
+            <script src="/admin.assets/js/main.js" type="text/javascript"></script>
 
-                </script>
-
-                <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
-                <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
-                <script src="/admin.assets/js/vendors/select2.min.js"></script>
-                <script src="/admin.assets/js/vendors/perfect-scrollbar.js"></script>
-                <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
-                <!-- Main Script -->
-                <script src="/admin.assets/js/main.js" type="text/javascript"></script>
-
-                <!--Sweet alert cdn-->
-                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+            <!--Sweet alert cdn-->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 
     </body>
 

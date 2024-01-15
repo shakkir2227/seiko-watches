@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { User } from "../models/user.model.js";
 import { Product } from "../models/product.model.js";
 import { Category } from "../models/category.model.js";
+import { OTP } from "../models/userOTP.model.js";
 import { generateCroppedUrl, generateRoundedImageUrl, } from "../utils/cloudinary.js";
 import userValidationSchema from "../utils/validation/user.validation.js";
 import userLoginValidationSchema from "../utils/validation/user.login.validation.js";
@@ -44,6 +45,11 @@ const registerController = {
             $or: [{ email }, { mobileNumber }]
         })
 
+        if (existedUser) {
+            req.flash('error', `User with this Email or Mobile Number already exists!!`);
+            return res.redirect("/user/register")
+        }
+
 
         if (!existedUser) {
             //saving the user as not verified
@@ -57,7 +63,7 @@ const registerController = {
 
 
             //creating OTP to embed in the Email
-            let OTP = Math.floor(Math.random() * 10 ** 6)
+            let OTPNumber = Math.floor(Math.random() * 10 ** 6)
 
             // Mailgen
             let response = {
@@ -67,7 +73,7 @@ const registerController = {
                         instructions: 'Use this OTP to get started with Us, :',
                         button: {
                             color: '#48cfad', // Optional action button color
-                            text: `${OTP}`,
+                            text: `${OTPNumber}`,
 
                         }
                     }
@@ -84,15 +90,20 @@ const registerController = {
             tranporter.sendMail(message).then(() => {
                 console.log("OTP sent successfully");
             })
-            
-            req.session.OTP = OTP;
-            req.session.email = user.email;
 
-            console.log(OTP);
+            // Creating the OTP document
+            await OTP.create({
+                userId: user._id,
+                OTP: OTPNumber,
+            })
 
+            // Scheduling deletion of OTP after 1 minute
             setTimeout(async () => {
-                await User.deleteOne({ isVerified: false, email })
+                await OTP.deleteOne({ userId: user._id })
             }, 60000);
+
+            console.log(OTPNumber);
+            req.session.email = user.email;
 
             // return res.send("Verification Email has been sent")
             req.flash('success', `Verification Email has been sent`);
@@ -100,7 +111,7 @@ const registerController = {
         };
 
         if (!existedUser.isVerified) {
-            let OTP = Math.floor(Math.random() * 10 ** 6)
+            let OTPNumber = Math.floor(Math.random() * 10 ** 6)
 
             let response = {
                 body: {
@@ -109,7 +120,7 @@ const registerController = {
                         instructions: 'Use this OTP to get started with Us, :',
                         button: {
                             color: '#48cfad', // Optional action button color
-                            text: `${OTP}`,
+                            text: `${OTPNumber}`,
 
                         }
                     }
@@ -127,19 +138,26 @@ const registerController = {
                 console.log("OTP sent successfully");
             })
 
-            req.session.OTP = OTP;
-            req.session.email = existedUser.email;
+            // Creating the OTP document
+            await OTP.create({
+                userId: existedUser._id,
+                OTP: OTPNumber,
+            })
 
-            console.log(OTP);
+            // Scheduling deletion of OTP after 1 minute
+            setTimeout(async () => {
+                await OTP.deleteOne({ userId: existedUser._id })
+            }, 60000);
+
+
+            console.log(OTPNumber);
+            req.session.email = existedUser.email;
 
             req.flash('success', `Verification Email has been sent`);
             return res.redirect("/user/verify")
         };
 
-        // return res.send("User with this Email or Mobile Number already exists!!")
 
-        req.flash('error', `User with this Email or Mobile Number already exists!!`);
-        return res.redirect("/user/register")
 
     })
 }
@@ -152,7 +170,7 @@ const verifyController = {
 
     getverifyPage: asyncHandler(async (req, res) => {
 
-        if (!req.session.OTP) {
+        if (!req.session.email) {
             return res.redirect("/user/login")
         }
         const errorMessage = req.flash("error")[0]
@@ -180,21 +198,26 @@ const verifyController = {
             return res.redirect("/user/verify")
         }
 
-        const OTP = req.session.OTP
-        console.log(OTP);
+        const otp = await OTP.findOne({ userId: user._id })
+        console.log(otp);
+
+        if (!otp) {
+            req.flash('error', `OTP expired. Please register again`);
+            return res.redirect("/user/verify")
+        }
 
         const userEnteredOTP = req.body.OTP;
         console.log(userEnteredOTP);
 
-        if (userEnteredOTP != OTP) {
+        const isCorrect = await otp.isOTPCorrect(userEnteredOTP)
+
+        if (!isCorrect) {
             req.flash('error', `Invalid OTP`);
             return res.redirect("/user/verify")
-            // return res.send({ message: "Invalid OTP" })
         }
 
         await User.updateOne({ email }, { $set: { isVerified: true } })
         // const verifiedUser = await User.findOne({ _id: userId });
-        req.session.OTP = null;
 
         req.session.email = null;
         req.session.userId = user._id;
@@ -202,6 +225,66 @@ const verifyController = {
 
     })
 }
+
+
+const userResendOTPController = asyncHandler(async (req, res) => {
+
+    // Taking email from session, find the OTP document associated
+    // with it, if not create one and mail it
+    // If existing, delete the doc, create a new one, and mail it
+
+    const email = req.session.email;
+    if (!email) {
+        return res.redirect("/user/login")
+    }
+
+    const user = await User.findOne({ email })
+
+    const existingOTP = await OTP.findOne({ userId: user._id })
+    if (existingOTP) {
+        await OTP.deleteOne({ userId: user._id })
+    }
+
+    let OTPNumber = Math.floor(Math.random() * 10 ** 6)
+
+    // Mailgen
+    let response = {
+        body: {
+            name: user.name,
+            action: {
+                instructions: 'Use this OTP to get started with Us, :',
+                button: {
+                    color: '#48cfad', // Optional action button color
+                    text: `${OTPNumber}`,
+
+                }
+            }
+        }
+    }
+    let mail = Mailgenerator.generate(response)
+    let message = {
+        from: process.env.ADMIN_EMAIL,
+        to: email,
+        subject: "Verify your email address",
+        html: mail,
+    }
+
+    tranporter.sendMail(message).then(() => {
+        console.log("OTP sent successfully");
+    })
+
+    // Creating the OTP document
+    await OTP.create({
+        userId: user._id,
+        OTP: OTPNumber,
+    })
+
+    console.log(`New OTP is ${OTPNumber}`);
+
+    req.flash('success', `Verification Email has been sent`);
+    return res.redirect("/user/verify")
+
+})
 
 
 const userLoginController = {
@@ -252,27 +335,17 @@ const userLoginController = {
             return res.redirect("/user/login")
         }
 
-        if (user.isBlocked && req.session.isBlocked) {
-            req.flash("error", "We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.")
+        if (user.isBlocked) {
+            req.session.userId = null;
+            req.flash('error', `We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.`);
             return res.redirect("/user/login")
         }
 
-        if (user.isBlocked && !req.session.isBlocked) {
-            req.flash("error", "We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.")
-            req.session.isBlocked = true;
-            return res.redirect("/user/login");
-
-        }
-
-        req.session.isBlocked = false;
         req.session.userId = user._id;
-
         return res.redirect("/user/home")
 
     })
-
-
-
+    
 }
 
 
@@ -310,13 +383,12 @@ const userHomeController = asyncHandler(async (req, res) => {
     //and display it on the page, with some appropriate cat-images
     //last part of the section is for youtube videos
 
-    if (req.session.isBlocked) {
+    const user = res.locals.user;
+    if (user?.isBlocked) {
+        req.session.userId = null;
         req.flash('error', `We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.`);
         return res.redirect("/user/login")
     }
-
-    const userId = req.session.userId;
-    const user = await User.findOne({ _id: userId })
 
     const newProducts =
         await Product.aggregate([{ $match: { isBlocked: false } },
@@ -354,6 +426,7 @@ export {
     registerController,
     userLoginController,
     verifyController,
+    userResendOTPController,
     userAccountController,
     userLogoutController
 

@@ -69,10 +69,7 @@ const blockUserController = asyncHandler(async (req, res) => {
         ${user.name} is already blocked as per your request.`)
     }
 
-
     user.isBlocked = true;
-    req.session.isBlocked = true;
-    req.session.userId = null;
     const blockeduser = await user.save()
     return res.redirect(303, "/admin/users")
 })

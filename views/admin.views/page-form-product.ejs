@@ -219,7 +219,7 @@
                                                                         <% for(let i=0; i<categoryPathArr.length; i++) {
                                                                             %>
                                                                             <option
-                                                                                value="<%= categoryPathArr[i].path %>">
+                                                                                value="<%= categoryPathArr[i].category._id %>">
                                                                                 <%= categoryPathArr[i].path %>
                                                                             </option>
                                                                             <%}%>
@@ -412,7 +412,7 @@
                 function validateForm() {
 
                     // Call individual validation functions
-                    validateFieldName();
+                    validateFieldName();    
                     validateProductDescription();
                     validatePrice();
                     validateStock();  
@@ -436,11 +436,11 @@
 
                     }
 
-                    console.log("HELLO");
+                 
                     // All fields are valid, continue with form submission
                     return true;
                 }
-
+ 
 
 
             </script>

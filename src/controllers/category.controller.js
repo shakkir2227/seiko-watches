@@ -20,7 +20,7 @@ const addCategory = asyncHandler(async (req, res) => {
     //todo== what same named category, the existing doesnot have parent
 
 
-    const { name, parentCategoryName } = req.body;
+    const { name, parentCategoryId } = req.body;
     const { error } = categoryValidationSchema.validate({ name })
     if (error) {
         req.flash('error', `${error.message}`);
@@ -30,7 +30,7 @@ const addCategory = asyncHandler(async (req, res) => {
 
     const existedCategories = await Category.find({ name }).populate("parentCategoryId");
 
-    if (parentCategoryName === "none") {
+    if (parentCategoryId === "none") {
         if (existedCategories.length > 0) {
             if (existedCategories
                 .some((category) => category.name === name)) {
@@ -44,7 +44,7 @@ const addCategory = asyncHandler(async (req, res) => {
     } else {
         if (existedCategories.length > 0) {
             if (existedCategories
-                .some((category) => category.parentCategoryId.name === parentCategoryName)) {
+                .some((category) => category.parentCategoryId.name === parentCategoryId)) {
 
                 let message = encodeURIComponent("");
                 req.flash('error', `This Category Name already exists. Try a new one!!`);
@@ -70,7 +70,7 @@ const addCategory = asyncHandler(async (req, res) => {
 
     const image = await uploadOnCloudinary(req.file.path);
 
-    if (parentCategoryName === "none") {
+    if (parentCategoryId === "none") {
         const category = await Category.create({
             name,
             image: image.url,
@@ -82,8 +82,8 @@ const addCategory = asyncHandler(async (req, res) => {
     }
 
 
-    const parentCategory = await Category.findOne({ name: parentCategoryName });
-    const parentCategoryId = parentCategory._id;
+    const parentCategory = await Category.findOne({ _id: parentCategoryId });
+
     const category = await Category.create({
         name,
         parentCategoryId,
@@ -277,7 +277,7 @@ const updateCategoryController = {
     getUpdatePage: asyncHandler(async (req, res) => {
 
         const categoryId = req.params.categoryId
-        const category = await Category.findOne({ _id: categoryId })
+        const category = await Category.findOne({ _id: categoryId }).populate("parentCategoryId")
 
         const getCategoryPath = async (categoryId) => {
             const category = await Category.findById(categoryId).exec();
@@ -293,18 +293,40 @@ const updateCategoryController = {
             return pathArr.join(">>")
         };
 
+
+
         let categoryPath = await getCategoryPath(category);
+
+        // Finding all the categories and their categoryPath
+        const allCategories = await Category.find({})
+
+        let categoryPathArr = await Promise.all(
+            allCategories.map(async (category) => {
+                return {
+                    category,
+                    path: await getCategoryPath(category._id),
+                };
+            })
+        );
+
+        // Removing the categorypath of the updating category  
+        categoryPathArr = categoryPathArr.filter((category) => {
+            return category.path !== categoryPath;
+        })
+
+        categoryPathArr = categoryPathArr.filter((categoryPath) => {
+            return categoryPath.path !== category.parentCategoryId?.name;
+        })
+
         categoryPath = categoryPath.replace(category.name + ">>", "")
 
         if (category.name === categoryPath) {
             categoryPath = "None"
         }
 
-
         const errorMessage = req.flash("error")[0]
         const successMessage = req.flash('success')[0];
-
-        return res.render("page-edit-categories.ejs", { category, categoryPath, errorMessage, successMessage })
+        return res.render("page-edit-categories.ejs", { category, categoryPath, categoryPathArr, errorMessage, successMessage })
     }),
 
     updateCategory: asyncHandler(async (req, res) => {
@@ -318,31 +340,56 @@ const updateCategoryController = {
         // If removed photo is there, and not req.file, or viceverca throw error.
         // Else upload the file into cloudinary, and update the document. 
 
-        const { name, categoryId, removedImage } = req.body;
+        const { name, categoryId, parentCategoryId, removedImage } = req.body;
         console.log(req.body);
-        console.log(req.file);
+
+        // Validating user entered details
         const { error } = categoryValidationSchema.validate({ name });
         if (error) {
             req.flash("error", `${error.message}`)
             return res.redirect(`/category/update/${categoryId}`)
         }
-        const category = await Category.findOne({ _id: categoryId }).populate("parentCategoryId");
 
+        // Finding the category and existing categories with same name 
+        const category = await Category.findOne({ _id: categoryId })
         const existedCategories = await Category.find({ name, _id: { $ne: category._id } }).populate("parentCategoryId");
+
+        // Updating the category name, if parent category is none and 
+        // no new images are there, uppdating the name of the category.
+        if (parentCategoryId === "None" && !req.file && !removedImage) {
+            if (existedCategories.length > 0) {
+                req.flash("error", `Category name already exists. Please choose a different name.`)
+                return res.redirect(`/category/update/${categoryId}`)
+            }
+
+            category.name = name;
+            await category.save()
+
+            req.flash('success', `Category ${category.name} updated successfully`);
+            return res.redirect("/category/view")
+        }
 
         if (existedCategories.length > 0) {
             if (existedCategories
-                .some((existedCategory) => existedCategory.parentCategoryId?.name === category.parentCategoryId.name)) {
+                .some((existedCategory) => existedCategory.parentCategoryId?.name === category.parentCategoryId?.name)) {
                 req.flash("error", `Category name already exists. Please choose a different name.`)
                 return res.redirect(`/category/update/${categoryId}`)
 
             }
         }
 
+        // Finding the parent Category from DB
+        const parentCategory = await Category.findOne({ _id: parentCategoryId })
+        console.log(parentCategory);
         if (!req.file && !removedImage) {
+
+            // Updating the category name and parent Category
             category.name = name;
+            category.parentCategoryId = parentCategory._id;
             const updatedCategory = await category.save();
-            req.flash("success", `Category updated successfully. Changes have been applied.`)
+            console.log(updatedCategory);
+
+            req.flash("success", `Category ${updatedCategory.name} updated successfully. Changes have been applied.`)
             return res.redirect("/category/view")
 
         }
@@ -353,19 +400,21 @@ const updateCategoryController = {
         }
 
         if (req.file.path === "") {
-
             req.flash('error', `Please ensure uploaded file have valid path.`);
             return res.redirect(`/category/update/${categoryId}`)
         };
 
+        // Uploading the image to cloudinary 
+        // Updating all category details
+
         const image = await uploadOnCloudinary(req.file.path);
 
-        console.log(category);
-
         category.name = name;
+        category.parentCategoryId = parentCategory._id;
         category.image = image.url
         const updatedCategory = await category.save();
-        req.flash("success", `Category updated successfully. Changes have been applied.`)
+
+        req.flash("success", `Category ${updatedCategory.name} updated successfully. Changes have been applied.`)
         return res.redirect("/category/view")
     })
 }

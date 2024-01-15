@@ -35,7 +35,8 @@
                                                     //         // window.location.href = '/user/register'; // Adjust the path as needed
                                                     //     }
                                                     // });
-                                                }));
+                                                });
+                                            });
                                         </script>
                                         <% } %>
 
@@ -62,11 +63,8 @@
                                                         Time
                                                         Password
                                                         (OTP) has been sent to your Email. <br> <span
-                                                            class="text-danger ml-70" id="timer-Display">10 seconds
-                                                            remaining</span></p>
-
-
-
+                                                            class="text-danger ml-70" id="timer-Display"> 
+                                                        </span></p>
 
 
                                                     <form action="" method="post">
@@ -75,16 +73,10 @@
                                                             <input class="form-control" name="OTP" type="text">
                                                         </div> <!-- form-group// -->
 
-                                                        <!-- <div class="mb-3">
-                                    <a href="#" class="float-end font-sm text-muted">Forgot password?</a>
-                                    <label class="form-check">
-                                        <input type="checkbox" class="form-check-input" checked="">
-                                        <span class="form-check-label">Remember</span>
-                                    </label>
-                                </div>  -->
+
                                                         <div class="mb-10" id="resend-otp">
-                                                            <div class="ml-110 mb-4"> <a href="">Resend OTP</a> </div>
-                                                         </div>
+                                                            <div class="ml-110 mb-4"> <a href="/user/resend-OTP">Resend OTP</a> </div>
+                                                        </div>
 
                                                         <div class="mb-4">
                                                             <button type="submit" class="btn btn-primary w-100"> Create
@@ -134,21 +126,40 @@
         <script>
             document.addEventListener("DOMContentLoaded", () => {
 
+                // const timerDisplay = document.getElementById("timer-Display");
                 let timer = 60;
-                const timerDisplay = document.getElementById("timer-Display");
 
-                setInterval(() => {
-                    timerDisplay.innerHTML = timer + " seconds remaining";
-                    if (timer > 0) {
-                        timer = timer - 1;
-                    }
-                }, 1000)
+                // // Check if there is a stored timestamp
+                // const storedTimestamp = localStorage.getItem("otpTimestamp");
 
+                // if (storedTimestamp) {
+                //     // Calculate remaining time based on stored timestamp
+                //     const currentTime = Math.floor(Date.now() / 1000);
+                //     const elapsedTime = currentTime - storedTimestamp;
+                //     timer = Math.max(timer - elapsedTime, 0);
+                // } else {
+                //     // If no stored timestamp, set a new one
+                //     localStorage.setItem("otpTimestamp", Math.floor(Date.now() / 1000));
+                // }
+
+                // // Update the timer display
+                // const updateTimerDisplay = () => {
+                //     timerDisplay.innerHTML = timer + " seconds remaining";
+                //     if (timer > 0) {
+                //         timer = timer - 1;
+                //     }
+                // };
+
+                // // Update the timer display every second
+                // const timerInterval = setInterval(updateTimerDisplay, 1000);
+
+                // Set up the timeout for OTP expiration
                 setTimeout(() => {
+                    // clearInterval(timerInterval); // Clear the interval to stop updating the timer
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: 'OTP Expired',
+                        text: 'OTP Expired!! Click Resend OTP',
                         showConfirmButton: true,
                         confirmButtonText: 'OK',
                         customClass: {
@@ -156,14 +167,13 @@
                         },
                     }).then((result) => {
                         if (result.isConfirmed) {
-
+                           localStorage.removeItem("otpTimestamp");
                         }
                     });
 
-                }, 6000)
+                }, timer * 1000); // Use the remaining time for the timeout
+            });
 
-
-            })
 
         </script>
         <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>

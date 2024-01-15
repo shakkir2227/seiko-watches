@@ -78,12 +78,12 @@
                                 </div> -->
                                                             <div class="mb-4">
                                                                 <label class="form-label">Parent category</label>
-                                                                <select class="form-select" name="parentCategoryName">
+                                                                <select class="form-select" name="parentCategoryId">
                                                                     <option value="none" selected>None</option>
                                                                     <% if(typeof(allCategories) !=="undefined" ) {
                                                                         for(let i=0; i<allCategories.length; i++) { %>
                                                                         <option
-                                                                            value="<%= categoryPathArr[i].category.name %>">
+                                                                            value="<%= categoryPathArr[i].category._id %>">
                                                                             <%= categoryPathArr[i].path %>
                                                                         </option>
                                                                         <% } }%>

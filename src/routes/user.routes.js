@@ -3,6 +3,7 @@ import {
     registerController,
     userLoginController,
     verifyController,
+    userResendOTPController,
     userHomeController,
     userAccountController,
     userLogoutController
@@ -24,6 +25,8 @@ router.route("/register")
 router.route("/verify")
     .get(verifyController.getverifyPage)
     .post(verifyController.verifyUser)
+
+router.route("/resend-OTP").get(userResendOTPController)
 
 router.route("/login")
     .get(userLoginController.getLoginPage)

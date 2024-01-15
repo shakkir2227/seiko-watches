@@ -47,6 +47,7 @@ const addProductController = {
     }),
 
     handleAddProductForm: asyncHandler(async (req, res) => {
+
         //----This is the note for view-category----
         //Only one category drop down should be there
         //and pressing that creates another HTML element
@@ -66,6 +67,8 @@ const addProductController = {
         //exist for the same variation, then only we have to block user from
         //addin that. so change accrodingly
 
+        // TODO: in existing product, we have to check if they are in the same categoy
+        // also, if they are, 
         const {
             name
             , description
@@ -90,16 +93,23 @@ const addProductController = {
             , dialColor
         })
         if (error) {
-
             req.flash('error', error.message);
             return res.redirect("/product/add")
         }
 
 
-        const existedProduct = await Product.findOne({ name });
+        const existedProduct = await Product.findOne({ name });;
+        const category = await Category.findOne({ name: categoryName })
 
         if (existedProduct) {
-            if (existedProduct.dialColor === dialColor && existedProduct.bandMaterial === bandMaterial) {
+
+            // Checking if the product name is existing for the 
+            // particular category with same variation        
+            if (
+                existedProduct.category.equals(category._id)
+                && existedProduct.dialColor === dialColor
+                && existedProduct.bandMaterial === bandMaterial
+            ) {
 
                 req.flash('error', "Oops! This Product name is already in use.");
                 return res.redirect("/product/add")
@@ -135,9 +145,6 @@ const addProductController = {
             const uploadedImage = await uploadOnCloudinary(req.files[i].path);
             images.push({ url: uploadedImage.url })
         }
-
-        const category = await Category.findOne({ name: categoryName })
-
 
         const product = await Product.create({
             name,
@@ -215,12 +222,53 @@ const unblockProductController = asyncHandler(async (req, res) => {
 })
 
 const updateProductViewController = asyncHandler(async (req, res) => {
+
     const productId = req.params.id;
     const product = await Product.findOne({ _id: productId }).populate("category")
 
+    const getCategoryPath = async (categoryId) => {
+        const category = await Category.findById(categoryId).exec();
+        const categoryName = category.name;
+
+        let pathArr = [categoryName];
+
+        if (category.parentCategoryId) {
+            const parentPathArr = await getCategoryPath(category.parentCategoryId);
+            pathArr = pathArr.concat(parentPathArr);
+        }
+
+        return pathArr.join(">>")
+    };
+
+    const categoryPathOfCurrentProduct = await getCategoryPath(product.category._id)
+    const allCategories = await Category.find({})
+
+    let categoryPathArr = await Promise.all(
+        allCategories.map(async (category) => {
+            return {
+                category,
+                path: await getCategoryPath(category._id),
+            };
+        })
+    );
+
+    categoryPathArr = categoryPathArr.filter((element) => {
+        return element.path !== categoryPathOfCurrentProduct
+    })
+
+    let colorVariations = ["Black", "Blue", "Brown"]
+    colorVariations = colorVariations.filter((element) => {
+        return element !== product.dialColor
+    })
+
+    let materialVariations = ["Leather", "Metal", "Titanium"]
+    materialVariations = materialVariations.filter((element) => {
+        return element !== product.bandMaterial
+    })
+
     const errorMessage = req.flash("error")[0]
     const successMessage = req.flash('success')[0];
-    return res.render("page-form-edit.ejs", { product, errorMessage, successMessage })
+    return res.render("page-form-edit.ejs", { product, categoryPathOfCurrentProduct, categoryPathArr, colorVariations, materialVariations, errorMessage, successMessage })
 
 })
 
@@ -230,21 +278,65 @@ const updateProductController = asyncHandler(async (req, res) => {
     // We have to get that array, and remove the corresponding url
     // from our product image array
 
-    const { productId, description, price, stock, removedImages, status } = req.body;
+    // TODO: in product validation schema, use category instead of category name
+
+    const {
+        productId,
+        name,
+        description,
+        price, stock,
+        bandMaterial,
+        dialColor,
+        categoryPath,
+        removedImages,
+        status
+    } = req.body;
 
     const product = await Product.findOne({ _id: productId })
 
-    const { error } = updateProductSchema.validate({ description, price, stock })
+    const { error } = addProductSchema.validate({
+        name,
+        description,
+        price, stock,
+        bandMaterial,
+        dialColor,
+
+    })
 
     if (error) {
         req.flash('error', error.message);
         return res.redirect(`/product/update/${product._id}`)
-
     }
 
+
+    const existedProduct = await Product.findOne({ name, _id: { $ne: productId } });
+    const category = await Category.findOne({ _id: categoryPath })
+
+    if (existedProduct) {
+
+        // Checking if the product name is existing for the 
+        // particular category with same variation        
+        if (
+            existedProduct.category.equals(category._id)
+            && existedProduct.dialColor === dialColor
+            && existedProduct.bandMaterial === bandMaterial
+        ) {
+
+            req.flash('error', "Oops! This Product name is already in use.");
+            return res.redirect(`/product/update/${product._id}`)
+        }
+    }
+
+    // Finding the particular product and update the same.
+
+
+    product.name = name;
     product.description = description;
+    product.category = category._id;
     product.price = price;
     product.stock = stock;
+    product.bandMaterial = bandMaterial;
+    product.dialColor = dialColor;
     product.isBlocked = status === "Active" ? false : true;
 
 
@@ -351,7 +443,7 @@ const productViewController = {
             const product = await Product.findOne({ _id: productId }).populate("category");
 
             // Rendering 404 page if the product is Blocked.
-            if(product.isBlocked) {
+            if (product.isBlocked) {
                 return res.render("page-404.ejs");
             }
 
@@ -398,7 +490,7 @@ const productViewController = {
                 const subCategories = await Category.find({ parentCategoryId: category._id })
                 subCategoriesofTopCategories.push(...subCategories)
             }
-            
+
             return res.render("shop-grid-left.ejs", { selectedCategory, parentCategory, topCategories, subCategoriesofTopCategories })
 
         })

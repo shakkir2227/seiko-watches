@@ -81,14 +81,29 @@
                                 </div> -->
                                                             <div class="mb-4">
                                                                 <label class="form-label">Parent category</label>
-                                                                <select class="form-select" name="parentCategoryName"
-                                                                    disabled>
-
-
-                                                                    <option selected disabled
-                                                                        value="<%= categoryPath%>">
+                                                                <select class="form-select" name="parentCategoryId"
+                                                                   >
+                                                                   <% if(category.parentCategoryId){ %>
+                                                                    <option selected
+                                                                        value="<%= category.parentCategoryId._id%>">
                                                                         <%= categoryPath%>
                                                                     </option>
+                                                                    <%}else{ %>
+                                                                        <option selected value="<%=categoryPath%>">
+                                                                            <%= categoryPath%>
+                                                                        </option>
+                                                                    <%}%>
+
+                                                                    <% if (typeof(categoryPathArr)!== "undefined") { %>
+                                                                        <% categoryPathArr.forEach((element) => {%>
+
+                                                                            <option 
+                                                                                value="<%=element.category._id%>">
+                                                                                <%=element.path%>
+                                                                            </option>
+                                                                       <% }) %>
+
+                                                                    <% } %>
 
                                                                 </select>
 
@@ -249,10 +264,10 @@
 
                                             function updateCategory(categoryId) {
 
-                                                console.log("HELLO");
 
+                                            
                                                 if (removedImage) {
-                                                    console.log("hello");
+                                                  
                                                     const input = document.createElement("input");
                                                     input.type = "hidden",
                                                         input.name = "removedImage",
