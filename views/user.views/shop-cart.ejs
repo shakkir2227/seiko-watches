@@ -106,7 +106,7 @@
                                                     <tr>
                                                         <td class="cart_total_label">Cart Subtotal</td>
                                                         <td class="cart_total_amount"><span
-                                                                class="font-lg fw-900 text-brand">$240.00</span></td>
+                                                                class="font-lg fw-900 text-brand" id="totalAmountBeforeShipping"></span></td>
                                                     </tr>
                                                     <tr>
                                                         <td class="cart_total_label">Shipping</td>
@@ -116,14 +116,14 @@
                                                     <tr>
                                                         <td class="cart_total_label">Total</td>
                                                         <td class="cart_total_amount"><strong><span
-                                                                    class="font-xl fw-900 text-brand">$240.00</span></strong>
+                                                                    class="font-xl fw-900 text-brand" id="totalAmount">$240.00</span></strong>
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <a href="#" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To
-                                            CheckOut</a>
+                                        <a href="/order/buy" class="btn " style="margin-left: 150px; margin-top: 20px;"> <i class="fi-rs-box-alt mr-10" ></i> Proceed To
+                                           Buy</a>
                                     </div>
                                 </div>
 
@@ -166,11 +166,11 @@
                           
                             .then((data) => {
                                document.getElementById(productId).innerHTML = data
-                           }).then( updateSubTotal
-
+                           }).then( updateSubTotal)
+                           .then(loadTotalAmount)
                                // Now updating the subtotal amount
                             
-                           )
+                           
 
                            function updateSubTotal (){
                               const newQuantity = document.getElementById(productId).innerHTML;
@@ -209,6 +209,7 @@
                                 document.getElementById(productId).innerHTML = data
                             })
                             .then(updateSubTotal)
+                            .then(loadTotalAmount)
 
                
 
@@ -253,7 +254,26 @@
                 }
 
 
+                // Taking all elements with the class subTotal for calculating total amount
+                document.addEventListener("DOMContentLoaded", loadTotalAmount)
                 
+                function loadTotalAmount (){
+                   let elements =  document.getElementsByClassName("subTotal")
+                   elements = Array.from(elements)
+
+                
+                   const totalAmount =  elements.reduce((accumulator, value)=> {
+                        return parseInt(value.textContent) + accumulator; 
+                    },0)
+
+                    let totalAmountBeforeShippingElement = document.getElementById("totalAmountBeforeShipping")
+                    totalAmountBeforeShippingElement.textContent = '\u20B9 '+ totalAmount
+
+                    let totalAmountElement = document.getElementById("totalAmount")
+                    totalAmountElement.textContent = '\u20B9 ' + totalAmount
+
+                }
+
             </script>
 
             <!-- Vendor JS-->
