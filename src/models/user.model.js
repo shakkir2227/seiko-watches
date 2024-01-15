@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Mongoose, Schema } from "mongoose";
 import mongooseAggregatePaginate from
     "mongoose-aggregate-paginate-v2";
 import bcrypt from "bcrypt";
@@ -28,13 +28,17 @@ const userSchema = new Schema({
     isVerified: {
         type: Boolean,
         required: true,
-        default:false,
+        default: false,
     },
-    isBlocked:{
-        type:Boolean,
-        required:true,
-        default:false
-    }
+    isBlocked: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    cart: [{
+        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", },
+        quantity: { type: Number }
+    }]
 
 }, {
     timestamps: true

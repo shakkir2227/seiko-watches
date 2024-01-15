@@ -16,6 +16,8 @@ app.use(express.urlencoded({
     limit: "16kb"
 }))
 
+app.use(express.json())
+
 app.use(express.static("public"))
 
 app.use(nocache());
@@ -42,6 +44,7 @@ import userRouter from "./routes/user.routes.js"
 import adminRouter from "./routes/admin.routes.js";
 import categoryRouter from "./routes/category.routes.js"
 import productRouter from "./routes/product.routes.js"
+import cartRouter from "./routes/cart.routes.js"
 
 
 //routes declaration
@@ -49,6 +52,7 @@ app.use("/user", userRouter)
 app.use("/admin", adminRouter)
 app.use("/category", categoryRouter)
 app.use("/product", productRouter)
+app.use("/cart", cartRouter)
 
 
 export { app }

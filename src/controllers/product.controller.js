@@ -1,6 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
+import mongoose from "mongoose";
 import { Product } from "../models/product.model.js"
 import { Category } from "../models/category.model.js"
+import { User } from "../models/user.model.js";
 import { addProductSchema, updateProductSchema } from "../utils/validation/product.validation.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
@@ -436,15 +438,37 @@ const productViewController = {
             //list all the products of the same category except the current product
             //while listing we should avoid same products
 
+            // We have to check the current product is in the user's cart or not
+            // if it is there, send availableincart as true. so that we can 
+            // toggle the addtocart button to view cart
+
+            const userId = req.session.userId;
+            let userIdObject;
+            if (userId) {
+                userIdObject = new mongoose.Types.ObjectId(userId);
+            }
 
             const productId = req.params.productId;
-
-
+            const productIdObject = new mongoose.Types.ObjectId(productId);
             const product = await Product.findOne({ _id: productId }).populate("category");
 
             // Rendering 404 page if the product is Blocked.
             if (product.isBlocked) {
                 return res.render("page-404.ejs");
+            }
+
+            // Checking the product is in user's cart
+            let availableincart;
+            if (userId) {
+                availableincart = await User.aggregate([
+                    {
+                        $match: {
+                            _id: userIdObject,
+                            "cart.product": productIdObject
+                        },
+                    }
+                ])
+
             }
 
             const productWithVariations = await Product.aggregate([{
@@ -461,7 +485,7 @@ const productViewController = {
                 $replaceRoot: { newRoot: "$uniqueProduct" }
             }])
 
-            return res.render("shop-product-full.ejs", { product, relatedProducts, productWithVariations, categories: res.locals.categories, user: res.locals.user })
+            return res.render("shop-product-full.ejs", { product, relatedProducts, availableincart, productWithVariations, categories: res.locals.categories, user: res.locals.user })
 
         }),
 

@@ -27,9 +27,7 @@ async function setCategoryData(req, res, next) {
 const setUserData = asyncHandler(async (req, res, next) => {
     const userId = req.session.userId;
     const user = await User.findOne({ _id: userId });
-    if (user) {
-        user.password = undefined;
-    }
+    
     res.locals.user = user;
 
     next();

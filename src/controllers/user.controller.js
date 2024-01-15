@@ -199,16 +199,12 @@ const verifyController = {
         }
 
         const otp = await OTP.findOne({ userId: user._id })
-        console.log(otp);
-
         if (!otp) {
             req.flash('error', `OTP expired. Please register again`);
             return res.redirect("/user/verify")
         }
 
         const userEnteredOTP = req.body.OTP;
-        console.log(userEnteredOTP);
-
         const isCorrect = await otp.isOTPCorrect(userEnteredOTP)
 
         if (!isCorrect) {
