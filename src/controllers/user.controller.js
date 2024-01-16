@@ -6,6 +6,7 @@ import { OTP } from "../models/userOTP.model.js";
 import { generateCroppedUrl, generateRoundedImageUrl, } from "../utils/cloudinary.js";
 import userValidationSchema from "../utils/validation/user.validation.js";
 import userLoginValidationSchema from "../utils/validation/user.login.validation.js";
+import addressValidationSchema from "../utils/validation/address.validation.js"
 import { tranporter, Mailgenerator } from "../utils/nodemailer.js";
 
 
@@ -341,12 +342,11 @@ const userLoginController = {
         return res.redirect("/user/home")
 
     })
-    
+
 }
 
 
 const userAccountController = asyncHandler(async (req, res) => {
-    console.log(res.locals.user);
     return res.render("page-account.ejs", { user: res.locals.user })
 })
 
@@ -411,6 +411,24 @@ const userHomeController = asyncHandler(async (req, res) => {
 
 })
 
+const userAddressController = {
+    renderAddAddressPage: asyncHandler(async (req, res) => {
+        return res.render("page-address-edit.ejs", { categories: res.locals.categories })
+    }),
+
+    handleAddAddressForm: asyncHandler(async (req, res) => {
+        console.log(req.body);
+        const { name, mobileNumber, pincode, houseName, area, landmark, town, state } = req.body
+        const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
+        if (error) {
+            // return res.render("page-address-edit.ejs")
+            return res.status(500).json(error.message)
+        }
+        
+    })
+}
+
+
 const userLogoutController = asyncHandler(async (req, res) => {
     req.session.userId = null;
     return res.redirect("/user/login")
@@ -424,6 +442,7 @@ export {
     verifyController,
     userResendOTPController,
     userAccountController,
+    userAddressController,
     userLogoutController
 
 }

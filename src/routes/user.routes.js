@@ -6,7 +6,8 @@ import {
     userResendOTPController,
     userHomeController,
     userAccountController,
-    userLogoutController
+    userLogoutController,
+    userAddressController
 } from "../controllers/user.controller.js"
 
 import { setCategoryData, setUserData } from "../middlewares/commonData.middleware.js";
@@ -35,9 +36,14 @@ router.route("/login")
 router.route("/account")
     .get(isAuth, userAccountController)
 
+router.route("/home").get(userHomeController)
+
+router.route("/address/add")
+    .get(userAddressController.renderAddAddressPage)
+    .post(userAddressController.handleAddAddressForm)
+
 router.route("/logout").get(userLogoutController)
 
-router.route("/home").get(userHomeController)
 
 
 export default router;
