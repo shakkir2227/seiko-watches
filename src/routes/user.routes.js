@@ -7,7 +7,7 @@ import {
     userHomeController,
     userAccountController,
     userLogoutController,
-    userAddressController
+    addAddressController,
 } from "../controllers/user.controller.js"
 
 import { setCategoryData, setUserData } from "../middlewares/commonData.middleware.js";
@@ -38,9 +38,11 @@ router.route("/account")
 
 router.route("/home").get(userHomeController)
 
+
+
 router.route("/address/add")
-    .get(userAddressController.renderAddAddressPage)
-    .post(userAddressController.handleAddAddressForm)
+    .get(addAddressController.renderAddAddressPage)
+    .post(addAddressController.handleAddAddressForm)
 
 router.route("/logout").get(userLogoutController)
 

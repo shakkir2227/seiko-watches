@@ -1,8 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { Product } from "../models/product.model.js";
 import { Category } from "../models/category.model.js";
 import { OTP } from "../models/userOTP.model.js";
+import { Address } from "../models/address.model.js";
+
 import { generateCroppedUrl, generateRoundedImageUrl, } from "../utils/cloudinary.js";
 import userValidationSchema from "../utils/validation/user.validation.js";
 import userLoginValidationSchema from "../utils/validation/user.login.validation.js";
@@ -347,7 +350,23 @@ const userLoginController = {
 
 
 const userAccountController = asyncHandler(async (req, res) => {
-    return res.render("page-account.ejs", { user: res.locals.user })
+
+    const user = res.locals.user;
+    const userIdObject = new mongoose.Types.ObjectId(user._id)
+    console.log(user._id);
+    console.log(userIdObject);
+
+
+    const userAddresses = await Address.aggregate([
+        {
+            $match: {
+                user: userIdObject,
+                isDefault: false,
+            }
+        }
+    ])
+    console.log(userAddresses);
+    return res.render("page-account.ejs", { user: res.locals.user, userAddresses })
 })
 
 
@@ -411,20 +430,48 @@ const userHomeController = asyncHandler(async (req, res) => {
 
 })
 
-const userAddressController = {
+const addAddressController = {
+
     renderAddAddressPage: asyncHandler(async (req, res) => {
-        return res.render("page-address-edit.ejs", { categories: res.locals.categories })
+
+        const errorMessage = req.flash("error")[0]
+        const successMessage = req.flash('success')[0];
+        return res.render("page-address-edit.ejs", { categories: res.locals.categories, errorMessage, successMessage })
     }),
 
     handleAddAddressForm: asyncHandler(async (req, res) => {
-        console.log(req.body);
+
+        const user = res.locals.user;
         const { name, mobileNumber, pincode, houseName, area, landmark, town, state } = req.body
+
+
         const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
         if (error) {
-            // return res.render("page-address-edit.ejs")
-            return res.status(500).json(error.message)
+            req.flash("error", `${error.message}`);
+            return res.redirect("/user/address/add")
         }
-        
+
+
+
+        const userAddress = await Address.create({
+            user: user._id,
+            name,
+            mobileNumber,
+            pincode,
+            houseName,
+            area,
+            landmark,
+            town,
+            state
+        })
+
+        if (!userAddress) {
+            req.flash("error", "Adding a new address failed")
+        }
+
+        req.flash("success", "Address added successfully")
+        return res.redirect("/user/address/add")
+
     })
 }
 
@@ -442,7 +489,7 @@ export {
     verifyController,
     userResendOTPController,
     userAccountController,
-    userAddressController,
+    addAddressController,
     userLogoutController
 
 }

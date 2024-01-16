@@ -165,46 +165,57 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="tab-pane fade" id="address" role="tabpanel"
-                                                aria-labelledby="address-tab">
-                                                <div class="row">
-                                                    <div class="col-lg-6">
-                                                        <div class="card mb-5 mb-lg-0">
-                                                            <div class="card-header">
-                                                                <h5 class="mb-0"></h5>
+                                            <!-- ADDRESS tab-->
+
+                                            <% if(typeof(userAddresses) !== "undefined") {%>
+                                               
+                                                    <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
+                                                                <div class="card mb-5 mb-lg-0">
+                                                                    <div class="card-header">
+                                                                        <h5 class="mb-0"></h5>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <img style="width: 25%; margin-left: 90px;" src="/user.assets/imgs/theme/plus-symbol.jpg" alt="">
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <!-- <address>4299 Express Lane<br>
+                                                                                                                Sarasota, <br>FL 34249 USA <br>Phone: 1.941.227.4444</address> -->
+                                                                        <p style="margin-left: 64px;"><a href="/user/address/add">Add address</a> </p>
+                                                                        <!-- <a href="#" class="btn-small">Edit</a> -->
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="card-body">
-                                                                <img style="width: 25%; margin-left: 90px;"
-                                                                    src="/user.assets/imgs/theme/plus-symbol.jpg"
-                                                                    alt="">
+
+                                                            <% userAddresses.forEach((address)=> { %>
+
+                                                            <div class="col-lg-6">
+                                                                <div class="card mb-10">
+                                                                    <div class="card-header">
+                                                                        <h5 class="mb-0">Shipping Address</h5>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <address><%=address.name %><br>
+                                                                            <%=address.houseName %>, <%=address.area %>  <br> <%=address.landmark%> <%=address.town%><br> <%=address.state%><br> Phone: <%=address.mobileNumber %>
+                                                                        </address>
+                                                                       
+                                                                        
+                                                                        <a href="#" class="btn-small">Edit</a>
+                                                                        <a style="margin-left: 20px;" href="#" class="btn-small">Remove</a>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="card-body">
-                                                                <!-- <address>4299 Express Lane<br>
-                                                            Sarasota, <br>FL 34249 USA <br>Phone: 1.941.227.4444</address> -->
-                                                                <p style="margin-left: 64px;"><a href="/user/address/add">Add address</a> </p>
-                                                                <!-- <a href="#" class="btn-small">Edit</a> -->
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="card mb-10">
-                                                            <div class="card-header">
-                                                                <h5 class="mb-0">Shipping Address</h5>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <address>4299 Express Lane<br>
-                                                                    Sarasota, <br>FL 34249 USA <br>Phone: 1.941.227.4444
-                                                                </address>
-                                                                <p>Sarasota</p>
-                                                                <a href="#" class="btn-small">Edit</a>
-                                                                <a style="margin-left: 20px;" href="#"
-                                                                    class="btn-small">Remove</a>
-                                                            </div>
+
+                                                            <%}) %>
+                                                    
                                                         </div>
                                                     </div>
 
-                                                </div>
-                                            </div>
+                                                
+                                                <% }%>
+                                           
+
                                             <div class="tab-pane fade" id="account-detail" role="tabpanel"
                                                 aria-labelledby="account-detail-tab">
                                                 <div class="card">

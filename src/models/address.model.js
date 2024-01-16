@@ -40,7 +40,11 @@ const addressSchema = new Schema({
         type: String,
         required: true,
     },
+    isDefault: {
+        type: Boolean,
+        default:false
+    }
 
-})
+}, { timestamps: true })
 
 export const Address = mongoose.model("Address", addressSchema)
