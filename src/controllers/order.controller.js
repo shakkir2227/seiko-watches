@@ -120,6 +120,11 @@ const userCheckoutController = {
     })
 }
 
+const userOrderViewController = asyncHandler(async(req, res) => {
+    return res.render("page-orders.ejs")
+})
+
 export {
-    userCheckoutController
+    userCheckoutController,
+    userOrderViewController
 }
