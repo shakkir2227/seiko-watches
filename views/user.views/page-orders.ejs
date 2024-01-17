@@ -26,7 +26,7 @@
                                     <tr class="main-heading">
                                         <th scope="col">Image</th>
                                         <th scope="col">Name</th>
-                                        <th scope="col">Order Id</th>
+                                        
                                         <th scope="col">Order placed</th>
                                         <th scope="col">Ship to</th>
                                         <th scope="col">Status</th>
@@ -34,32 +34,39 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="image product-thumbnail"><img src="/user.assets/imgs/shop/product-1-2.jpg"
-                                                alt="#"></td>
-                                        <td class="product-des product-name">
-                                            <h5 class="product-name"><a href="shop-product-right.html">
-                                                    SEIKO_4344
-                                                </a></h5>
 
-                                        </td>
-                                        <td class="price" data-title="Price"><span>S#778899 </span></td>
-                                        <td class="price" data-title="Price"><span>12- 05- 2020 </span></td>
-                                        <td class="text-right" data-title="Cart">
-                                            <span>Orchard <br> abc home, kochi</span>
-                                        </td>
-                                        <td class="text-right" data-title="Cart">
-                                            <h5><span>Delivered</span></h5>
-                                        </td>
-                                        
-                                        <td class="product-des product-name">
-                                            <h5 class="product-name"><a href="shop-product-right.html">
-                                                    View order details
-                                                </a></h5>
-                                        
-                                        </td>
-                                       
-                                    </tr>
+                                    <% if(typeof(userOrders)!== "undefined") {%>
+
+                                        <%userOrders.forEach((order) => { %>
+                                            <tr>
+                                                <td class="image product-thumbnail"><img src="<%=order.product[0].images[0].url %>"
+                                                        alt="#"></td>
+                                                <td style="max-width: 200px;" class="product-des product-name">
+                                                    <h5 class="product-name"><a  href="shop-product-right.html">
+                                                            <%=order.product[0].name %>
+                                                        </a></h5>
+        
+                                                </td>
+                                                
+                                                <td class="price" data-title="Price"><span><%=order.createdAt %> </span></td>
+                                                <td class="text-right" data-title="Cart">
+                                                    <span><%=order.address[0].name %> <br><%=order.address[0].houseName %> <br><%=order.address[0].town %></span>
+                                                </td>
+                                                <td class="text-right" data-title="Cart">
+                                                    <h5><span><%=order.productDetails.deliveryStatus %></span></h5>
+                                                </td>
+                                                
+                                                <td class="product-des product-name">
+                                                    <h5 class="product-name"><a href="/order/view-one?orderId=<%=order._id %>&productId=<%=order.product[0]._id%>">
+                                                            View order details
+                                                        </a></h5>
+                                                
+                                                </td>
+                                               
+                                            </tr>
+
+                                            <% })%>
+                                            <% }%>
                                     
                                 </tbody>
                             </table>

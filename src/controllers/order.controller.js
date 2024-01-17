@@ -36,7 +36,7 @@ const userCheckoutController = {
                 },
             ]
         );
-        
+
         const userDefaultAddress = await Address.aggregate([
             {
                 $match: {
@@ -99,7 +99,7 @@ const userCheckoutController = {
 
     createOrder: asyncHandler(async (req, res) => {
         const user = res.locals.user
-                let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body
+        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body
         if (!selectedAddressIndex) {
             selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
         }
@@ -113,17 +113,118 @@ const userCheckoutController = {
 
         })
 
-        return res.status(200).json({message: "Your order has been placed successfully. Thank you for choosing our service."})
+        return res.status(200).json({ message: "Your order has been placed successfully. Thank you for choosing our service." })
 
     })
 }
 
-const userOrderViewController = asyncHandler(async(req, res) => {
-    
-    return res.render("page-orders.ejs")
+const userOrderViewController = asyncHandler(async (req, res) => {
+
+    const user = res.locals.user
+
+    const userOrders = await Order.aggregate([
+        { $match: { user: user._id } },
+        { $unwind: "$productDetails" },
+        { $lookup: { from: "products", localField: "productDetails.product", foreignField: "_id", as: "product" } },
+        { $lookup: { from: "addresses", localField: "address", foreignField: "_id", as: "address" } },
+        { $sort: { createdAt: -1 } },
+        {
+            $project: {
+                address: 1,
+                productDetails: 1,
+                product: 1,
+                createdAt: {
+                    $dateToString: {
+                        format: "%d-%m-%Y",
+                        date: "$createdAt"
+                    }
+                }
+            }
+        }
+
+    ])
+
+    return res.render("page-orders.ejs", { userOrders })
+})
+
+const userOrderDetailedViewController = asyncHandler(async (req, res) => {
+
+    const { orderId, productId } = req.query;
+
+    const orderIdObject = new mongoose.Types.ObjectId(orderId)
+    const productIdObject = new mongoose.Types.ObjectId(productId)
+
+    const order = await Order.aggregate([
+        {
+            $match: {
+                _id: orderIdObject,
+            }
+        },
+        {
+            $unwind: "$productDetails"
+        },
+        {
+            $match: {
+                "productDetails.product": productIdObject
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "user",
+            }
+        },
+        {
+            $lookup: {
+                from: "addresses",
+                localField: "address",
+                foreignField: "_id",
+                as: "address"
+            }
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "productDetails.product",
+                foreignField: "_id",
+                as: "product"
+            }
+        },
+        {
+            $addFields: {
+                subTotal: {
+                    $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                }
+            }
+        },
+        {
+            $project: {
+                user: 1,
+                address: 1,
+                productDetails: 1,
+                paymentMethod: 1,
+                paymentId: 1,
+                product: 1,
+                createdAt: {
+                    $dateToString: {
+                        format: "%d-%m-%Y %H:%M:%S", 
+                        date: "$createdAt",
+                    }
+                }
+            }
+        }
+
+
+    ])
+
+    console.log(order);
+    return res.render("page-orders-tracking.ejs", { order })
 })
 
 export {
     userCheckoutController,
-    userOrderViewController
+    userOrderViewController,
+    userOrderDetailedViewController
 }

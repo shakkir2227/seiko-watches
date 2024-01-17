@@ -12,7 +12,11 @@ const orderSchema = new Schema({
     productDetails: [{
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", },
         quantity: { type: Number },
-        deliveryStatus: { type: String, default: "Processing" }
+        deliveryStatus: {
+            type: String, 
+            enum: ["Confirmed", "Shipped", "Our For Delivery", "Delivered", "Cancelled", "Returned"],
+            default: "Confirmed"
+        }
     }],
     totalAmount: {
         type: Number,
@@ -23,7 +27,7 @@ const orderSchema = new Schema({
     },
     paymentStatus: {
         type: String,
-        default:"nil",
+        default: "nil",
         enum: ["Pending", "Successful", "Failed", "Refunded", "nil"],
     },
     paymentId: {
