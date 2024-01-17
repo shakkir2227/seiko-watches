@@ -36,8 +36,7 @@ const userCheckoutController = {
                 },
             ]
         );
-        console.log(userCart);
-
+        
         const userDefaultAddress = await Address.aggregate([
             {
                 $match: {
@@ -100,8 +99,7 @@ const userCheckoutController = {
 
     createOrder: asyncHandler(async (req, res) => {
         const user = res.locals.user
-        console.log(req.body);
-        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body
+                let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body
         if (!selectedAddressIndex) {
             selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
         }
@@ -121,6 +119,7 @@ const userCheckoutController = {
 }
 
 const userOrderViewController = asyncHandler(async(req, res) => {
+    
     return res.render("page-orders.ejs")
 })
 
