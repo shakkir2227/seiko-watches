@@ -268,9 +268,83 @@ const userOrderUpdateControler = {
     })
 }
 
+const adminOrderViewController = asyncHandler(async (req, res) => {
+    const { orderId } = req.params;
+    const orderIdObject = new mongoose.Types.ObjectId(orderId)
+    const order = await Order.aggregate([
+        {
+            $match: {
+                _id: orderIdObject
+            },
+
+        },
+        {
+            $unwind: "$productDetails"
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "user"
+            }
+        },
+        {
+            $lookup: {
+                from: "addresses",
+                localField: "address",
+                foreignField: "_id",
+                as: "address",
+            }
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "productDetails.product",
+                foreignField: "_id",
+                as: "product",
+            }
+        },
+
+        {
+            $addFields: {
+                subTotal: {
+                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                }
+            }
+        },
+        {
+            $project: {
+                user: 1,
+                address: 1,
+                productDetails: 1,
+                product:1,
+                totalAmount: 1,
+                paymentMethod: 1,
+                paymentStatus: 1,
+                paymentId: 1,
+                subTotal: 1,
+                createdAt: {
+                    $dateToString: {
+                        format: "%d-%m-%Y %H:%M:%S",
+                        date: "$createdAt"
+                    }
+                }
+
+            }
+        }
+
+    ])
+
+    console.log(order);
+
+    return res.render("page-orders-detail.ejs", {order})
+})
+
 export {
     userCheckoutController,
     userOrderViewController,
     userOrderDetailedViewController,
-    userOrderUpdateControler
+    userOrderUpdateControler,
+    adminOrderViewController
 }

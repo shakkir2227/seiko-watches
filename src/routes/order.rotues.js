@@ -5,7 +5,8 @@ import {
     userCheckoutController,
     userOrderViewController,
     userOrderDetailedViewController,
-    userOrderUpdateControler
+    userOrderUpdateControler,
+    adminOrderViewController
 } from "../controllers/order.controller.js";
 
 
@@ -26,5 +27,9 @@ router.route("/view").get(isAuth, userOrderViewController)
 router.route("/view-one").get(isAuth, userOrderDetailedViewController)
 
 router.route("/cancel").put(isAuth, userOrderUpdateControler.cancelOrder)
+
+// ---------ADMIN ORDER ROUTES---------
+router.route("/view-admin/:orderId").get(adminOrderViewController)
+
 
 export default router 

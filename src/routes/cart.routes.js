@@ -16,7 +16,6 @@ router.use(setCategoryData)
 // Middleware checking user authrorized
 router.use(isAuth)
 
-
 router.route("/view").get(viewCartController)
 router.route("/add").post(addToCartController)
 router.route("/update").put(updateCartController)

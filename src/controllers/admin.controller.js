@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import adminValidationSchema from "../utils/validation/admin.validation.js";
 import { User } from "../models/user.model.js"
+import { Order } from "../models/order.model.js";
 
 
 
@@ -43,7 +44,40 @@ const adminLoginController = {
 
 const adminHomeController = asyncHandler(async (req, res) => {
 
-    return res.render("page-admin-home.ejs")
+    const orders = await Order.aggregate([
+        {
+            $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "user"
+            },
+
+        },
+        {
+            $project: {
+                user: 1,
+                totalAmount: 1,
+                paymentMethod: 1,
+                paymentStatus: 1,
+                createdAt: {
+                    $dateToString: {
+                        format: "%d-%m-%Y",
+                        date: "$createdAt"
+                    }
+                }
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        }
+    ])
+
+    console.log(orders);
+
+    return res.render("page-admin-home.ejs", {orders})
 })
 
 const blockUserController = asyncHandler(async (req, res) => {

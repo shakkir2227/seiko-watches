@@ -11,7 +11,7 @@
 
             <main class="main-wrap">
 
-                <%- include ('./partials/admin.home.header.ejs') %>
+            <%- include ('./partials/admin.home.header.ejs') %>
 
                     <section class="content-main">
                         <div class="content-header">
@@ -145,7 +145,6 @@
                                                                 for="transactionCheck01"></label>
                                                         </div>
                                                     </th>
-                                                    <th class="align-middle" scope="col">Order No</th>
                                                     <th class="align-middle" scope="col">Billing Name</th>
                                                     <th class="align-middle" scope="col">Date</th>
                                                     <th class="align-middle" scope="col">Total</th>
@@ -155,34 +154,41 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                id="transactionCheck02">
-                                                            <label class="form-check-label"
-                                                                for="transactionCheck02"></label>
-                                                        </div>
-                                                    </td>
-                                                    <td><a href="#" class="fw-bold">#SK2540</a> </td>
-                                                    <td>Neal Matthews</td>
-                                                    <td>
-                                                        07 Oct, 2022
-                                                    </td>
-                                                    <td>
-                                                        $400
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge badge-pill badge-soft-success">Paid</span>
-                                                    </td>
-                                                    <td>
-                                                        <i
-                                                            class="material-icons md-payment font-xxl text-muted mr-5"></i>
-                                                        Mastercard
-                                                    </td>
-                                                    <td>
-                                                        <a href="#" class="btn btn-xs"> View details</a>
-                                                    </td>
+                                                <%if(typeof(orders) !==  "undefined") {%>
+                                                    <%orders.forEach((order) => { %>
+                                                        
+                                                        <tr>
+                                                            <td class="text-center">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                        id="transactionCheck02">
+                                                                    <label class="form-check-label"
+                                                                        for="transactionCheck02"></label>
+                                                                </div>
+                                                            </td>
+                                                            <td><%=order.user[0].name %></td>
+                                                            <td>
+                                                            <%=order.createdAt %>
+                                                            </td>
+                                                            <td>
+                                                            <%=order.totalAmount %>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge badge-pill badge-soft-success"><%=order.paymentStatus%></span>
+                                                            </td>
+                                                            <td>
+                                                                <i
+                                                                    class="material-icons md-payment font-xxl text-muted mr-5"></i>
+                                                                <%=order.paymentMethod %>
+                                                            </td>
+                                                            <td>
+                                                                <a href="/order/view-admin/<%=order._id%>" class="btn btn-xs"> View details</a>
+                                                            </td>
+
+
+                                                       <% }) %>
+                                                        <%} %>
+
                                                 </tr>
 
                                             </tbody>

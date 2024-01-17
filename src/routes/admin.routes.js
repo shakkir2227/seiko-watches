@@ -18,7 +18,7 @@ router.route("/login")
     .get(adminLoginController.getLoginPage)
     .post(adminLoginController.loginAdmin)
      
-router.route("/home").get(isAdmin, adminHomeController)
+router.route("/home").get( adminHomeController)
 router.route("/block-user").put(isAdmin, blockUserController)
 router.route("/unblock-user").put(isAdmin, unBlockUserController)
 router.route("/users").get(isAdmin, adminUserDetailsController)
