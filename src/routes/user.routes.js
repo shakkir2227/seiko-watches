@@ -15,10 +15,11 @@ import { isAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+// Setting commondata betwen requests
 router.use(setCategoryData);
 router.use(setUserData);
 
-// router.route("/register").get()
+
 router.route("/register")
     .get(registerController.getRegisterPage)
     .post(registerController.registerUser)
@@ -38,13 +39,11 @@ router.route("/account")
 
 router.route("/home").get(userHomeController)
 
-
-
 router.route("/address/add")
-    .get(addAddressController.renderAddAddressPage)
-    .post(addAddressController.handleAddAddressForm)
+    .get(isAuth, addAddressController.renderAddAddressPage)
+    .post(isAuth, addAddressController.handleAddAddressForm)
 
-router.route("/logout").get(userLogoutController)
+router.route("/logout").get(isAuth, userLogoutController)
 
 
 

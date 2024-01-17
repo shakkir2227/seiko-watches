@@ -242,6 +242,33 @@
                                                             <%} %>
 
 
+                                                <%if(typeof(product) !=="undefined" ) {%>
+                                                    <%product.forEach((product)=> {%>
+
+                                                        <tr>
+                                                            <td class="image product-thumbnail"><img
+                                                                    src="<%=product.images[0].url %>" alt="#">
+                                                            </td>
+                                                            <input type="hidden" class="productId"
+                                                                value="<%=product._id %>">
+                                                            <input type="hidden" class="productQuantity"
+                                                                value="<%=productQuantity %>">
+                                                            <td>
+                                                                <h5><a href="shop-product-full.html">
+                                                                        <%=product.name %>
+                                                                    </a>
+                                                                </h5> <span class="product-qty">x <%=productQuantity
+                                                                        %></span>
+                                                            </td>
+                                                            <td class="sub-total-individual-products">
+                                                                <%=subTotal %>
+                                                            </td>
+                                                        </tr>
+
+                                                        <%}) %>
+                                                            <%} %>
+
+
                                                                 <tr>
                                                                     <th>SubTotal</th>
                                                                     <td class="product-subtotal" colspan="2"
@@ -420,7 +447,7 @@
                 function loadTotalAmount() {
                     let elements = document.getElementsByClassName("sub-total-individual-products")
                     elements = Array.from(elements)
-
+    
 
                     totalAmount = elements.reduce((accumulator, value) => {
                         return parseInt(value.textContent) + accumulator;

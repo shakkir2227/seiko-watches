@@ -1,23 +1,30 @@
 import { Router } from "express";
-const router = Router();
 import { setUserData, setCategoryData } from "../middlewares/commonData.middleware.js";
-
+import { isAuth } from "../middlewares/auth.middleware.js";
 import {
     userCheckoutController,
     userOrderViewController,
     userOrderDetailedViewController,
+    userOrderUpdateControler
 } from "../controllers/order.controller.js";
 
+
+const router = Router();
+
+// Setting common data between requests
 router.use(setCategoryData)
 router.use(setUserData)
 
 router.route("/buy")
-    .get(userCheckoutController.renderCheckoutPage)
-    .post(userCheckoutController.createOrder)
-router.route("/address").post(userCheckoutController.addAddress)
-router.route("/view").get(userOrderViewController)
+    .get(isAuth, userCheckoutController.renderCheckoutPage)
+    .post(isAuth, userCheckoutController.createOrder)
+
+router.route("/address").post(isAuth, userCheckoutController.addAddress)
+router.route("/view").get(isAuth, userOrderViewController)
 
 //For detailed view of the order
-router.route("/view-one").get(userOrderDetailedViewController)
+router.route("/view-one").get(isAuth, userOrderDetailedViewController)
+
+router.route("/cancel").put(isAuth, userOrderUpdateControler.cancelOrder)
 
 export default router 

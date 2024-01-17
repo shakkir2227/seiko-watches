@@ -9,8 +9,12 @@ import {
     deleteFromCartController,
 } from "../controllers/cart.controller.js"
 
+// Setting common data between requests
 router.use(setUserData)
 router.use(setCategoryData)
+
+// Middleware checking user authrorized
+router.use(isAuth)
 
 
 router.route("/view").get(viewCartController)

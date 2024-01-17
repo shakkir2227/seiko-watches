@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { Address } from "../models/address.model.js";
 import { Order } from "../models/order.model.js";
+import { Product } from "../models/product.model.js";
 import addressValidationSchema from "../utils/validation/address.validation.js"
 import mongoose from "mongoose";
 
@@ -9,9 +10,50 @@ const userCheckoutController = {
 
     renderCheckoutPage: asyncHandler(async (req, res) => {
 
-        const { userId } = req.session
+        const { userId } = req.session;
         const userIdObject = new mongoose.Types.ObjectId(userId)
-        const user = await User.findOne({ _id: userId })
+
+        // Finding user's default address and other saved addresses
+        const userDefaultAddress = await Address.aggregate([
+            {
+                $match: {
+                    user: userIdObject,
+                    isDefault: true
+                }
+            }
+        ])
+
+        const userAddresses = await Address.aggregate([
+            {
+                $match: {
+                    user: userIdObject,
+                    isDefault: false
+                }
+            }
+        ])
+
+
+        // When user buys single product, we get productid and qty
+        // from query params 
+        const { productId, productQuantity } = req.query;
+        const productIdObject = new mongoose.Types.ObjectId(productId)
+
+        if (productId && productQuantity) {
+            const product = await Product.aggregate([
+                {
+                    $match: {
+                        _id: productIdObject
+                    }
+                },
+            ])
+
+            const subTotal = product[0].price * productQuantity
+
+            return res.render("shop-checkout.ejs", { categories: res.locals.categories, product, productQuantity, subTotal, userDefaultAddress, userAddresses })
+        }
+
+
+
 
         const userCart = await User.aggregate(
             [
@@ -37,23 +79,6 @@ const userCheckoutController = {
             ]
         );
 
-        const userDefaultAddress = await Address.aggregate([
-            {
-                $match: {
-                    user: userIdObject,
-                    isDefault: true
-                }
-            }
-        ])
-
-        const userAddresses = await Address.aggregate([
-            {
-                $match: {
-                    user: userIdObject,
-                    isDefault: false
-                }
-            }
-        ])
 
 
 
@@ -207,9 +232,10 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
                 paymentMethod: 1,
                 paymentId: 1,
                 product: 1,
+                subTotal: 1,
                 createdAt: {
                     $dateToString: {
-                        format: "%d-%m-%Y %H:%M:%S", 
+                        format: "%d-%m-%Y %H:%M:%S",
                         date: "$createdAt",
                     }
                 }
@@ -221,10 +247,30 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
 
     console.log(order);
     return res.render("page-orders-tracking.ejs", { order })
+
 })
+
+const userOrderUpdateControler = {
+    cancelOrder: asyncHandler(async (req, res) => {
+        const { orderId, productId } = req.body;
+
+        // converting to mongodb objectid
+        const orderIdObject = new mongoose.Types.ObjectId(orderId)
+        const productIdObject = new mongoose.Types.ObjectId(productId)
+
+        await Order.updateOne(
+            { _id: orderIdObject, "productDetails.product": productIdObject },
+            { $set: { "productDetails.$.deliveryStatus": "Cancelled" } }
+        )
+
+        return res.status(200).json({ message: "Your order has been successfully canceled. If you have any further questions or concerns, please feel free to contact our customer support" })
+
+    })
+}
 
 export {
     userCheckoutController,
     userOrderViewController,
-    userOrderDetailedViewController
+    userOrderDetailedViewController,
+    userOrderUpdateControler
 }
