@@ -244,7 +244,9 @@
                                                                             </div>
                                                                         </div>
 
-                                                                        <%if(typeof(userDefaultAddress) !=="undefined" )
+                                                                        <%if(typeof(userDefaultAddress) !== "undefined" )
+                                                                            {%>
+                                                                        <%if(userDefaultAddress.length >0)  
                                                                             {%>
 
 
@@ -275,17 +277,18 @@
                                                                                         </address>
 
 
-                                                                                        <a href="#"
+                                                                                        <a href="/user/address/update/<%=userDefaultAddress[0]._id%>"
                                                                                             class="btn-small">Edit</a>
                                                                                         <a style="margin-left: 20px;"
-                                                                                            href="#"
-                                                                                            class="btn-small">Remove</a>
+                                                                                            
+                                                                                            class="btn-small" onclick="deleteAddress('<%=userDefaultAddress[0]._id %>')">Remove</a>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
 
 
 
+                                                                            <% }%>
                                                                             <% }%>
 
 
@@ -318,11 +321,11 @@
                                                                                                 </address>
 
 
-                                                                                                <a href="/user/address/update"
+                                                                                                <a href="/user/address/update/<%=address._id%>"
                                                                                                     class="btn-small">Edit</a>
                                                                                                 <a style="margin-left: 20px;"
-                                                                                                    href="#"
-                                                                                                    class="btn-small">Remove</a>
+                                                                                                   
+                                                                                                    class="btn-small" onclick="deleteAddress('<%=address._id %>')">Remove</a>
                                                                                                 <a onclick="makeAddressDefault('<%=address._id %>')"
                                                                                                     style="margin-left: 20px;"
                                                                                                     class="btn-small">Set
@@ -425,6 +428,55 @@
                             <%- include ('./partials/user.footer.ejs') %>
 
                                 <script>
+
+                                    function deleteAddress(addressId) {
+        
+                                            Swal.fire({
+                                                title: 'Are you sure?',
+                                                text: 'This address will be removed !',
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#3085d6',
+                                                cancelButtonColor: '#d33',
+                                                confirmButtonText: 'Yes, Remove!'
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                  
+                                                  
+                                                    let data = {
+                                                   addressId,
+                                                    }
+        
+                                               data = JSON.stringify(data)
+        
+                                               fetch("/user/address/delete", {
+                                                   method: "DELETE", headers: {
+                                                       'Content-Type'
+                                                           : 'application/json'
+                                                   }, body: data,
+                                               })
+                                            
+                                                .then((res) => {
+                                                    if (res.ok) {
+                                                        Swal.fire({
+                                                            icon: 'success',
+                                                            title: 'Success!',
+                                                            text: 'Address Removed successfully',
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            customClass: {
+                                                                confirmButton: 'btn btn-success', // Add custom class for styling
+                                                            },
+                                                        }).then(() => {
+                                                            window.location.href= "/user/account"
+                                                        })
+                                                    }
+
+                                                })
+                                                }
+                                            })
+                                    }
+
 
                                     function makeAddressDefault(addressId) {
 

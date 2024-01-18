@@ -370,8 +370,8 @@ const userAccountController = {
                     isDefault: false
                 }
             }
-        ])
-
+        ])   
+             
         const errorMessage = req.flash("error")[0]
         const successMessage = req.flash('success')[0];
         return res.render("page-account.ejs", { user: res.locals.user, userDefaultAddress, userAddresses, errorMessage, successMessage })
@@ -550,19 +550,92 @@ const userAddressController = {
         // Updating the requestd address to be the defautl one
         await Address.updateOne({ _id: addressIdObject }, { $set: { isDefault: true } })
 
-        return res.status(200).json({message: "Address updated successfully"})
+        return res.status(200).json({ message: "Address updated successfully" })
     }),
 
     updateAddress: {
-        renderUpdateAddressPage: asyncHandler(async(req, res) => {
-            return res.render("page-address-edit.ejs")
+        renderUpdateAddressPage: asyncHandler(async (req, res) => {
+            const { addressId } = req.params
+            const addressIdObject = new mongoose.Types.ObjectId(addressId)
+
+            const address = await Address.findOne({ _id: addressId })
+
+            const errorMessage = req.flash("error")[0]
+            const successMessage = req.flash('success')[0];
+            return res.render("page-address-edit.ejs", { address, errorMessage, successMessage })
+        }),
+
+        handleUpdateAddressForm: asyncHandler(async (req, res) => {
+
+            const user = res.locals.user;
+            const { addressId, name, mobileNumber, pincode, houseName, area, landmark, town, state, isDefault } = req.body
+
+            // Validating the user entered deatils using JOI
+            const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
+            if (error) {
+                req.flash("error", `${error.message}`);
+                return res.redirect(`/user/address/update/${addressId}`)
+            }
+
+            // Checking the address is default, if yes, removing the existing default address
+            if (isDefault) {
+                await Address.updateOne({ user: user._id, isDefault: true }, { $set: { isDefault: false } })
+
+                const address = await Address.findOne({ _id: addressId })
+
+                address.name = name;
+                address.mobileNumber = mobileNumber;
+                address.pincode = pincode;
+                address.houseName = houseName;
+                address.area = area;
+                address.landmark = landmark;
+                address.town = town;
+                address.state = state;
+                address.isDefault = true;
+
+                const updatedAddress = await address.save()
+
+                if (!updatedAddress) {
+                    req.flash("error", "Updating address failed")
+                    return res.redirect(`/user/address/update/${addressId}`)
+                }
+
+            } else {
+
+                const address = await Address.findOne({ _id: addressId })
+
+                address.name = name;
+                address.mobileNumber = mobileNumber;
+                address.pincode = pincode;
+                address.houseName = houseName;
+                address.area = area;
+                address.landmark = landmark;
+                address.town = town;
+                address.state = state;
+
+                const updatedAddress = await address.save()
+
+                if (!updatedAddress) {
+                    req.flash("error", "Updating address failed")
+                    return res.redirect(`/user/address/update/${addressId}`)
+                }
+            }
+
+
+            req.flash("success", "Address Updated successfully")
+            return res.redirect(`/user/address/update/${addressId}`)
+
         })
-    }
+    },
 
+    deleteAddress: asyncHandler(async (req, res) => {
+        const { addressId } = req.body;
 
+        await Address.deleteOne({ _id: addressId })
+
+        return res.status(200).json({message: "Address Removed successfully"})
+    })
 }
-
-
 
 
 

@@ -10,9 +10,8 @@
         <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow">Home</a>
-                    <span></span> Shop
-                    <span></span> Your Cart
+                    <a href="/user/home" rel="nofollow">Home</a>
+                    <span></span> Your Orders
                 </div>
             </div>
         </div>
@@ -39,10 +38,10 @@
 
                                         <%userOrders.forEach((order) => { %>
                                             <tr>
-                                                <td class="image product-thumbnail"><img src="<%=order.product[0].images[0].url %>"
-                                                        alt="#"></td>
+                                                <td class="image product-thumbnail"><a href="/product/view-user/<%=order.product[0]._id%>"><img src="<%=order.product[0].images[0].url %>"
+                                                        alt="#"> </a></td>
                                                 <td style="max-width: 200px;" class="product-des product-name">
-                                                    <h5 class="product-name"><a  href="shop-product-right.html">
+                                                    <h5 class="product-name"><a href="/product/view-user/<%=order.product[0]._id%>">
                                                             <%=order.product[0].name %>
                                                         </a></h5>
         

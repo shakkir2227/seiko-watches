@@ -10,7 +10,6 @@
                     <div class="container">
                         <div class="breadcrumb">
                             <a href="index.html" rel="nofollow">Home</a>
-                            <span></span> Shop
                             <span></span> Your Cart
                         </div>
                     </div>
@@ -37,11 +36,11 @@
                                                 <% userCart.forEach((user)=> { %>
 
                                                     <tr>
-                                                        <td class="image product-thumbnail"><img
-                                                                src="<%=user.product[0].images[0].url%>" alt="#"></td>
+                                                        <td class="image product-thumbnail"> <a href="/product/view-user/<%=user.product[0]._id%>"><img
+                                                                src="<%=user.product[0].images[0].url%>" alt="#"> </a></td>
                                                         <td class="product-des product-name" style="max-width: 200px;">
                                                             <h5 class="product-name"><a
-                                                                    href="/product/view-user/<%=user.product._id%>">
+                                                                    href="/product/view-user/<%=user.product[0]._id%>">
                                                                     <%=user.product[0].name %>
                                                                 </a></h5>
 

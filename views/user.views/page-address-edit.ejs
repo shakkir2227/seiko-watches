@@ -66,20 +66,20 @@
                                                                 aria-labelledby="account-detail-tab">
                                                                 <div class="card">
                                                                     <div class="card-header">
-                                                                        <h2>Add a new address</h2>
+                                                                        <h2>Update address</h2>
                                                                     </div>
                                                                     <div class="card-body">
 
                                                                         <form method="post" name="enq"
-                                                                            action="/user/address/add"
+                                                                            action="/user/address/update/"
                                                                             onsubmit="return validateForm()">
                                                                             <div class="row">
                                                                                 <div class="form-group col-md-12">
-                                                                                    <label>First Name <span
+                                                                                    <label>Name <span
                                                                                             class="required">*</span></label>
                                                                                     <input required=""
                                                                                         class="form-control square"
-                                                                                        name="name" type="text"
+                                                                                        name="name" type="text" value="<%=address.name %>"
                                                                                         id="name"
                                                                                         oninput="validateFieldName()">
                                                                                     <span style="color: red;"
@@ -94,7 +94,7 @@
                                                                                             class="required">*</span></label>
                                                                                     <input required=""
                                                                                         class="form-control square"
-                                                                                        name="mobileNumber" type="text"
+                                                                                        name="mobileNumber" type="text" value="<%=address.mobileNumber %>"
                                                                                         id="mobileNumber"
                                                                                         oninput="validateFieldMobileNumber()">
                                                                                     <span style="color: red;"
@@ -106,7 +106,7 @@
                                                                                             class="required">*</span></label>
                                                                                     <input required=""
                                                                                         class="form-control square"
-                                                                                        name="pincode" type="text"
+                                                                                        name="pincode" type="text" value="<%=address.pincode %>"
                                                                                         id="pincode"
                                                                                         oninput="validateFieldPincode()">
                                                                                     <span style="color: red;"
@@ -119,7 +119,7 @@
                                                                                             class="required">*</span></label>
                                                                                     <input required=""
                                                                                         class="form-control square"
-                                                                                        name="houseName" type="text"
+                                                                                        name="houseName" type="text" value="<%=address.houseName %>"
                                                                                         id="houseName"
                                                                                         oninput="validateFieldHouseName()">
                                                                                     <span style="color: red;"
@@ -132,7 +132,7 @@
                                                                                             class="required">*</span></label>
                                                                                     <input required=""
                                                                                         class="form-control square"
-                                                                                        name="area" type="text"
+                                                                                        name="area" type="text" value="<%=address.area %>"
                                                                                         id="area"
                                                                                         oninput="validateFieldarea()">
                                                                                     <span style="color: red;"
@@ -144,7 +144,7 @@
                                                                                 <label>Landmark <span
                                                                                         class="required">*</span></label>
                                                                                 <input required=""
-                                                                                    class="form-control square"
+                                                                                    class="form-control square" value="<%=address.landmark %>"
                                                                                     name="landmark" type="text"
                                                                                     id="landmark"
                                                                                     oninput="validateFieldlandmark()">
@@ -157,7 +157,7 @@
                                                                                         class="required">*</span></label>
                                                                                 <input required=""
                                                                                     class="form-control square"
-                                                                                    name="town" type="text" id="town"
+                                                                                    name="town" type="text" id="town" value="<%=address.town %>"
                                                                                     oninput="validateFieldtown()">
                                                                                 <span style="color: red;" id="townError"
                                                                                     class="error"></span>
@@ -167,7 +167,7 @@
                                                                                         class="required">*</span></label>
                                                                                 <input required=""
                                                                                     class="form-control square"
-                                                                                    name="state" type="text" id="state"
+                                                                                    name="state" type="text" id="state" value="<%=address.state%>"
                                                                                     oninput="validateFieldstate()">
                                                                                 <span style="color: red;"
                                                                                     id="stateError"
@@ -185,11 +185,14 @@
                                                                                 </label>
                                                                             </div>
 
+                                                                            <!-- setting hidden input for addressid-->
+                                                                            <input type="hidden" name="addressId" id="" value="<%=address._id %>">
+
 
 
                                                                             <div class="col-md-12">
                                                                                 <button type="submit"
-                                                                                    class="btn btn-fill-out submit">Add
+                                                                                    class="btn btn-fill-out submit">Update
                                                                                     address</button>
                                                                             </div>
                                                                     </div>
