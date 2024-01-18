@@ -17,12 +17,17 @@ const router = Router();
 router.route("/login")
     .get(adminLoginController.getLoginPage)
     .post(adminLoginController.loginAdmin)
-     
-router.route("/home").get( adminHomeController)
+
+router.route("/home").get(isAdmin, adminHomeController)
+
+// Block Unblock user
 router.route("/block-user").put(isAdmin, blockUserController)
 router.route("/unblock-user").put(isAdmin, unBlockUserController)
+
+// Users list view for admin
 router.route("/users").get(isAdmin, adminUserDetailsController)
-router.route("/logout").get(adminLogoutController)
+
+router.route("/logout").get(isAdmin, adminLogoutController)
 
 
 

@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { setCategoryData, setUserData } from "../middlewares/commonData.middleware.js";
+import { isAuth } from "../middlewares/auth.middleware.js";
 import {
     registerController,
     userLoginController,
@@ -6,12 +8,10 @@ import {
     userResendOTPController,
     userHomeController,
     userAccountController,
+    userAddressController,
     userLogoutController,
-    addAddressController,
 } from "../controllers/user.controller.js"
 
-import { setCategoryData, setUserData } from "../middlewares/commonData.middleware.js";
-import { isAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -37,11 +37,16 @@ router.route("/login")
 router.route("/account")
     .get(isAuth, userAccountController.renderAccountDetailsPage)
     .post(isAuth, userAccountController.updateAccount)
+
 router.route("/home").get(userHomeController)
 
+// Address routes
 router.route("/address/add")
-    .get(isAuth, addAddressController.renderAddAddressPage)
-    .post(isAuth, addAddressController.handleAddAddressForm)
+    .get(isAuth, userAddressController.addAddressController.renderAddAddressPage)
+    .post(isAuth, userAddressController.addAddressController.handleAddAddressForm)
+
+router.route("/address/change-default").put(userAddressController.changeDefaultAddressController)
+router.route("/address/update").get(userAddressController.updateAddress.renderUpdateAddressPage)
 
 router.route("/logout").get(isAuth, userLogoutController)
 

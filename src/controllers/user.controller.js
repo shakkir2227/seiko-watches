@@ -5,7 +5,6 @@ import { Product } from "../models/product.model.js";
 import { Category } from "../models/category.model.js";
 import { OTP } from "../models/userOTP.model.js";
 import { Address } from "../models/address.model.js";
-
 import { generateCroppedUrl, generateRoundedImageUrl, } from "../utils/cloudinary.js";
 import userValidationSchema from "../utils/validation/user.validation.js";
 import userLoginValidationSchema from "../utils/validation/user.login.validation.js";
@@ -165,7 +164,6 @@ const registerController = {
 
     })
 }
-
 
 
 const verifyController = {
@@ -354,17 +352,29 @@ const userAccountController = {
     renderAccountDetailsPage: asyncHandler(async (req, res) => {
         const user = res.locals.user;
 
+        const userDefaultAddress = await Address.aggregate([
+            {
+                $match: {
+                    user: user._id,
+                    isDefault: true,
+                }
+            }
+        ])
+
+
+
         const userAddresses = await Address.aggregate([
             {
                 $match: {
                     user: user._id,
+                    isDefault: false
                 }
             }
         ])
 
         const errorMessage = req.flash("error")[0]
         const successMessage = req.flash('success')[0];
-        return res.render("page-account.ejs", { user: res.locals.user, userAddresses, errorMessage, successMessage })
+        return res.render("page-account.ejs", { user: res.locals.user, userDefaultAddress, userAddresses, errorMessage, successMessage })
     }),
 
     updateAccount: asyncHandler(async (req, res) => {
@@ -386,8 +396,8 @@ const userAccountController = {
         // if user validation successful, update the user
         user.name = name;
         user.mobileNumber = mobileNumber,
-        
-        await user.save();
+
+            await user.save();
 
         req.flash("success", "Your account has been updated successfully")
         return res.redirect("/user/account")
@@ -456,50 +466,104 @@ const userHomeController = asyncHandler(async (req, res) => {
 
 })
 
-const addAddressController = {
+const userAddressController = {
 
-    renderAddAddressPage: asyncHandler(async (req, res) => {
+    addAddressController: {
 
-        const errorMessage = req.flash("error")[0]
-        const successMessage = req.flash('success')[0];
-        return res.render("page-address-edit.ejs", { categories: res.locals.categories, errorMessage, successMessage })
-    }),
+        renderAddAddressPage: asyncHandler(async (req, res) => {
 
-    handleAddAddressForm: asyncHandler(async (req, res) => {
+            const errorMessage = req.flash("error")[0]
+            const successMessage = req.flash('success')[0];
+            return res.render("page-address-form.ejs", { categories: res.locals.categories, errorMessage, successMessage })
+        }),
+
+        handleAddAddressForm: asyncHandler(async (req, res) => {
+
+            const user = res.locals.user;
+            const { name, mobileNumber, pincode, houseName, area, landmark, town, state, isDefault } = req.body
+
+            // Validating the user entered deatils using JOI
+            const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
+            if (error) {
+                req.flash("error", `${error.message}`);
+                return res.redirect("/user/address/add")
+            }
+
+            // Checking the address is default, if yes, removing the existing defautl address
+            if (isDefault) {
+                await Address.updateOne({ user: user._id, isDefault: true }, { $set: { isDefault: false } })
+
+                const userAddress = await Address.create({
+                    user: user._id,
+                    name,
+                    mobileNumber,
+                    pincode,
+                    houseName,
+                    area,
+                    landmark,
+                    town,
+                    state,
+                    isDefault: true,
+                })
+
+                if (!userAddress) {
+                    req.flash("error", "Adding  new address failed")
+                    return res.redirect("/user/address/add")
+                }
+
+            } else {
+                const userAddress = await Address.create({
+                    user: user._id,
+                    name,
+                    mobileNumber,
+                    pincode,
+                    houseName,
+                    area,
+                    landmark,
+                    town,
+                    state,
+                })
+
+                if (!userAddress) {
+                    req.flash("error", "Adding  new address failed")
+                    return res.redirect("/user/address/add")
+                }
+            }
+
+
+            req.flash("success", "Address added successfully")
+            return res.redirect("/user/address/add")
+
+        })
+    },
+
+    changeDefaultAddressController: asyncHandler(async (req, res) => {
 
         const user = res.locals.user;
-        const { name, mobileNumber, pincode, houseName, area, landmark, town, state } = req.body
 
+        const { addressId } = req.body
+        const addressIdObject = new mongoose.Types.ObjectId(addressId)
 
-        const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
-        if (error) {
-            req.flash("error", `${error.message}`);
-            return res.redirect("/user/address/add")
-        }
+        // Updating already default address' isDefault to false
+        await Address.updateOne({ user: user._id, isDefault: true }, { $set: { isDefault: false } })
 
+        // Updating the requestd address to be the defautl one
+        await Address.updateOne({ _id: addressIdObject }, { $set: { isDefault: true } })
 
+        return res.status(200).json({message: "Address updated successfully"})
+    }),
 
-        const userAddress = await Address.create({
-            user: user._id,
-            name,
-            mobileNumber,
-            pincode,
-            houseName,
-            area,
-            landmark,
-            town,
-            state
+    updateAddress: {
+        renderUpdateAddressPage: asyncHandler(async(req, res) => {
+            return res.render("page-address-edit.ejs")
         })
+    }
 
-        if (!userAddress) {
-            req.flash("error", "Adding a new address failed")
-        }
 
-        req.flash("success", "Address added successfully")
-        return res.redirect("/user/address/add")
-
-    })
 }
+
+
+
 
 
 const userLogoutController = asyncHandler(async (req, res) => {
@@ -515,7 +579,7 @@ export {
     verifyController,
     userResendOTPController,
     userAccountController,
-    addAddressController,
+    userAddressController,
     userLogoutController
 
 }

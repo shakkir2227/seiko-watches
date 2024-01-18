@@ -1,8 +1,8 @@
 <%- include ('./layouts/head.ejs') %>
 
-<body>
-  
-            <%- include ('./partials/user.header.ejs') %>
+    <body>
+
+        <%- include ('./partials/user.header.ejs') %>
 
 
             <!-- This is for validation error messages from server-->
@@ -22,7 +22,7 @@
                     });
                 </script>
                 <% } %>
-            
+
                     <% if (typeof(successMessage) !=="undefined" ) { %>
                         <script>
                             document.addEventListener('DOMContentLoaded', function () {
@@ -36,265 +36,333 @@
                                         confirmButton: 'btn btn-success', // Add custom class for styling
                                     },
                                 })
-                                .then(()=> {
-                                    window.location.href = "/user/account"
-                                })
+                                    .then(() => {
+                                        window.location.href = "/user/account"
+                                    })
                             });
                         </script>
                         <% } %>
-    
-    <main class="main">
-        <div class="page-header breadcrumb-wrap">
-            <div class="container">
-                <div class="breadcrumb">
-                    <a href="index-3.html" rel="nofollow">Home</a>
-                    <span></span> Pages
-                    <span></span> Account
-                </div>
-            </div>
-        </div>
-        <section class="pt-150 pb-150">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-10 m-auto">
-                        <div class="row">
-                            
-                            <div class="col-md-9">
-                                <div class="tab-content test.html">
-                                    
-                                    <div class="" id="account-detail" role="tabpanel"
-                                        aria-labelledby="account-detail-tab">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h2>Add a new address</h2>
-                                            </div>
-                                            <div class="card-body">
-                                               
-                                                <form method="post" name="enq" action="/user/address/add" onsubmit="return validateForm()">
-                                                    <div class="row">
-                                                        <div class="form-group col-md-12">
-                                                            <label>First Name <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="name"
-                                                                type="text" id="name" oninput="validateFieldName()">
-                                                                <span style="color: red;" id="nameError" class="error"></span>
-                                                        </div>
-                                                        
-                                                        
-                                                        
-                                                        <div class="form-group col-md-12">
-                                                            <label>Mobile number <span
-                                                                    class="required">*</span></label>
-                                                            <input required="" class="form-control square"
-                                                                name="mobileNumber" type="text"  id="mobileNumber" oninput="validateFieldMobileNumber()">
-                                                                <span style="color: red;" id="mobileNumberError" class="error"></span>
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Pincode <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="pincode" type="text" id="pincode" oninput="validateFieldPincode()">
-                                                            <span style="color: red;" id="pincodeError" class="error"></span>
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Flat, House no, Building, Company  <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="houseName" type="text" id="houseName" oninput="validateFieldHouseName()">
-                                                            <span style="color: red;" id="houseNameError" class="error"></span>
-                                                        </div><div class="form-group col-md-12">
-                                                            <label>Area, Street, Sector, Village <span class="required" >*</span></label>
-                                                            <input required="" class="form-control square" name="area" type="text" id="area" oninput="validateFieldarea()">
-                                                            <span style="color: red;" id="areaError" class="error"></span>
-                                                        </div>
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Landmark <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="landmark" type="text" id="landmark" oninput="validateFieldlandmark()">
-                                                            <span style="color: red;" id="landmarkError" class="error"></span>
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Town <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="town" type="text" id="town" oninput="validateFieldtown()">
-                                                            <span style="color: red;" id="townError" class="error"></span>
-                                                        </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>State <span class="required">*</span></label>
-                                                            <input required="" class="form-control square" name="state" type="text" id="state" oninput="validateFieldstate()">
-                                                            <span style="color: red;" id="stateError" class="error"></span>
-                                                        </div>
-                                                       
 
-                                                        
-                                                        <div class="col-md-12">
-                                                            <button type="submit" class="btn btn-fill-out submit"
-                                                               >Add address</button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
+                            <main class="main">
+                                <div class="page-header breadcrumb-wrap">
+                                    <div class="container">
+                                        <div class="breadcrumb">
+                                            <a href="index-3.html" rel="nofollow">Home</a>
+                                            <span></span> Pages
+                                            <span></span> Account
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-  
-    <!--footer partial-->
-    <%- include ('./partials/user.footer.ejs') %>
-    
-    <!-- Validation logic -->
+                                <section class="pt-150 pb-150">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-lg-10 m-auto">
+                                                <div class="row">
 
-   <script>
-     function validateFieldName() {
-            const element = document.getElementById("name");
-            const nameErrorElement = document.getElementById("nameError");
+                                                    <div class="col-md-9">
+                                                        <div class="tab-content test.html">
 
-            if (element.value.length < 3 || element.value.length > 30 || !/^[A-Z]/.test(element.value)) {
-                nameErrorElement.innerHTML = "Name should be 3 to 30 characters and start with an uppercase letter";
-            } else {
-                nameErrorElement.innerHTML = "";
-            }
-        }
+                                                            <div class="" id="account-detail" role="tabpanel"
+                                                                aria-labelledby="account-detail-tab">
+                                                                <div class="card">
+                                                                    <div class="card-header">
+                                                                        <h2>Add a new address</h2>
+                                                                    </div>
+                                                                    <div class="card-body">
 
-        function validateFieldMobileNumber() {
-            const element = document.getElementById("mobileNumber");
-            const mobileNumberErrorElement = document.getElementById("mobileNumberError");
-
-            const mobileNumberValue = element.value;
-
-            if (mobileNumberValue.length !== 10) {
-                mobileNumberErrorElement.innerHTML = "Mobile number should be 10 digits";
-            } else if (!/^\d+$/.test(mobileNumberValue)) {
-                mobileNumberErrorElement.innerHTML = "Mobile number should consist only of digits";
-            } else {
-                mobileNumberErrorElement.innerHTML = "";
-            }
-        }
-        function validateFieldPincode() {
-            const element = document.getElementById("pincode");
-            const pincodeErrorElement = document.getElementById("pincodeError");
-
-            const pincodeValue = element.value;
-
-            if (element.value.length !== 6) {
-                pincodeErrorElement.innerHTML = "Pincode should be 6 digits";
-            } else if (!/^\d+$/.test(pincodeValue)) {
-                pincodeErrorElement.innerHTML = "Pincode should consist only of digits";
-            } else {
-                pincodeErrorElement.innerHTML = "";
-            }
-        }
+                                                                        <form method="post" name="enq"
+                                                                            action="/user/address/add"
+                                                                            onsubmit="return validateForm()">
+                                                                            <div class="row">
+                                                                                <div class="form-group col-md-12">
+                                                                                    <label>First Name <span
+                                                                                            class="required">*</span></label>
+                                                                                    <input required=""
+                                                                                        class="form-control square"
+                                                                                        name="name" type="text"
+                                                                                        id="name"
+                                                                                        oninput="validateFieldName()">
+                                                                                    <span style="color: red;"
+                                                                                        id="nameError"
+                                                                                        class="error"></span>
+                                                                                </div>
 
 
-        function validateFieldHouseName() {
-            const houseNameElement = document.getElementById("houseName");
-            const houseNameErrorElement = document.getElementById("houseNameError");
 
-            if (houseNameElement.value.length < 3 || houseNameElement.value.length > 50) {
-                houseNameErrorElement.innerHTML = "HouseName should be 3 to 50 characters";
-            } else {
-                houseNameErrorElement.innerHTML = "";
-            }
-        }
-        function validateFieldarea() {
-            const areaElement = document.getElementById("area");
-            const areaErrorElement = document.getElementById("areaError");
+                                                                                <div class="form-group col-md-12">
+                                                                                    <label>Mobile number <span
+                                                                                            class="required">*</span></label>
+                                                                                    <input required=""
+                                                                                        class="form-control square"
+                                                                                        name="mobileNumber" type="text"
+                                                                                        id="mobileNumber"
+                                                                                        oninput="validateFieldMobileNumber()">
+                                                                                    <span style="color: red;"
+                                                                                        id="mobileNumberError"
+                                                                                        class="error"></span>
+                                                                                </div>
+                                                                                <div class="form-group col-md-12">
+                                                                                    <label>Pincode <span
+                                                                                            class="required">*</span></label>
+                                                                                    <input required=""
+                                                                                        class="form-control square"
+                                                                                        name="pincode" type="text"
+                                                                                        id="pincode"
+                                                                                        oninput="validateFieldPincode()">
+                                                                                    <span style="color: red;"
+                                                                                        id="pincodeError"
+                                                                                        class="error"></span>
+                                                                                </div>
+                                                                                <div class="form-group col-md-12">
+                                                                                    <label>Flat, House no, Building,
+                                                                                        Company <span
+                                                                                            class="required">*</span></label>
+                                                                                    <input required=""
+                                                                                        class="form-control square"
+                                                                                        name="houseName" type="text"
+                                                                                        id="houseName"
+                                                                                        oninput="validateFieldHouseName()">
+                                                                                    <span style="color: red;"
+                                                                                        id="houseNameError"
+                                                                                        class="error"></span>
+                                                                                </div>
+                                                                                <div class="form-group col-md-12">
+                                                                                    <label>Area, Street, Sector, Village
+                                                                                        <span
+                                                                                            class="required">*</span></label>
+                                                                                    <input required=""
+                                                                                        class="form-control square"
+                                                                                        name="area" type="text"
+                                                                                        id="area"
+                                                                                        oninput="validateFieldarea()">
+                                                                                    <span style="color: red;"
+                                                                                        id="areaError"
+                                                                                        class="error"></span>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="form-group col-md-12">
+                                                                                <label>Landmark <span
+                                                                                        class="required">*</span></label>
+                                                                                <input required=""
+                                                                                    class="form-control square"
+                                                                                    name="landmark" type="text"
+                                                                                    id="landmark"
+                                                                                    oninput="validateFieldlandmark()">
+                                                                                <span style="color: red;"
+                                                                                    id="landmarkError"
+                                                                                    class="error"></span>
+                                                                            </div>
+                                                                            <div class="form-group col-md-12">
+                                                                                <label>Town <span
+                                                                                        class="required">*</span></label>
+                                                                                <input required=""
+                                                                                    class="form-control square"
+                                                                                    name="town" type="text" id="town"
+                                                                                    oninput="validateFieldtown()">
+                                                                                <span style="color: red;" id="townError"
+                                                                                    class="error"></span>
+                                                                            </div>
+                                                                            <div class="form-group col-md-12">
+                                                                                <label>State <span
+                                                                                        class="required">*</span></label>
+                                                                                <input required=""
+                                                                                    class="form-control square"
+                                                                                    name="state" type="text" id="state"
+                                                                                    oninput="validateFieldstate()">
+                                                                                <span style="color: red;"
+                                                                                    id="stateError"
+                                                                                    class="error"></span>
+                                                                            </div>
 
-            if (areaElement.value.length < 3 || areaElement.value.length > 50) {
-                areaErrorElement.innerHTML = "Area name should be 3 to 50 characters";
-            } else {
-                areaErrorElement.innerHTML = "";
-            }
-        }
-        function validateFieldlandmark() {
-            const landmarkElement = document.getElementById("landmark");
-            const landmarkErrorElement = document.getElementById("landmarkError");
-
-            if (landmarkElement.value.length < 3 || landmarkElement.value.length > 50) {
-                landmarkErrorElement.innerHTML = "Landmark name should be 3 to 50 characters";
-            } else {
-                landmarkErrorElement.innerHTML = "";
-            }
-        }
-        function validateFieldtown() {
-            const townElement = document.getElementById("town");
-            const townErrorElement = document.getElementById("townError");
-
-            if (townElement.value.length < 3 || townElement.value.length > 50) {
-                townErrorElement.innerHTML = "Town name should be 3 to 50 characters";
-            } else {
-                townErrorElement.innerHTML = "";
-            }
-        }
-        function validateFieldstate() {
-            const stateElement = document.getElementById("state");
-            const stateErrorElement = document.getElementById("stateError");
-
-            if (stateElement.value.length < 3 || stateElement.value.length > 50) {
-                stateErrorElement.innerHTML = "State name should be 3 to 50 characters";
-            } else {
-                stateErrorElement.innerHTML = "";
-            }
-        }
+                                                                            <div class="mb-3">
+                                                                                <label class="form-check">
+                                                                                    <input type="checkbox"
+                                                                                        class="form-check-input"
+                                                                                        id="defaultAddressCheckbox"
+                                                                                        name="isDefault" value="true">
+                                                                                    <span class="form-check-label">Make
+                                                                                        this my default address</span>
+                                                                                </label>
+                                                                            </div>
 
 
-        function validateForm() {
 
-            // Call individual validation functions
-            validateFieldName();
-            validateFieldMobileNumber();
-            validateFieldPincode()
-            validateFieldHouseName();
-            validateFieldarea();
-            validateFieldlandmark();
-            validateFieldtown();
-            validateFieldstate();
-  
-            if (
-                nameError.innerHTML !== "" ||
-                mobileNumberError.innerHTML !== "" ||
-                pincodeError.innerHTML !== "" ||
-                houseNameError.innerHTML !== "" ||
-                areaError.innerHTML !== "" ||
-                landmarkError.innerHTML !== "" ||
-                townError.innerHTML !== "" ||
-                stateError.innerHTML !== "" 
-               
+                                                                            <div class="col-md-12">
+                                                                                <button type="submit"
+                                                                                    class="btn btn-fill-out submit">Add
+                                                                                    address</button>
+                                                                            </div>
+                                                                    </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </section>
+                            </main>
 
-            ) {
-                return false
-            }
-            // All fields are valid, continue with form submission
-            return true;
-        }
-   </script>
+                            <!--footer partial-->
+                            <%- include ('./partials/user.footer.ejs') %>
+
+                                <!-- Validation logic -->
+
+                                <script>
+                                    function validateFieldName() {
+                                        const element = document.getElementById("name");
+                                        const nameErrorElement = document.getElementById("nameError");
+
+                                        if (element.value.length < 3 || element.value.length > 30 || !/^[A-Z]/.test(element.value)) {
+                                            nameErrorElement.innerHTML = "Name should be 3 to 30 characters and start with an uppercase letter";
+                                        } else {
+                                            nameErrorElement.innerHTML = "";
+                                        }
+                                    }
+
+                                    function validateFieldMobileNumber() {
+                                        const element = document.getElementById("mobileNumber");
+                                        const mobileNumberErrorElement = document.getElementById("mobileNumberError");
+
+                                        const mobileNumberValue = element.value;
+
+                                        if (mobileNumberValue.length !== 10) {
+                                            mobileNumberErrorElement.innerHTML = "Mobile number should be 10 digits";
+                                        } else if (!/^\d+$/.test(mobileNumberValue)) {
+                                            mobileNumberErrorElement.innerHTML = "Mobile number should consist only of digits";
+                                        } else {
+                                            mobileNumberErrorElement.innerHTML = "";
+                                        }
+                                    }
+                                    function validateFieldPincode() {
+                                        const element = document.getElementById("pincode");
+                                        const pincodeErrorElement = document.getElementById("pincodeError");
+
+                                        const pincodeValue = element.value;
+
+                                        if (element.value.length !== 6) {
+                                            pincodeErrorElement.innerHTML = "Pincode should be 6 digits";
+                                        } else if (!/^\d+$/.test(pincodeValue)) {
+                                            pincodeErrorElement.innerHTML = "Pincode should consist only of digits";
+                                        } else {
+                                            pincodeErrorElement.innerHTML = "";
+                                        }
+                                    }
 
 
-    <!-- Vendor JS-->
-    <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>
-    <script src="/user.assets/js/vendor/jquery-3.6.0.min.js"></script>
-    <script src="/user.assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-    <script src="/user.assets/js/vendor/bootstrap.bundle.min.js"></script>
-    <script src="/user.assets/js/plugins/slick.js"></script>
-    <script src="/user.assets/js/plugins/jquery.syotimer.min.js"></script>
-    <script src="/user.assets/js/plugins/wow.js"></script>
-    <script src="/user.assets/js/plugins/jquery-ui.js"></script>
-    <script src="/user.assets/js/plugins/perfect-scrollbar.js"></script>
-    <script src="/user.assets/js/plugins/magnific-popup.js"></script>
-    <script src="/user.assets/js/plugins/select2.min.js"></script>
-    <script src="/user.assets/js/plugins/waypoints.js"></script>
-    <script src="/user.assets/js/plugins/counterup.js"></script>
-    <script src="/user.assets/js/plugins/jquery.countdown.min.js"></script>
-    <script src="/user.assets/js/plugins/images-loaded.js"></script>
-    <script src="/user.assets/js/plugins/isotope.js"></script>
-    <script src="/user.assets/js/plugins/scrollup.js"></script>
-    <script src="/user.assets/js/plugins/jquery.vticker-min.js"></script>
-    <script src="/user.assets/js/plugins/jquery.theia.sticky.js"></script>
-    <!-- Template  JS -->
-    <script src="/user.assets/js/main.js?v=3.4"></script>
+                                    function validateFieldHouseName() {
+                                        const houseNameElement = document.getElementById("houseName");
+                                        const houseNameErrorElement = document.getElementById("houseNameError");
 
-    <!--Sweet alert cdn-->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
-</body>
+                                        if (houseNameElement.value.length < 3 || houseNameElement.value.length > 50) {
+                                            houseNameErrorElement.innerHTML = "HouseName should be 3 to 50 characters";
+                                        } else {
+                                            houseNameErrorElement.innerHTML = "";
+                                        }
+                                    }
+                                    function validateFieldarea() {
+                                        const areaElement = document.getElementById("area");
+                                        const areaErrorElement = document.getElementById("areaError");
 
-</html>
+                                        if (areaElement.value.length < 3 || areaElement.value.length > 50) {
+                                            areaErrorElement.innerHTML = "Area name should be 3 to 50 characters";
+                                        } else {
+                                            areaErrorElement.innerHTML = "";
+                                        }
+                                    }
+                                    function validateFieldlandmark() {
+                                        const landmarkElement = document.getElementById("landmark");
+                                        const landmarkErrorElement = document.getElementById("landmarkError");
+
+                                        if (landmarkElement.value.length < 3 || landmarkElement.value.length > 50) {
+                                            landmarkErrorElement.innerHTML = "Landmark name should be 3 to 50 characters";
+                                        } else {
+                                            landmarkErrorElement.innerHTML = "";
+                                        }
+                                    }
+                                    function validateFieldtown() {
+                                        const townElement = document.getElementById("town");
+                                        const townErrorElement = document.getElementById("townError");
+
+                                        if (townElement.value.length < 3 || townElement.value.length > 50) {
+                                            townErrorElement.innerHTML = "Town name should be 3 to 50 characters";
+                                        } else {
+                                            townErrorElement.innerHTML = "";
+                                        }
+                                    }
+                                    function validateFieldstate() {
+                                        const stateElement = document.getElementById("state");
+                                        const stateErrorElement = document.getElementById("stateError");
+
+                                        if (stateElement.value.length < 3 || stateElement.value.length > 50) {
+                                            stateErrorElement.innerHTML = "State name should be 3 to 50 characters";
+                                        } else {
+                                            stateErrorElement.innerHTML = "";
+                                        }
+                                    }
+
+
+                                    function validateForm() {
+
+                                        // Call individual validation functions
+                                        validateFieldName();
+                                        validateFieldMobileNumber();
+                                        validateFieldPincode()
+                                        validateFieldHouseName();
+                                        validateFieldarea();
+                                        validateFieldlandmark();
+                                        validateFieldtown();
+                                        validateFieldstate();
+
+                                        if (
+                                            nameError.innerHTML !== "" ||
+                                            mobileNumberError.innerHTML !== "" ||
+                                            pincodeError.innerHTML !== "" ||
+                                            houseNameError.innerHTML !== "" ||
+                                            areaError.innerHTML !== "" ||
+                                            landmarkError.innerHTML !== "" ||
+                                            townError.innerHTML !== "" ||
+                                            stateError.innerHTML !== ""
+
+
+                                        ) {
+                                            return false
+                                        }
+                                        // All fields are valid, continue with form submission
+                                        return true;
+                                    }
+                                </script>
+
+
+                                <!-- Vendor JS-->
+                                <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>
+                                <script src="/user.assets/js/vendor/jquery-3.6.0.min.js"></script>
+                                <script src="/user.assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+                                <script src="/user.assets/js/vendor/bootstrap.bundle.min.js"></script>
+                                <script src="/user.assets/js/plugins/slick.js"></script>
+                                <script src="/user.assets/js/plugins/jquery.syotimer.min.js"></script>
+                                <script src="/user.assets/js/plugins/wow.js"></script>
+                                <script src="/user.assets/js/plugins/jquery-ui.js"></script>
+                                <script src="/user.assets/js/plugins/perfect-scrollbar.js"></script>
+                                <script src="/user.assets/js/plugins/magnific-popup.js"></script>
+                                <script src="/user.assets/js/plugins/select2.min.js"></script>
+                                <script src="/user.assets/js/plugins/waypoints.js"></script>
+                                <script src="/user.assets/js/plugins/counterup.js"></script>
+                                <script src="/user.assets/js/plugins/jquery.countdown.min.js"></script>
+                                <script src="/user.assets/js/plugins/images-loaded.js"></script>
+                                <script src="/user.assets/js/plugins/isotope.js"></script>
+                                <script src="/user.assets/js/plugins/scrollup.js"></script>
+                                <script src="/user.assets/js/plugins/jquery.vticker-min.js"></script>
+                                <script src="/user.assets/js/plugins/jquery.theia.sticky.js"></script>
+                                <!-- Template  JS -->
+                                <script src="/user.assets/js/main.js?v=3.4"></script>
+
+                                <!--Sweet alert cdn-->
+                                <script
+                                    src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+    </body>
+
+    </html>
