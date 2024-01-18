@@ -349,25 +349,51 @@ const userLoginController = {
 }
 
 
-const userAccountController = asyncHandler(async (req, res) => {
+const userAccountController = {
 
-    const user = res.locals.user;
-    const userIdObject = new mongoose.Types.ObjectId(user._id)
-    console.log(user._id);
-    console.log(userIdObject);
+    renderAccountDetailsPage: asyncHandler(async (req, res) => {
+        const user = res.locals.user;
 
-
-    const userAddresses = await Address.aggregate([
-        {
-            $match: {
-                user: userIdObject,
-                isDefault: false,
+        const userAddresses = await Address.aggregate([
+            {
+                $match: {
+                    user: user._id,
+                }
             }
+        ])
+
+        const errorMessage = req.flash("error")[0]
+        const successMessage = req.flash('success')[0];
+        return res.render("page-account.ejs", { user: res.locals.user, userAddresses, errorMessage, successMessage })
+    }),
+
+    updateAccount: asyncHandler(async (req, res) => {
+        console.log(req.body);
+        const user = res.locals.user
+        const { name, mobileNumber, email, password } = req.body;
+
+        const { error } = userValidationSchema.validate({ name, mobileNumber, email, password })
+        if (error) {
+            req.flash("error", `${error.message}`)
         }
-    ])
-    console.log(userAddresses);
-    return res.render("page-account.ejs", { user: res.locals.user, userAddresses })
-})
+
+        const isCorrect = await user.isPasswordCorrect(password)
+        if (!isCorrect) {
+            req.flash("error", "User validation failed")
+            return res.redirect("/user/account")
+        }
+
+        // if user validation successful, update the user
+        user.name = name;
+        user.mobileNumber = mobileNumber,
+        
+        await user.save();
+
+        req.flash("success", "Your account has been updated successfully")
+        return res.redirect("/user/account")
+    })
+
+}
 
 
 

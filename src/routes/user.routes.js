@@ -35,8 +35,8 @@ router.route("/login")
     .post(userLoginController.loginUser)
 
 router.route("/account")
-    .get(isAuth, userAccountController)
-
+    .get(isAuth, userAccountController.renderAccountDetailsPage)
+    .post(isAuth, userAccountController.updateAccount)
 router.route("/home").get(userHomeController)
 
 router.route("/address/add")

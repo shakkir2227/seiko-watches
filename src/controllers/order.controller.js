@@ -414,9 +414,48 @@ const adminOrderDetailedViewController = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log(order);
+
     return res.render("page-admin-orders-tracking.ejs", { order })
 
+})
+
+const adminOderUpdateController = asyncHandler(async (req, res) => {
+    console.log(req.body);
+    const { orderId, productId, updateMethod } = req.body;
+
+    // converting to mongodb objectid
+    const orderIdObject = new mongoose.Types.ObjectId(orderId)
+    const productIdObject = new mongoose.Types.ObjectId(productId)
+
+    // updating the order based on update method from user side
+    if (updateMethod === "shipped") {
+        await Order.updateOne(
+            { _id: orderIdObject, "productDetails.product": productIdObject },
+            { $set: { "productDetails.$.deliveryStatus": "Shipped" } }
+        )
+        return res.status(200).json({ message: "Your order has been successfully Updated. If you have any further questions or concerns, please feel free to contact our customer support" })
+
+    } else if (updateMethod === "out-for-delivery") {
+        await Order.updateOne(
+            { _id: orderIdObject, "productDetails.product": productIdObject },
+            { $set: { "productDetails.$.deliveryStatus": "Out For Delivery" } }
+        )
+        return res.status(200).json({ message: "Your order has been successfully Updated. If you have any further questions or concerns, please feel free to contact our customer support" })
+
+    } else if (updateMethod === "delivered") {
+        await Order.updateOne(
+            { _id: orderIdObject, "productDetails.product": productIdObject },
+            { $set: { "productDetails.$.deliveryStatus": "Delivered" } }
+        )
+        return res.status(200).json({ message: "Your order has been successfully Updated. If you have any further questions or concerns, please feel free to contact our customer support" })
+
+    } else {
+        await Order.updateOne(
+            { _id: orderIdObject, "productDetails.product": productIdObject },
+            { $set: { "productDetails.$.deliveryStatus": "Cancelled" } }
+        )
+        return res.status(200).json({ message: "Your order has been successfully Updated. If you have any further questions or concerns, please feel free to contact our customer support" })
+    }
 })
 
 export {
@@ -426,4 +465,5 @@ export {
     userOrderUpdateControler,
     adminOrderViewController,
     adminOrderDetailedViewController,
+    adminOderUpdateController
 }

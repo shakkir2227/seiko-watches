@@ -1,4 +1,4 @@
-<%- include('./layouts/head.ejs', { pageTitle: 'Admin home' }) %>
+<%- include('./layouts/head.ejs', { pageTitle: 'Order details' }) %>
 
     <body>
         <div class="screen-overlay"></div>
@@ -84,7 +84,7 @@
                                         </b> <br>
                                     </span> <br>
                                     <small class="text-muted">Order ID: 3453012</small> <br>
-                                    <small class="text-muted">Your order has been
+                                    <small class="text-muted">This order has been
                                         <%=order[0].productDetails.deliveryStatus %>
                                     </small>
                                 </div>
@@ -94,7 +94,10 @@
                                     <div class="col-lg-6 col-md-6 ms-auto text-md-end">
                                         <select id="optionsDropdown"
                                             class="form-select d-inline-block mb-lg-0 mb-15 mw-200 mr-15">
-                                            <option>More options</option>
+                                            <option value="change-status">Change Status</option>
+                                            <option value="shipped">Shipped</option>
+                                            <option value="out-for-delivery">Out for delivery</option>
+                                            <option value="delivered">Delivered</option>
                                             <option value="cancel-order">Cancel order</option>
 
                                         </select>
@@ -118,14 +121,14 @@
                                             <h4 class="step-title">Order Confirmed</h4>
                                             <small class="text-muted text-sm">15 March 2022</small>
                                         </div>
-                                        <div class="step ">
+                                        <div class="step " id="shipped">
                                             <div class="step-icon-wrap">
                                                 <div class="step-icon"><i class="material-icons md-settings"></i></div>
                                             </div>
                                             <h4 class="step-title">Shipped</h4>
                                             <small class="text-muted text-sm">16 March 2022</small>
                                         </div>
-                                        <div class="step ">
+                                        <div class="step " id="Out-for-delivery">
                                             <div class="step-icon-wrap">
                                                 <div class="step-icon"><i class="material-icons md-shopping_bag"></i>
                                                 </div>
@@ -133,7 +136,7 @@
                                             <h4 class="step-title">Out For Delivery</h4>
                                             <small class="text-muted text-sm">17 March 2022</small>
                                         </div>
-                                        <div class="step ">
+                                        <div class="step " id="delivered">
                                             <div class="step-icon-wrap">
                                                 <div class="step-icon"><i class="material-icons md-local_shipping"></i>
                                                 </div>
@@ -217,7 +220,31 @@
                         </div> <!-- card end// -->
                 </section> <!-- content-main end// -->
 
+
+                // When page loads, according to the delivery status
+                // of the product, the step completed attribute of
+                // the HTML elements changes
                 <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        if ("<%=order[0].productDetails.deliveryStatus%>" === 'Shipped') {
+                            document.getElementById("shipped").classList.add("completed");
+                        }
+                        if ("<%=order[0].productDetails.deliveryStatus%>" === 'Out For Delivery') {
+                            document.getElementById("shipped").classList.add("completed");
+                            document.getElementById("Out-for-delivery").classList.add("completed");
+                        }
+                        if ("<%=order[0].productDetails.deliveryStatus%>" === 'Delivered') {
+                            document.getElementById("shipped").classList.add("completed");
+                            document.getElementById("Out-for-delivery").classList.add("completed");
+                            document.getElementById("delivered").classList.add("completed");
+                        }
+                    });
+                </script>
+
+                <script>
+
+
+
                     document.getElementById('optionsDropdown').addEventListener('change', function () {
                         // Get the selected option value
                         let selectedOption = this.value;
@@ -227,17 +254,22 @@
                         let data = {
                             orderId,
                             productId,
+                            updateMethod: selectedOption,
                         }
+
                         data = JSON.stringify(data)
 
+                        if(selectedOption === "change-status"){
+                            return null
+                        }
 
                         // Perform a fetch request based on the selected option
-                        if (selectedOption === 'cancel-order') {
+                        
 
                             Swal.fire({
                                 icon: 'warning',
-                                title: `Cancel Order?`,
-                                text: `This action will Cancel the Order`,
+                                title: `Update Order?`,
+                                text: `This action will Update the Order`,
                                 showCancelButton: true,
                                 confirmButtonText: `Confirm`,
                                 cancelButtonText: 'Cancel',
@@ -245,7 +277,7 @@
                             }).then((result) => {
                                 if (result.isConfirmed) {
 
-                                    let apiUrl = '/order/cancel';
+                                    let apiUrl = '/order/update';
 
                                     fetch(apiUrl, {
                                         method: "PUT", headers: {
@@ -257,7 +289,7 @@
                                         .then(data => {
                                             Swal.fire({
                                                 icon: 'success',
-                                                title: 'Order Canceled Successfully!',
+                                                title: 'Order Updated Successfully!',
                                                 text: `${data.message}`,
                                             })
                                                 .then(() => {
@@ -269,9 +301,7 @@
                                             console.error('Error:', error);
                                         });
                                 }
-                            });
-
-                        }
+                            });            
 
                     });
                 </script>

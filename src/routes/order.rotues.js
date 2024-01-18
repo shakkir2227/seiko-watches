@@ -7,7 +7,8 @@ import {
     userOrderDetailedViewController,
     userOrderUpdateControler,
     adminOrderViewController,
-    adminOrderDetailedViewController
+    adminOrderDetailedViewController,
+    adminOderUpdateController
 } from "../controllers/order.controller.js";
 
 
@@ -32,6 +33,8 @@ router.route("/cancel").put(isAuth, userOrderUpdateControler.cancelOrder)
 // ---------ADMIN ORDER ROUTES---------
 router.route("/view-admin/:orderId").get(adminOrderViewController)
 router.route("/admin-view-one").get(adminOrderDetailedViewController)
+router.route("/update").put(adminOderUpdateController)
 
 
-export default router 
+
+export default router
