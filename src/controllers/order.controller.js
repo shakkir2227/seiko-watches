@@ -124,7 +124,8 @@ const userCheckoutController = {
 
     createOrder: asyncHandler(async (req, res) => {
         const user = res.locals.user
-        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body
+        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body;
+
         if (!selectedAddressIndex) {
             selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
         }
@@ -137,6 +138,19 @@ const userCheckoutController = {
             paymentMethod,
 
         })
+
+        // After creating the order, reducing the stock of the product
+        const product = await Product.findOne({ _id: productDetails[0].product })
+        product.stock -= productDetails[0].quantity;
+
+        await product.save()
+
+        // Removing the specific number of products from the cart, if the user 
+        // buy that in the current order, if the quantity becomes zero in 
+        // this process, delete that product fromm cart.
+
+
+
 
         return res.status(200).json({ message: "Your order has been placed successfully. Thank you for choosing our service." })
 
@@ -245,7 +259,6 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log(order);
     return res.render("page-orders-tracking.ejs", { order })
 
 })
@@ -263,7 +276,37 @@ const userOrderUpdateControler = {
             { $set: { "productDetails.$.deliveryStatus": "Cancelled" } }
         )
 
-        return res.status(200).json({ message: "Your order has been successfully canceled. If you have any further questions or concerns, please feel free to contact our customer support" })
+        // When user cancel the order, increase the corresponding product's stock
+        const cancelledProduct = await Order.aggregate([
+
+            {
+                $match: {
+                    _id: orderIdObject
+                },
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.product": productIdObject
+                }
+            },
+            {
+                $project: {
+                    productDetails: 1
+                }
+            }
+        ])
+
+        const cancelledOrderProductCount = cancelledProduct[0].productDetails.quantity;
+
+        const product = await Product.findOne({ _id: productIdObject });
+        product.stock += cancelledOrderProductCount;
+
+        await product.save()
+
+        return res.status(200).json({ message: "Your order has been successfully cancelled. If you have any further questions or concerns, please feel free to contact our customer support" })
 
     })
 }
