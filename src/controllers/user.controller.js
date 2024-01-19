@@ -555,8 +555,7 @@ const userAddressController = {
 
     updateAddress: {
         renderUpdateAddressPage: asyncHandler(async (req, res) => {
-            const { addressId } = req.params
-            const addressIdObject = new mongoose.Types.ObjectId(addressId)
+            const { addressId } = req.params;
 
             const address = await Address.findOne({ _id: addressId })
 
@@ -569,6 +568,8 @@ const userAddressController = {
 
             const user = res.locals.user;
             const { addressId, name, mobileNumber, pincode, houseName, area, landmark, town, state, isDefault } = req.body
+
+            console.log(req.body);
 
             // Validating the user entered deatils using JOI
             const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
@@ -612,6 +613,7 @@ const userAddressController = {
                 address.landmark = landmark;
                 address.town = town;
                 address.state = state;
+                address.isDefault = false;
 
                 const updatedAddress = await address.save()
 

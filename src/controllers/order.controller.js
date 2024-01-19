@@ -22,6 +22,7 @@ const userCheckoutController = {
                 }
             }
         ])
+        
 
         const userAddresses = await Address.aggregate([
             {
@@ -123,38 +124,73 @@ const userCheckoutController = {
     }),
 
     createOrder: asyncHandler(async (req, res) => {
-        const user = res.locals.user
+
+        const user = res.locals.user;
+
         let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body;
 
+     
         if (!selectedAddressIndex) {
             selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
         }
 
+        console.log(selectedAddressIndex);
+        const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
+        console.log(selectedAddressIndexIdObject);
+
+        // Before creating the order, reducing the stock of each of the products
+        // Checking if the stock becomes negative, if it is return an error
+        for (const productDetail of productDetails) {
+            const product = await Product.findOne({ _id: productDetail.product })
+            product.stock -= productDetail.quantity;
+
+            if (product.stock < 0) {
+                return res.status(500).json({ message: "We're sorry, but your order couldn't be completed due to insufficient stock. Please review your order and try again, or contact customer support for assistance." })
+            }
+
+            await product.save()
+        }
+
         const order = await Order.create({
             user: user._id,
-            address: selectedAddressIndex,
+            address: selectedAddressIndexIdObject,
             productDetails,
             totalAmount,
             paymentMethod,
 
         })
 
-        // After creating the order, reducing the stock of the product
-        const product = await Product.findOne({ _id: productDetails[0].product })
-        product.stock -= productDetails[0].quantity;
+        console.log(order);
 
-        await product.save()
+
 
         // Removing the specific number of products from the cart, if the user 
-        // buy that in the current order, if the quantity becomes zero in 
-        // this process, delete that product fromm cart.
+        // buy that in the current order, if the quantity in the cart becomes zero in 
+        // this process, delete that product from cart. 
+        for (const productDetail of productDetails) {
+            await User.updateMany(
+                { _id: user._id, "cart.product": productDetail.product },
+                {
+                    $inc: {
+                        "cart.$.quantity": -productDetail.quantity
+                    }
+                }
+            )
+        }
 
-
-
+        await User.updateMany(
+            { _id: user._id },
+            {
+                $pull: {
+                    "cart": { quantity: 0 }
+                }
+            }
+        )
 
         return res.status(200).json({ message: "Your order has been placed successfully. Thank you for choosing our service." })
 
     })
+
 }
 
 const userOrderViewController = asyncHandler(async (req, res) => {
@@ -183,6 +219,7 @@ const userOrderViewController = asyncHandler(async (req, res) => {
 
     ])
 
+    console.log(userOrders);
     return res.render("page-orders.ejs", { userOrders })
 })
 

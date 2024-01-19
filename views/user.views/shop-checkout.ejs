@@ -23,15 +23,15 @@
                                     <table class="table">
 
                                         <%if(typeof(userDefaultAddress)!== "undefined" ) {%>
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2">Delivery address</th>
+
+                                                </tr>
+                                            </thead>
                                             <%if(userDefaultAddress.length>0 ) {%>
 
 
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2">Delivery address</th>
-
-                                                    </tr>
-                                                </thead>
                                                 <tbody>
                                                     <tr>
 
@@ -53,10 +53,20 @@
 
                                                 </tbody>
                                                 <%} %>
-                                                    <%} %>
+                                                    <%}%>  
+
+                                                       
 
                                     </table>
                                 </div>
+
+                               
+                                <%if(userDefaultAddress.length == 0) { %>
+                                    
+                                    <div style= "margin-left: 180px; margin-bottom: 20px;">
+                                        <h5>No default address set</h5>
+                                    </div>
+                               <% } %>
 
 
                                 <div class="toggle_info">
@@ -303,7 +313,7 @@
                                                     
                                                 </div>
                                             </div>
-                                          <div class="custome-radio">
+                                          <!-- <div class="custome-radio">
                                                 <input class="form-check-input" required="" type="radio"
                                                     name="payment_option" id="exampleRadios4" checked="">
                                                 <label class="form-check-label" for="exampleRadios4"
@@ -322,7 +332,7 @@
                                                 <div class="form-group collapse in" id="paypal">
                                                     
                                                 </div>
-                                            </div>
+                                            </div> -->
                                         </div> 
                                         </div>
                                         <a onclick="createOrder()" class="btn btn-fill-out btn-block mt-30 "

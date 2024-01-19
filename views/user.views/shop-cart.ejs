@@ -31,13 +31,17 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                           
+
                                             <% if(typeof(userCart)!=="undefined" ) {%>
 
                                                 <% userCart.forEach((user)=> { %>
 
                                                     <tr>
-                                                        <td class="image product-thumbnail"> <a href="/product/view-user/<%=user.product[0]._id%>"><img
-                                                                src="<%=user.product[0].images[0].url%>" alt="#"> </a></td>
+                                                        <td class="image product-thumbnail"> <a
+                                                                href="/product/view-user/<%=user.product[0]._id%>"><img
+                                                                    src="<%=user.product[0].images[0].url%>" alt="#">
+                                                            </a></td>
                                                         <td class="product-des product-name" style="max-width: 200px;">
                                                             <h5 class="product-name"><a
                                                                     href="/product/view-user/<%=user.product[0]._id%>">
@@ -45,7 +49,8 @@
                                                                 </a></h5>
 
                                                         </td>
-                                                        <td class="price" id="<%=user.product[0]._id %>price" data-title="Price"><span>
+                                                        <td class="price" id="<%=user.product[0]._id %>price"
+                                                            data-title="Price"><span>
                                                                 <%=user.product[0].price %>
                                                             </span>
                                                         </td>
@@ -54,19 +59,29 @@
                                                                 <a class="qty-down"
                                                                     onclick="decreaseQuantity('<%=user.product[0]._id%>')"><i
                                                                         class="fi-rs-angle-small-down"></i></a>
-                                                                <span class="qty-val"
-                                                                    id="<%=user.product[0]._id %>"><%=user.cart.quantity %></span>
+                                                                <span class="qty-val" id="<%=user.product[0]._id %>">
+                                                                    <%=user.cart.quantity %>
+                                                                </span>
                                                                 <a class="qty-up"
                                                                     onclick="increaseQuantity('<%=user.product[0]._id%>')"><i
                                                                         class="fi-rs-angle-small-up"></i></a>
                                                             </div>
                                                         </td>
                                                         <td class="text-right" data-title="Cart">
-                                                            <span class="subTotal" id="<%=user.product[0]._id %>subTotal"><%=user.subTotal %> </span>
+                                                            <span class="subTotal"
+                                                                id="<%=user.product[0]._id %>subTotal">
+                                                                <%=user.subTotal %>
+                                                            </span>
                                                         </td>
-                                                        <td class="action" data-title="Remove"><a onclick="deleteFromCart('<%=user.product[0]._id %>')"
+                                                        <td class="action" data-title="Remove"><a
+                                                                onclick="deleteFromCart('<%=user.product[0]._id %>')"
                                                                 class="text-muted"><i class="fi-rs-trash"></i></a>
                                                         </td>
+
+                                                        
+                                                        <tr>
+                                                            
+                                                        </tr>
                                                     </tr>
 
                                                     <% }) %>
@@ -74,59 +89,64 @@
 
                                                         <%} %>
 
-
-
-                                                            <tr>
-                                                                <td colspan="6" class="text-end">
-                                                                    <a href="#" class="text-muted"> <i
-                                                                            class="fi-rs-cross-small"></i>
-                                                                        Clear Cart</a>
-                                                                </td>
-                                                            </tr>
+                                                       
+                                                            
                                         </tbody>
                                     </table>
                                 </div>
-                                <!-- <div class="cart-action text-end">
-                                    <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-shuffle mr-10"></i>Update Cart</a>
-                                    <a class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
-                                </div> -->
-                                <!-- <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div> -->
 
-                                <% if(typeof(userCart)!=="undefined" ) {%>
+                                <%if(userCart.length === 0)  {%>
+                                    
+                                    <div class="cart-action mt-45 " style="margin-left: 350px;">
+                                        <h4>Your SEIKO Cart is empty.</h4>
+                                        <p style="margin-top: 30px;">Check your Saved for later items below or continue shopping.</p>
+                                        <a style="margin-top: 30px;" class="btn " href="/user/home"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                                    </div> 
+                                     <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div> 
 
-                                <div class="col-6" style="margin-left: 650px;">
-                                    <div class="border p-md-4 p-30 border-radius cart-totals">
-                                        <div class="heading_s1 mb-3">
-                                            <h4>Cart Totals</h4>
+                                    <% }%>
+
+
+                                <% if((typeof(userCart)!=="undefined" )&& (userCart.length>0)) {%>
+
+                                    <div class="col-6" style="margin-left: 650px;">
+                                        <div class="border p-md-4 p-30 border-radius cart-totals">
+                                            <div class="heading_s1 mb-3">
+                                                <h4>Cart Totals</h4>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="cart_total_label">Cart Subtotal</td>
+                                                            <td class="cart_total_amount"><span
+                                                                    class="font-lg fw-900 text-brand"
+                                                                    id="totalAmountBeforeShipping"></span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cart_total_label">Shipping</td>
+                                                            <td class="cart_total_amount"> <i class="ti-gift mr-5"></i>
+                                                                Free
+                                                                Shipping</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="cart_total_label">Total</td>
+                                                            <td class="cart_total_amount"><strong><span
+                                                                        class="font-xl fw-900 text-brand"
+                                                                        id="totalAmount">$240.00</span></strong>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <a href="/order/buy" class="btn "
+                                                style="margin-left: 150px; margin-top: 20px;"> <i
+                                                    class="fi-rs-box-alt mr-10"></i> Proceed To
+                                                Buy</a>
                                         </div>
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="cart_total_label">Cart Subtotal</td>
-                                                        <td class="cart_total_amount"><span
-                                                                class="font-lg fw-900 text-brand" id="totalAmountBeforeShipping"></span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="cart_total_label">Shipping</td>
-                                                        <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free
-                                                            Shipping</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="cart_total_label">Total</td>
-                                                        <td class="cart_total_amount"><strong><span
-                                                                    class="font-xl fw-900 text-brand" id="totalAmount">$240.00</span></strong>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <a href="/order/buy" class="btn " style="margin-left: 150px; margin-top: 20px;"> <i class="fi-rs-box-alt mr-10" ></i> Proceed To
-                                           Buy</a>
                                     </div>
-                                </div>
 
-                                <% } %>
+                                    <% } %>
                             </div>
 
                         </div>
@@ -137,7 +157,7 @@
 
             <script>
 
-               
+
 
 
                 //For updating quantity at server side
@@ -149,38 +169,56 @@
                     quantity = parseInt(quantity)
 
                     if (quantity <= 0) {
-                         quantity = 1;
-                         } 
-                   
+                        quantity = 1;
+                    }
+
                     let data = { quantity, productId, todo: "increase" }
-                    
-                       const jsonData = JSON.stringify(data); fetch("/cart/update", {
-                            method: "PUT", headers: {
-                                'Content-Type'
-                                    : 'application/json'
-                            }, body: jsonData,
-                        }).then((res) => {
+
+                    const jsonData = JSON.stringify(data); fetch("/cart/update", {
+                        method: "PUT", headers: {
+                            'Content-Type'
+                                : 'application/json'
+                        }, body: jsonData,
+                    }).then((res) => {
+                        if (res.ok) {
                             return res.json()
-                        })
-                          
-                            .then((data) => {
-                               document.getElementById(productId).innerHTML = data
-                           }).then( updateSubTotal)
-                           .then(loadTotalAmount)
-                               // Now updating the subtotal amount
-                            
-                           
 
-                           function updateSubTotal (){
-                              const newQuantity = document.getElementById(productId).innerHTML;
-                               const price = document.getElementById(productId + "price").textContent;
-                               console.log(newQuantity);
-                               console.log(price);
+                        } else {
+                            throw new Error(`OOPS!! Product out of stock. Only few items left!!`);
+                        }
+                    })
 
-                               const subTotal = document.getElementById(productId + "subTotal")
-                               const newSubTotal = newQuantity * price;
-                               subTotal.innerHTML = newSubTotal
-                           }
+                        .then((data) => {
+                            document.getElementById(productId).innerHTML = data
+                        }).then(updateSubTotal)
+                        .then(loadTotalAmount)
+
+                         .catch((error) => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: `${error}`,
+                                showConfirmButton: true,
+                                confirmButtonText: 'OK',
+                                customClass: {
+                                    confirmButton: 'btn btn-danger', // Add custom class for styling
+                                },
+                            });
+                        });
+
+
+
+                    // Now updating the subtotal amount
+                    function updateSubTotal() {
+                        const newQuantity = document.getElementById(productId).innerHTML;
+                        const price = document.getElementById(productId + "price").textContent;
+                        console.log(newQuantity);
+                        console.log(price);
+
+                        const subTotal = document.getElementById(productId + "subTotal")
+                        const newSubTotal = newQuantity * price;
+                        subTotal.innerHTML = newSubTotal
+                    }
 
                 }
 
@@ -189,33 +227,38 @@
                     // Take the innerhtml of it, and store it in quantity
                     // send a fetch request
                     let quantity = document.getElementById(productId).innerHTML;
-                    quantity = parseInt(quantity)   
-                   
-                    if (quantity <= 0){
-                      quantity = 1;
-                     } 
-                     let data = { quantity, productId, todo: "decrease" } 
-                    
-                       const jsonData = JSON.stringify(data); fetch("/cart/update", {
-                            method: "PUT", headers: {
-                                'Content-Type'
-                                    : 'application/json'
-                            }, body: jsonData,
-                        }).then((res) => {
-                            return res.json()
-                        })
-                            .then((data) => {
-                                document.getElementById(productId).innerHTML = data
-                            })
-                            .then(updateSubTotal)
-                            .then(loadTotalAmount)
+                    quantity = parseInt(quantity)
 
-               
+                    if (quantity <= 0) {
+                        quantity = 1;
+                    }
+                    let data = { quantity, productId, todo: "decrease" }
+
+                    const jsonData = JSON.stringify(data); fetch("/cart/update", {
+                        method: "PUT", headers: {
+                            'Content-Type'
+                                : 'application/json'
+                        }, body: jsonData,
+                    }).then((res) => {
+                        if (res.ok) {
+                            return res.json()
+
+                        } 
+                    })
+                        .then((data) => {
+                            document.getElementById(productId).innerHTML = data
+                        })
+                        .then(updateSubTotal)
+                        .then(loadTotalAmount)
+
+
+                        
+
 
                     function updateSubTotal() {
                         const newQuantity = document.getElementById(productId).innerHTML;
                         const price = document.getElementById(productId + "price").textContent;
-                       
+
                         const subTotal = document.getElementById(productId + "subTotal")
                         const newSubTotal = newQuantity * price;
                         subTotal.innerHTML = newSubTotal
@@ -229,7 +272,7 @@
                 // request to cart/delete, and deleting the product
                 // from the cart array
 
-                function deleteFromCart(productId){
+                function deleteFromCart(productId) {
 
                     const data = {
                         productId
@@ -237,36 +280,36 @@
                     const jsonData = JSON.stringify(data)
 
                     fetch("/cart/delete", {
-                        method:"PUT",
-                         headers: {
+                        method: "PUT",
+                        headers: {
                             'Content-Type'
                                 : 'application/json'
                         },
-                         body: jsonData,
+                        body: jsonData,
 
                     })
-                    .then((res) => {
-                        if(res.ok){
-                            window.location.reload()
-                        }
-                    })  
+                        .then((res) => {
+                            if (res.ok) {
+                                window.location.reload()
+                            }
+                        })
                 }
 
 
                 // Taking all elements with the class subTotal for calculating total amount
                 document.addEventListener("DOMContentLoaded", loadTotalAmount)
-                
-                function loadTotalAmount (){
-                   let elements =  document.getElementsByClassName("subTotal")
-                   elements = Array.from(elements)
 
-                
-                   const totalAmount =  elements.reduce((accumulator, value)=> {
-                        return parseInt(value.textContent) + accumulator; 
-                    },0)
+                function loadTotalAmount() {
+                    let elements = document.getElementsByClassName("subTotal")
+                    elements = Array.from(elements)
+
+
+                    const totalAmount = elements.reduce((accumulator, value) => {
+                        return parseInt(value.textContent) + accumulator;
+                    }, 0)
 
                     let totalAmountBeforeShippingElement = document.getElementById("totalAmountBeforeShipping")
-                    totalAmountBeforeShippingElement.textContent = '\u20B9 '+ totalAmount
+                    totalAmountBeforeShippingElement.textContent = '\u20B9 ' + totalAmount
 
                     let totalAmountElement = document.getElementById("totalAmount")
                     totalAmountElement.textContent = '\u20B9 ' + totalAmount
@@ -297,6 +340,9 @@
             <!-- Template  JS -->
             <script src="/user.assets/js/main.js?v=3.4"></script>
             <script src="/user.assets/js/shop.js?v=3.4"></script>
+
+            <!--Sweet alert cdn-->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
     </body>
 
     </html>

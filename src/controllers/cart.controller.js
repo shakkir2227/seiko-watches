@@ -54,15 +54,30 @@ const viewCartController = asyncHandler(async (req, res) => {
     return res.render("shop-cart.ejs", { categories: res.locals.categories, userCart })
 })
 
-
 const updateCartController = asyncHandler(async (req, res) => {
+
     const { productId, quantity, todo } = req.body
+
+    // Finding the specific user
+    const user = res.locals.user;
+
+    // Making the productId monogoDB objectId
+    const productIdObject = new mongoose.Types.ObjectId(productId)
 
     // Accoding to the message changing the quantity
     let updatedQuantity = (todo === 'increase') ? quantity + 1 : (quantity > 1) ? quantity - 1 : 1;
 
-    // Finding the specific user
-    const user = res.locals.user;
+
+    // Before updating the cart, we have to findout, the product 
+    // quantity is sufficient or not. So comparing product stock
+    // with user entered quantity.
+
+    // Finding the current product Stock
+    const product = await Product.findOne({ _id: productIdObject })
+
+    if ((updatedQuantity) > product.stock) {
+        return res.status(500).json({ message: `OOPS!! Product out of stock. Only ${product.stock} items left!!` })
+    }
 
     // Updating the quantity of the product.
     await User.updateOne({ _id: user._id, "cart.product": productId }, { $set: { "cart.$.quantity": updatedQuantity } })
@@ -72,6 +87,7 @@ const updateCartController = asyncHandler(async (req, res) => {
 const deleteFromCartController = asyncHandler(async (req, res) => {
     const { productId } = req.body
     const user = res.locals.user;
+    
     await User.updateOne({ _id: user._id }, { $pull: { cart: { product: productId } } })
     return res.status(200).json("Item removed from cart")
 })
