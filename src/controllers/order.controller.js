@@ -134,9 +134,7 @@ const userCheckoutController = {
             selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
         }
 
-        console.log(selectedAddressIndex);
         const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
-        console.log(selectedAddressIndexIdObject);
 
         // Before creating the order, reducing the stock of each of the products
         // Checking if the stock becomes negative, if it is return an error
@@ -160,7 +158,6 @@ const userCheckoutController = {
 
         })
 
-        console.log(order);
 
 
 
@@ -219,7 +216,6 @@ const userOrderViewController = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log(userOrders);
     return res.render("page-orders.ejs", { userOrders })
 })
 
@@ -416,7 +412,6 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log(order);
 
     return res.render("page-orders-detail.ejs", { order })
 })
@@ -500,7 +495,6 @@ const adminOrderDetailedViewController = asyncHandler(async (req, res) => {
 })
 
 const adminOderUpdateController = asyncHandler(async (req, res) => {
-    console.log(req.body);
     const { orderId, productId, updateMethod } = req.body;
 
     // converting to mongodb objectid
