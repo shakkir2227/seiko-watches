@@ -341,7 +341,6 @@ const updateCategoryController = {
         // Else upload the file into cloudinary, and update the document. 
 
         const { name, categoryId, parentCategoryId, removedImage } = req.body;
-        console.log(req.body);
 
         // Validating user entered details
         const { error } = categoryValidationSchema.validate({ name });
@@ -380,14 +379,12 @@ const updateCategoryController = {
 
         // Finding the parent Category from DB
         const parentCategory = await Category.findOne({ _id: parentCategoryId })
-        console.log(parentCategory);
         if (!req.file && !removedImage) {
 
             // Updating the category name and parent Category
             category.name = name;
             category.parentCategoryId = parentCategory._id;
             const updatedCategory = await category.save();
-            console.log(updatedCategory);
 
             req.flash("success", `Category ${updatedCategory.name} updated successfully. Changes have been applied.`)
             return res.redirect("/category/view")

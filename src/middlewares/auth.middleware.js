@@ -14,6 +14,11 @@ const isAuth = (req, res, next) => {
         return res.redirect("/user/login")
     }
 
+    if (!user.isVerified) {
+        req.flash('error', `Welcome back! It seems like your account is not verified. Please check your email for a verification link to complete the process and enjoy full access.`);
+        return res.redirect("/user/verify")
+    }
+    
     next();
 
 }

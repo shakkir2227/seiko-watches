@@ -138,7 +138,7 @@ const registerController = {
             }
 
             tranporter.sendMail(message).then(() => {
-                console.log("OTP sent successfully");
+                console.log(`OTP sent successfully. OTP is ${OTPNumber}`);
             })
 
             // Creating the OTP document
@@ -268,7 +268,7 @@ const userResendOTPController = asyncHandler(async (req, res) => {
     }
 
     tranporter.sendMail(message).then(() => {
-        console.log("OTP sent successfully");
+        console.log(`OTP sent successfully. OTP is ${OTPNumber}`);
     })
 
     // Creating the OTP document
@@ -276,8 +276,6 @@ const userResendOTPController = asyncHandler(async (req, res) => {
         userId: user._id,
         OTP: OTPNumber,
     })
-
-    console.log(`New OTP is ${OTPNumber}`);
 
     req.flash('success', `Verification Email has been sent`);
     return res.redirect("/user/verify")
@@ -339,6 +337,12 @@ const userLoginController = {
             return res.redirect("/user/login")
         }
 
+        if (!user.isVerified) {
+            req.session.email = user.email;
+            req.flash('error', `Welcome back! It seems like your account is not verified. Please check your email for a verification link to complete the process and enjoy full access.`);
+            return res.redirect("/user/verify")
+        }
+
         req.session.userId = user._id;
         return res.redirect("/user/home")
 
@@ -378,7 +382,6 @@ const userAccountController = {
     }),
 
     updateAccount: asyncHandler(async (req, res) => {
-        console.log(req.body);
         const user = res.locals.user
         const { name, mobileNumber, email, password } = req.body;
 
@@ -567,9 +570,7 @@ const userAddressController = {
         handleUpdateAddressForm: asyncHandler(async (req, res) => {
 
             const user = res.locals.user;
-            const { addressId, name, mobileNumber, pincode, houseName, area, landmark, town, state, isDefault } = req.body
-
-            console.log(req.body);
+            const { addressId, name, mobileNumber, pincode, houseName, area, landmark, town, state, isDefault } = req.body;      
 
             // Validating the user entered deatils using JOI
             const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })

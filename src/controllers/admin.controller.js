@@ -75,7 +75,6 @@ const adminHomeController = asyncHandler(async (req, res) => {
         }
     ])
 
-    console.log(orders);
 
     return res.render("page-admin-home.ejs", {orders})
 })
