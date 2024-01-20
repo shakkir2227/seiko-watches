@@ -127,14 +127,18 @@ const userCheckoutController = {
 
         const user = res.locals.user;
 
+        
         let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body;
-
-     
+        
+            console.log(req.body);
+            
         if (!selectedAddressIndex) {
             selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
         }
-
+        console.log(selectedAddressIndex);
+        
         const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
+        console.log(selectedAddressIndexIdObject);
 
         // Before creating the order, reducing the stock of each of the products
         // Checking if the stock becomes negative, if it is return an error
@@ -216,6 +220,7 @@ const userOrderViewController = asyncHandler(async (req, res) => {
 
     ])
 
+    console.log(userOrders);
     return res.render("page-orders.ejs", { userOrders })
 })
 

@@ -53,160 +53,214 @@
 
                                                 </tbody>
                                                 <%} %>
-                                                    <%}%>  
+                                                    <%}%>
 
-                                                       
+
 
                                     </table>
                                 </div>
 
-                               
-                                <%if(userDefaultAddress.length == 0) { %>
-                                    
-                                    <div style= "margin-left: 180px; margin-bottom: 20px;">
+
+                                <%if(userDefaultAddress.length==0) { %>
+
+                                    <div style="margin-left: 180px; margin-bottom: 20px;">
                                         <h5>No default address set</h5>
                                     </div>
-                               <% } %>
+                                    <% } %>
 
 
-                                <div class="toggle_info">
-                                    <span><i class="fi-rs-user mr-10"></i><span style="margin-right: 10px;"
-                                            class="text-muted">Change
-                                            address </span> <a href="#changeAddress" data-bs-toggle="collapse"
-                                            class="collapsed" aria-expanded="false"> Click here to select</a></span>
-                                </div>
-                                <div class="panel-collapse collapse login_form" id="changeAddress">
-                                    <div class="panel-body">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th colspan="2">Saved addresses</th>
-
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <% if(typeof(userAddresses)!=="undefined" ) {%>
-                                                    <% userAddresses.forEach((address)=> { %>
+                                        <div class="toggle_info" style="display: block;">
+                                            <span><i class="fi-rs-user mr-10"></i><span style="margin-right: 10px;"
+                                                    class="text-muted">Change
+                                                    address </span> <a href="#changeAddress" data-bs-toggle="collapse"
+                                                    class="collapsed" aria-expanded="false"> Click here to
+                                                    select</a></span>
+                                        </div>
+                                        <div class="panel-collapse collapse login_form" id="changeAddress">
+                                            <div class="panel-body">
+                                                <table class="table">
+                                                    <thead>
                                                         <tr>
-
-                                                            <td>
-                                                                <input style="width: 20px; margin-right: 30px;"
-                                                                    type="radio" name="addressSelection" id="address1"
-                                                                    value="<%=address._id %>">
-                                                                <label for="address1">
-                                                                    <h5 style="margin-bottom: 5px; ">
-                                                                        <%=address.name %>
-                                                                    </h5>
-                                                                    <%=address.houseName %>,
-                                                                        <%=address.area %>
-                                                                            <br>
-                                                                            <%=address.town %>, <%=address.pincode %>
-                                                                                    <br>
-                                                                                    <%=address.mobileNumber %>
-                                                                </label>
-                                                            </td>
+                                                            <th colspan="2">Saved addresses</th>
 
                                                         </tr>
-                                                        <% })%>
-                                                            <% }%>
-                                                                <!-- Add more rows with similar structure for additional addresses -->
-                                            </tbody>
-                                        </table>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% if(typeof(userAddresses)!=="undefined" ) {%>
 
-                                    </div>
-                                </div>
+                                                            <%if(typeof(userDefaultAddress) !=="undefined" ) {%>
 
+                                                                <%if(userDefaultAddress.length>0) {%>
 
 
-                                <div class="toggle_info">
-                                    <span><i class="fi-rs-user mr-10"></i><span style="margin-right: 10px;"
-                                            class="text-muted">Deliver
-                                            to a new address? </span> <a href="#loginform" data-bs-toggle="collapse"
-                                            class="collapsed" aria-expanded="false"> Click here to add
-                                            address</a></span>
-                                </div>
-                                <div class="panel-collapse collapse login_form" id="loginform">
-                                    <div class="panel-body">
+                                                                    <tr>
 
-                                        <form method="post">
-                                            <div class="form-group">
-                                                <input type="text" name="name" placeholder="Name" id="name"
-                                                    oninput="validateFieldName()">
-                                                <span style="color: red;" id="nameError" class="error"></span>
+                                                                        <td>
+                                                                            <input
+                                                                                style="width: 20px; margin-right: 30px;"
+                                                                                type="radio" name="addressSelection"
+                                                                                id="defaultAddress"
+                                                                                value="<%=userDefaultAddress[0]._id %>">
+                                                                            <label for="address1">
+                                                                                <h5 style="margin-bottom: 5px; ">
+                                                                                    <%=userDefaultAddress[0].name %>
+                                                                                </h5>
+                                                                                <%=userDefaultAddress[0].houseName %>,
+                                                                                    <%=userDefaultAddress[0].area %>
+                                                                                        <br>
+                                                                                        <%=userDefaultAddress[0].town %>
+                                                                                            ,
+                                                                                            <%=userDefaultAddress[0].pincode
+                                                                                                %>
+                                                                                                <br>
+                                                                                                <%=userDefaultAddress[0].mobileNumber
+                                                                                                    %>
+                                                                            </label>
+                                                                        </td>
+
+                                                                    </tr>
+
+                                                                    <%} %>
+                                                                        <%} %>
+
+                                                                            <% userAddresses.forEach((address)=> { %>
+                                                                                <tr>
+
+                                                                                    <td>
+                                                                                        <input
+                                                                                            style="width: 20px; margin-right: 30px;"
+                                                                                            type="radio"
+                                                                                            name="addressSelection"
+                                                                                            id="address<%= address._id %>"
+                                                                                        value="<%=address._id %>">
+                                                                                            <label for="address1">
+                                                                                                <h5
+                                                                                                    style="margin-bottom: 5px; ">
+                                                                                                    <%=address.name %>
+                                                                                                </h5>
+                                                                                                <%=address.houseName %>,
+                                                                                                    <%=address.area %>
+                                                                                                        <br>
+                                                                                                        <%=address.town
+                                                                                                            %>,
+                                                                                                            <%=address.pincode
+                                                                                                                %>
+                                                                                                                <br>
+                                                                                                                <%=address.mobileNumber
+                                                                                                                    %>
+                                                                                            </label>
+                                                                                    </td>
+
+                                                                                </tr>
+                                                                                <% })%>
+                                                                                    <% }%>
+                                                                                        <!-- Add more rows with similar structure for additional addresses -->
+                                                    </tbody>
+                                                </table>
+
                                             </div>
-                                            <div class="form-group">
-                                                <input type="text" name="mobileNumber" placeholder="Mobile Number"
-                                                    id="mobileNumber" oninput="validateFieldMobileNumber()">
-                                                <span style="color: red;" id="mobileNumberError" class="error"></span>
-                                            </div>
-                                            <div class="form-group">
-                                                <input type="text" name="pincode" placeholder="Pincode" id="pincode"
-                                                    oninput="validateFieldPincode()">
-                                                <span style="color: red;" id="pincodeError" class="error"></span>
-                                            </div>
-                                            <div class="form-group">
-                                                <input type="text" name="houseName" placeholder="House name"
-                                                    id="houseName" oninput="validateFieldHouseName()">
-                                                <span style="color: red;" id="houseNameError" class="error"></span>
-                                            </div>
-                                            <div class="form-group">
-                                                <input type="text" name="area" placeholder="Area" id="area"
-                                                    oninput="validateFieldarea()">
-                                                <span style="color: red;" id="areaError" class="error"></span>
-
-                                            </div>
-                                            <div class="form-group">
-                                                <input type="text" name="landmark" placeholder="Land mark" id="landmark"
-                                                    oninput="validateFieldlandmark()">
-                                                <span style="color: red;" id="landmarkError" class="error"></span>
-
-                                            </div>
-                                            <div class="form-group">
-                                                <input type="text" name="town" placeholder="Town" id="town"
-                                                    oninput="validateFieldtown()">
-                                                <span style="color: red;" id="townError" class="error"></span>
-
-                                            </div>
-                                            <div class="form-group">
-                                                <input type="text" name="state" placeholder="State" id="state"
-                                                    oninput="validateFieldstate()">
-                                                <span style="color: red;" id="stateError" class="error"></span>
-                                            </div>
-
-
-                                            <div class="form-group">
-                                                <button onclick="setDeliveryAddress()" type="button" class="btn btn-md"
-                                                    name="login">Set Delivery Address</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-
-
-
-                                <div class="col-lg-6" style="width: 540px; margin-top: 25px;">
-                                    <div class="toggle_info">
-                                        <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a
-                                                coupon?</span> <a href="#coupon" data-bs-toggle="collapse"
-                                                class="collapsed" aria-expanded="false">Click
-                                                here to enter your
-                                                code</a></span>
-                                    </div>
-                                    <div class="panel-collapse collapse coupon_form " id="coupon">
-                                        <div class="panel-body">
-                                            <p class="mb-30 font-sm">If you have a coupon code, please apply it below.
-                                            </p>
-                                            <form method="post">
-                                                <div class="form-group">
-                                                    <input type="text" placeholder="Enter Coupon Code...">
-                                                </div>
-                                                <div class="form-group">
-                                                    <button class="btn  btn-md" name="login">Apply Coupon</button>
-                                                </div>
-                                            </form>
                                         </div>
-                                    </div>
-                                </div>
+
+
+
+                                        <div class="toggle_info">
+                                            <span><i class="fi-rs-user mr-10"></i><span style="margin-right: 10px;"
+                                                    class="text-muted">Deliver
+                                                    to a new address? </span> <a href="#loginform"
+                                                    data-bs-toggle="collapse" class="collapsed" aria-expanded="false">
+                                                    Click here to add
+                                                    address</a></span>
+                                        </div>
+                                        <div class="panel-collapse collapse login_form" id="loginform">
+                                            <div class="panel-body">
+
+                                                <form method="post">
+                                                    <div class="form-group">
+                                                        <input type="text" name="name" placeholder="Name" id="name"
+                                                            oninput="validateFieldName()">
+                                                        <span style="color: red;" id="nameError" class="error"></span>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" name="mobileNumber"
+                                                            placeholder="Mobile Number" id="mobileNumber"
+                                                            oninput="validateFieldMobileNumber()">
+                                                        <span style="color: red;" id="mobileNumberError"
+                                                            class="error"></span>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" name="pincode" placeholder="Pincode"
+                                                            id="pincode" oninput="validateFieldPincode()">
+                                                        <span style="color: red;" id="pincodeError"
+                                                            class="error"></span>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" name="houseName" placeholder="House name"
+                                                            id="houseName" oninput="validateFieldHouseName()">
+                                                        <span style="color: red;" id="houseNameError"
+                                                            class="error"></span>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" name="area" placeholder="Area" id="area"
+                                                            oninput="validateFieldarea()">
+                                                        <span style="color: red;" id="areaError" class="error"></span>
+
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" name="landmark" placeholder="Land mark"
+                                                            id="landmark" oninput="validateFieldlandmark()">
+                                                        <span style="color: red;" id="landmarkError"
+                                                            class="error"></span>
+
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" name="town" placeholder="Town" id="town"
+                                                            oninput="validateFieldtown()">
+                                                        <span style="color: red;" id="townError" class="error"></span>
+
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="text" name="state" placeholder="State" id="state"
+                                                            oninput="validateFieldstate()">
+                                                        <span style="color: red;" id="stateError" class="error"></span>
+                                                    </div>
+
+
+                                                    <div class="form-group">
+                                                        <button onclick="setDeliveryAddress()" type="button"
+                                                            class="btn btn-md" name="login">Set Delivery
+                                                            Address</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="col-lg-6" style="width: 540px; margin-top: 25px;">
+                                            <div class="toggle_info">
+                                                <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a
+                                                        coupon?</span> <a href="#coupon" data-bs-toggle="collapse"
+                                                        class="collapsed" aria-expanded="false">Click
+                                                        here to enter your
+                                                        code</a></span>
+                                            </div>
+                                            <div class="panel-collapse collapse coupon_form " id="coupon">
+                                                <div class="panel-body">
+                                                    <p class="mb-30 font-sm">If you have a coupon code, please apply it
+                                                        below.
+                                                    </p>
+                                                    <form method="post">
+                                                        <div class="form-group">
+                                                            <input type="text" placeholder="Enter Coupon Code...">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <button class="btn  btn-md" name="login">Apply
+                                                                Coupon</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                             </div>
 
                             <div class="col-md-5">
@@ -251,49 +305,54 @@
                                                             <%} %>
 
 
-                                                <%if(typeof(product) !=="undefined" ) {%>
-                                                    <%product.forEach((product)=> {%>
+                                                                <%if(typeof(product) !=="undefined" ) {%>
+                                                                    <%product.forEach((product)=> {%>
 
-                                                        <tr>
-                                                            <td class="image product-thumbnail"><img
-                                                                    src="<%=product.images[0].url %>" alt="#">
-                                                            </td>
-                                                            <input type="hidden" class="productId"
-                                                                value="<%=product._id %>">
-                                                            <input type="hidden" class="productQuantity"
-                                                                value="<%=productQuantity %>">
-                                                            <td>
-                                                                <h5><a href="shop-product-full.html">
-                                                                        <%=product.name %>
-                                                                    </a>
-                                                                </h5> <span class="product-qty">x <%=productQuantity
-                                                                        %></span>
-                                                            </td>
-                                                            <td class="sub-total-individual-products">
-                                                                <%=subTotal %>
-                                                            </td>
-                                                        </tr>
+                                                                        <tr>
+                                                                            <td class="image product-thumbnail"><img
+                                                                                    src="<%=product.images[0].url %>"
+                                                                                    alt="#">
+                                                                            </td>
+                                                                            <input type="hidden" class="productId"
+                                                                                value="<%=product._id %>">
+                                                                            <input type="hidden" class="productQuantity"
+                                                                                value="<%=productQuantity %>">
+                                                                            <td>
+                                                                                <h5><a href="shop-product-full.html">
+                                                                                        <%=product.name %>
+                                                                                    </a>
+                                                                                </h5> <span class="product-qty">x
+                                                                                    <%=productQuantity %></span>
+                                                                            </td>
+                                                                            <td class="sub-total-individual-products">
+                                                                                <%=subTotal %>
+                                                                            </td>
+                                                                        </tr>
 
-                                                        <%}) %>
-                                                            <%} %>
+                                                                        <%}) %>
+                                                                            <%} %>
 
 
-                                                                <tr>
-                                                                    <th>SubTotal</th>
-                                                                    <td class="product-subtotal" colspan="2"
-                                                                        id="totalAmountBeforeShipping">$280.00</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Shipping</th>
-                                                                    <td colspan="2"><em>Free Shipping</em></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Total</th>
-                                                                    <td colspan="2" class="product-subtotal"
-                                                                        id="totalAmount"><span
-                                                                            class="font-xl text-brand fw-900">$280.00</span>
-                                                                    </td>
-                                                                </tr>
+                                                                                <tr>
+                                                                                    <th>SubTotal</th>
+                                                                                    <td class="product-subtotal"
+                                                                                        colspan="2"
+                                                                                        id="totalAmountBeforeShipping">
+                                                                                        $280.00</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <th>Shipping</th>
+                                                                                    <td colspan="2"><em>Free
+                                                                                            Shipping</em></td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <th>Total</th>
+                                                                                    <td colspan="2"
+                                                                                        class="product-subtotal"
+                                                                                        id="totalAmount"><span
+                                                                                            class="font-xl text-brand fw-900">$280.00</span>
+                                                                                    </td>
+                                                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -304,16 +363,16 @@
                                         </div>
                                         <div class="payment_option">
                                             <div class="custome-radio">
-                                                <input class="form-check-input" required="" type="radio"
-                                                    name="payment_option" id="exampleRadios3" value="Cash on delivery" >
+                                                <input class="form-check-input" required="" type="radio" checked
+                                                    name="payment_option" id="exampleRadios3" value="Cash on delivery">
                                                 <label class="form-check-label" for="exampleRadios3"
                                                     data-bs-toggle="collapse" data-target="#bankTranfer"
                                                     aria-controls="bankTranfer">Cash on delivery</label>
                                                 <div class="form-group collapse in" id="bankTranfer">
-                                                    
+
                                                 </div>
                                             </div>
-                                          <!-- <div class="custome-radio">
+                                            <!-- <div class="custome-radio">
                                                 <input class="form-check-input" required="" type="radio"
                                                     name="payment_option" id="exampleRadios4" checked="">
                                                 <label class="form-check-label" for="exampleRadios4"
@@ -333,85 +392,60 @@
                                                     
                                                 </div>
                                             </div> -->
-                                        </div> 
                                         </div>
-                                        <a onclick="createOrder()" class="btn btn-fill-out btn-block mt-30 "
-                                            style="margin-left: 100px;">Place Your Order</a>
                                     </div>
+                                    <a onclick="createOrder()" class="btn btn-fill-out btn-block mt-30 "
+                                        style="margin-left: 100px;">Place Your Order</a>
                                 </div>
-
                             </div>
 
-                            <div class="row">
-
-
-                            </div>
                         </div>
+
+                        <div class="row">
+
+
+                        </div>
+                    </div>
                     </div>
                 </section>
             </main>
 
 
+
             <script>
 
-                function createOrder() {
 
-                    // Calling the function to get product and quantity
-                    getProductIdAndQuantity()
-                    let productDetails = [];
-    
-                    // Making a single array from product and quantity array
-                    productId.forEach((element, index) => {
-                        let data = {
-                            product: element,
-                            quantity: quantity[index],
-                        }
-                        productDetails.push(data)
-                    })
+                // if default address is not there, remvoving the collapse
+                // of the select address DIV
 
-                    let data = {
-                        selectedAddressIndex,
-                        productDetails,
-                        totalAmount,
-                        paymentMethod
+                 document.addEventListener("DOMContentLoaded", removeCollapse)
+
+                function removeCollapse() {
+                    if ('<%=userDefaultAddress.length %>' == 0) {    
+                        document.getElementById("changeAddress").classList.remove("collapse")
                     }
-                    
-                   data =  JSON.stringify(data)
+                }
+ 
 
-                    fetch("/order/buy", {
-                        method: "POST", headers: {
-                            'Content-Type'
-                                : 'application/json'
-                        }, body: data,
+
+                // When there is default address for the user, checking
+                // the corresponding input box. if not, checking one of 
+                // the address box
+                document.addEventListener("DOMContentLoaded", checkAddressRadio)
+
+                function checkAddressRadio() {
+
+                    if ('<%=userDefaultAddress.length %>'  == 0) {    
+
+                       document.getElementById("address" + '<%=userAddresses[0]._id %>').checked = true;
+
+                    } else {
+                        document.getElementById("defaultAddress").checked = true;
                     }
-                    )
-                    .then((res) => {
-                        return res.json()
-                    })
-                    .then((data) => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Order Placed Successfully!',
-                            text: 'Thank you for choosing our service. Your order has been successfully placed.',
-                        })
-                        .then(() => {
-                            window.location.href = "/order/view"
-                        })
-                    })
-
-                   
-
                 }
 
-                // For getting the input address  
-                let selectedAddressIndex;
-                const radioButtons = document.querySelectorAll('input[name="addressSelection"]');
 
-                radioButtons.forEach((radio) => {
-                    radio.addEventListener('change', () => {
-                        selectedAddressIndex = radio.value;
-                    });
-                });
+                
 
                 // For getting user selected payment method
                 let paymentMethod;
@@ -442,7 +476,7 @@
                     productQuantityElements.forEach((element) => {
                         quantity.push(element.value)
                     })
-                
+
                 }
 
 
@@ -456,7 +490,7 @@
                 function loadTotalAmount() {
                     let elements = document.getElementsByClassName("sub-total-individual-products")
                     elements = Array.from(elements)
-    
+
 
                     totalAmount = elements.reduce((accumulator, value) => {
                         return parseInt(value.textContent) + accumulator;
@@ -471,6 +505,75 @@
                     totalAmountElement.classList.add("font-xl")
                     totalAmountElement.classList.add("fw-900")
                 }
+
+
+
+                function createOrder() {
+
+
+                    // For getting the input address  
+                    let selectedAddressIndex= null;
+                    
+
+                    const radioButtons = document.querySelectorAll('input[name="addressSelection"]');
+                  
+
+                    for (const radioButton of radioButtons) {
+                        if (radioButton.checked) {
+                            selectedAddressIndex = radioButton.value;
+                            break;
+                        }
+                    }
+
+                        // Calling the function to get product and quantity
+                        getProductIdAndQuantity()
+                        let productDetails = [];
+
+                        // Making a single array from product and quantity array
+                        productId.forEach((element, index) => {
+                            let data = {
+                                product: element,
+                                quantity: quantity[index],
+                            }
+                            productDetails.push(data)
+                        })
+
+                        let data = {
+                            selectedAddressIndex,
+                            productDetails,
+                            totalAmount,
+                            paymentMethod
+                        }
+
+                        data = JSON.stringify(data)
+
+                        fetch("/order/buy", {
+                            method: "POST", headers: {
+                                'Content-Type'
+                                    : 'application/json'
+                            }, body: data,
+                        }
+                        )
+                            .then((res) => {
+                                return res.json()
+                            })
+                            .then((data) => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Order Placed Successfully!',
+                                    text: 'Thank you for choosing our service. Your order has been successfully placed.',
+                                })
+                                    .then(() => {
+                                        window.location.href = "/order/view"
+                                    })
+                            })
+
+
+
+                    }
+
+
+
 
 
                 function validateFieldName() {
@@ -593,7 +696,6 @@
                     }
 
                     let name = document.getElementById("name").value;
-                    console.log(name);
                     let mobileNumber = document.getElementById("mobileNumber").value
                     let pincode = document.getElementById("pincode").value
                     let houseName = document.getElementById("houseName").value
