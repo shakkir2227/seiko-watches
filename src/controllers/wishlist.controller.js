@@ -42,7 +42,7 @@ const viewWishlistController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 inStock: {
-                    $cond: { if: { $gte: ["$product.stock", 1] }, then: true, else: false }
+                    $cond: { if: { $gte: [{ $arrayElemAt: ["$product.stock", 0] }, 1] }, then: true, else: false }
                 }
             }
         },
@@ -55,8 +55,10 @@ const viewWishlistController = asyncHandler(async (req, res) => {
         }
 
     ])
+    console.log(userWishlist[0].product[0].stock);
+    console.log(userWishlist);
 
-    return res.render("shop-wishlist.ejs", { userWishlist })
+    return res.render("shop-wishlist.ejs", { userWishlist, categories: res.locals.categories })
 })
 
 export {

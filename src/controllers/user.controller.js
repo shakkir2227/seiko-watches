@@ -91,7 +91,7 @@ const registerController = {
             }
 
             tranporter.sendMail(message).then(() => {
-                console.log("OTP sent successfully");
+                console.log(`OTP sent successfully. OTP is ${OTPNumber}`);
             })
 
             // Creating the OTP document
