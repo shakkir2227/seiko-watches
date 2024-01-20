@@ -137,7 +137,7 @@
                                                                 class="fi-rs-angle-small-up"></i></a>
                                                     </div>
 
-                                                    <div class="product-extra-link2" >
+                                                    <div class="product-extra-link2">
                                                         <% if(typeof(availableincart)!=="undefined" ) {%>
                                                             <% if (availableincart.length>0) {%>
 
@@ -156,14 +156,15 @@
                                                                         <%} %>
                                                                             <button
                                                                                 onclick="buyProduct('<%=product._id%>')"
-                                                                                class="button button-add-to-cart" id="buyNow">Buy
+                                                                                class="button button-add-to-cart"
+                                                                                id="buyNow">Buy
                                                                                 Now
                                                                             </button>
                                                                             <a aria-label="Add To Wishlist"
-                                                                                class="action-btn hover-up ml-15"
-                                                                                href="shop-wishlist.html"><i
+                                                                                onclick="addToWishlist('<%=product._id%>')"
+                                                                                class="action-btn hover-up ml-15"><i
                                                                                     class="fi-rs-heart"></i></a>
-                                                                           
+
                                                     </div>
                                                 </div>
                                                 <ul class="product-meta font-xs color-grey mt-50">
@@ -277,8 +278,31 @@
 
                 <script>
 
-                    document.addEventListener("DOMContentLoaded", ()=> {
-                        if('<%=product.stock %>' == 0 ) {
+                    function addToWishlist(productId) {
+
+                        console.log(productId);
+                        let data = {
+                            product:productId
+                        };
+                        data = JSON.stringify(data);
+
+
+                        console.log(data);
+                         fetch("/wishlist/add", {
+                            method: "PUT",
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: data,
+                        })
+                        
+
+                    }
+
+
+
+                    document.addEventListener("DOMContentLoaded", () => {
+                        if ('<%=product.stock %>' == 0) {
                             removeAddToCartAndBuyNow()
                         }
                     })
@@ -302,7 +326,7 @@
 
 
                     function buyProduct(productId) {
-                        console.log("HELLO");
+                       
                         const productQuantity = document.getElementById("product-quantity").innerText;
 
 
@@ -344,6 +368,7 @@
                             productQuantity
                         }
                         const jsonData = JSON.stringify(data)
+                        console.log(jsonData);
 
                         fetch("/cart/add", {
                             method: "POST",

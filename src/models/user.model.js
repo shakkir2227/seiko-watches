@@ -35,9 +35,15 @@ const userSchema = new Schema({
         required: true,
         default: false
     },
+
     cart: [{
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", },
-        quantity: { type: Number, default: 1 }
+        quantity: { type: Number, }
+    }],
+
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
     }]
 
 }, {
