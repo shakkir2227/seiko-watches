@@ -9,8 +9,8 @@ const addToCartController = asyncHandler(async (req, res) => {
     if (!user) {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
-    const product = req.body.productId;
-    const quantity = req.body.productQuantity;
+
+    const { product, productQuantity: quantity } = req.body;
 
     user.cart.push({
         product,
@@ -87,7 +87,7 @@ const updateCartController = asyncHandler(async (req, res) => {
 const deleteFromCartController = asyncHandler(async (req, res) => {
     const { productId } = req.body
     const user = res.locals.user;
-    
+
     await User.updateOne({ _id: user._id }, { $pull: { cart: { product: productId } } })
     return res.status(200).json("Item removed from cart")
 })

@@ -18,12 +18,12 @@ const schema = Joi.object({
     password: Joi.string()
         .min(8)
         .max(30)
-        // .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/)
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/)
         .required()
         .messages({
             'string.min': 'Password should have at least {#limit} characters',
             'string.max': 'Password should not exceed {#limit} characters',
-            'string.pattern.base': 'Password should include at least one uppercase letter, one lowercase letter, one digit, and one special character (@$!%*?&)',
+            'string.pattern.base': 'Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, and one digit.',
             'any.required': 'Password is required',
         }),
 

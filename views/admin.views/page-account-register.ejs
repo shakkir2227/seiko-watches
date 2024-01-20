@@ -76,7 +76,13 @@
                                                     <label class="form-label">Password</label>
                                                     <input class="form-control error-message" placeholder="Password"
                                                         type="password" name="password"
-                                                        oninput="validateFieldPassword()" id="password">
+                                                        oninput="validateFieldPassword()" id="password" >
+
+                                                        <div style="margin: 10px ; margin-left: 160px;" >      
+                                                            <label for="showPassword">Show Password</label>
+                                                        <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
+                                                        </div>
+
                                                     <div id="passwordError" class="text-danger"></div>
                                                 </div> <!-- form-group// -->
                                                 <div class="mb-3">
@@ -179,16 +185,37 @@
             }
 
 
-            function validateFieldPassword() {
+           function validateFieldPassword() {
                 const passwordElement = document.getElementById("password");
                 const passwordErrorElement = document.getElementById("passwordError");
 
-                if (passwordElement.value.length < 8 || passwordElement.value.length > 30) {
-                    passwordErrorElement.innerHTML = "Password should be 8 to 30 characters";
+                const passwordValue = passwordElement.value.trim();
+
+                if (!isValidPassword(passwordValue)) {
+                    passwordErrorElement.innerHTML = 'Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, and one digit.'
                 } else {
                     passwordErrorElement.innerHTML = "";
                 }
             }
+
+            function isValidPassword(password) {
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+                return passwordRegex.test(password);
+            }
+
+
+
+            // This is for showing the user entered password
+            function togglePasswordVisibility() {
+                    var passwordField = document.getElementById("password");
+                    var showPasswordCheckbox = document.getElementById("showPassword");
+
+                    if (showPasswordCheckbox.checked) {
+                        passwordField.type = "text";
+                    } else {
+                        passwordField.type = "password";
+                    }
+                }
 
 
             function validateForm() {
