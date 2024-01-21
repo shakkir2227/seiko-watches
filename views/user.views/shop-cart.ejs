@@ -78,6 +78,14 @@
                                                                 class="text-muted"><i class="fi-rs-trash"></i></a>
                                                         </td>
 
+                                                        <%if(!user.inStock) {%>
+
+                                                        <td class="text-center" data-title="Stock">
+                                                            <span class="text-danger font-weight-bold">Out of
+                                                                stock <br>Only <%=user.product[0].stock %> item left !!</span>
+                                                        </td>
+
+                                                        <%} %>
                                                         
                                                         <tr>
                                                             

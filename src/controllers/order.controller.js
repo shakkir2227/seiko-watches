@@ -291,6 +291,7 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
                     $dateToString: {
                         format: "%d-%m-%Y %H:%M:%S",
                         date: "$createdAt",
+                        timezone: "+05:30"
                     }
                 }
             }

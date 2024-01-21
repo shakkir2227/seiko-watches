@@ -44,8 +44,26 @@ const viewCartController = asyncHandler(async (req, res) => {
                     },
                 },
             },
+            {
+                $addFields: {
+                    inStock: {
+                        $cond: { if: { $gte: [{ $arrayElemAt: ["$product.stock", 0] }, "$cart.quantity"] }, then: true, else: false }
+                    }
+                }
+            },
+            {
+                $project: {
+                    cart: 1,
+                    product: 1,
+                    subTotal: 1,
+                    inStock:1,
+                }
+            }
+
         ]
     );
+
+    console.log(userCart);
 
     return res.render("shop-cart.ejs", { categories: res.locals.categories, userCart })
 })
@@ -71,7 +89,7 @@ const updateCartController = asyncHandler(async (req, res) => {
     // Finding the current product Stock
     const product = await Product.findOne({ _id: productIdObject })
 
-    if ((updatedQuantity) > product.stock) {
+    if (((updatedQuantity) > product.stock) && todo === 'increase') {
         return res.status(500).json({ message: `OOPS!! Product out of stock. Only ${product.stock} items left!!` })
     }
 

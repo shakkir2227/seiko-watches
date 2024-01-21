@@ -591,12 +591,17 @@
 
                             else {
 
-                            } Swal.fire({
+                             Swal.fire({
                                 icon: "error",
                                 title: "Oops...",
                                 text: "Sorry, the requested quantity is currently unavailable.!",
-                            });
-                        })
+                            })
+                            .then(() => {
+                                window.location.href= "/cart/view"
+                            })
+                            ;
+                        } }
+                        )
 
 
 
