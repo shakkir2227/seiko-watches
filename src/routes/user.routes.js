@@ -48,7 +48,7 @@ router.route("/address/add")
 router.route("/address/change-default").put(userAddressController.changeDefaultAddressController)
 router.route("/address/update/:addressId").get(userAddressController.updateAddress.renderUpdateAddressPage)
 router.route("/address/update").post(userAddressController.updateAddress.handleUpdateAddressForm)
-router.route("/address/delete").delete(userAddressController.deleteAddress)
+router.route("/address/block").put(userAddressController.blockAddress)
 
 router.route("/logout").get(isAuth, userLogoutController)
 

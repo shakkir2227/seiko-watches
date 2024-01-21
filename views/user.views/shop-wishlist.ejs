@@ -33,20 +33,26 @@
                                         </thead>
                                         <tbody>
 
-                                            <%if(userWishlist.length > 0) {%>
+                                            <%if(userWishlist.length> 0) {%>
 
-                                                <%userWishlist.forEach((element) => { %>
+                                                <%userWishlist.forEach((element)=> { %>
 
                                                     <tr>
-                                                        <td class="image product-thumbnail"><a href="/product/view-user/<%=element.product[0]._id %>"><img 
-                                                                src="<%=element.product[0].images[0].url %>" alt="#"> </a></td>
+                                                        <td class="image product-thumbnail"><a
+                                                                href="/product/view-user/<%=element.product[0]._id %>"><img
+                                                                    src="<%=element.product[0].images[0].url %>"
+                                                                    alt="#"> </a></td>
                                                         <td class="product-des product-name" style="max-width: 200px;">
-                                                            <h5 class="product-name"><a href="/product/view-user/<%=element.product[0]._id %>"><%=element.product[0].name %></a></h5>
-                                                           
+                                                            <h5 class="product-name"><a
+                                                                    href="/product/view-user/<%=element.product[0]._id %>">
+                                                                    <%=element.product[0].name %>
+                                                                </a></h5>
+
                                                         </td>
-                                                        <td class="price" data-title="Price"><span>&#8377 <%=element.product[0].price %> </span></td>
-                                                        
-                                                        
+                                                        <td class="price" data-title="Price"><span>&#8377
+                                                                <%=element.product[0].price %> </span></td>
+
+
 
                                                         <%if(element.inStock) {%>
 
@@ -54,27 +60,32 @@
                                                                 <span class="color3 font-weight-bold">In Stock</span>
                                                             </td>
                                                             <td class="text-right" data-title="Cart">
-                                                                <button class="btn btn-sm"><i
-                                                                        class="fi-rs-shopping-bag mr-5"></i>Add to cart</button>
+                                                                <button class="btn btn-sm" onclick="moveToCart('<%=element.product[0]._id %>')"><i
+                                                                        class="fi-rs-shopping-bag mr-5"></i>Add to
+                                                                    cart</button>
                                                             </td>
 
                                                             <% } else {%>
                                                                 <td class="text-center" data-title="Stock">
-                                                                    <span class="text-danger font-weight-bold">Out of stock</span>
+                                                                    <span class="text-danger font-weight-bold">Out of
+                                                                        stock</span>
                                                                 </td>
                                                                 <td class="text-right" data-title="Cart">
-                                                                    <button class="btn btn-sm btn-secondary"><i class="fi-rs-headset mr-5"></i>Contact Us</button>
+                                                                    <button class="btn btn-sm btn-secondary"><i
+                                                                            class="fi-rs-headset mr-5"></i>Contact
+                                                                        Us</button>
                                                                 </td>
 
                                                                 <% } %>
-                                                        <td class="action" data-title="Remove"><a href="#"><i
-                                                                    class="fi-rs-trash"></i></a></td>
+                                                                    <td class="action" data-title="Remove"><a
+                                                                            onclick="deleteFromWishlist('<%=element.product[0]._id %>')"><i
+                                                                                class="fi-rs-trash"></i></a></td>
                                                     </tr>
 
-                                                <% })%>
-                                                <% }%>
+                                                    <% })%>
+                                                        <% }%>
 
-                                            
+
                                         </tbody>
                                     </table>
                                 </div>
@@ -83,6 +94,60 @@
                     </div>
                 </section>
             </main>
+
+
+            <script>
+
+                function moveToCart (product) {
+                    let data = {
+                        productId: product,
+                    }
+
+                    data = JSON.stringify(data);
+
+                    fetch("/cart/add", {
+                        method: "post", 
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }, 
+                        body: data
+                    })
+                    .then((res) => {
+                        if(res.ok) {
+                            
+                            deleteFromWishlist(product)
+                            
+                        }
+                    })
+                }
+
+
+
+
+                function deleteFromWishlist(product) {
+
+                    let data = {
+                        product,
+                    }
+
+                    data = JSON.stringify(data)
+
+                    fetch("/wishlist/delete", {
+                         method: "DELETE",
+                          headers: {
+                            'Content-Type': 'application/json'
+                        },
+                         body: data,
+                    })
+                    .then((res) => {
+                        if(res.ok) {
+                            window.location.reload()
+                        }
+                    })
+
+
+                }
+            </script>
 
 
 

@@ -295,6 +295,25 @@
                             },
                             body: data,
                         })
+                        .then((res) => {
+                            if(res.ok) {
+                                const Toast = Swal.mixin({
+                                    toast: true,
+                                    position: "top-end",
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    }
+                                });
+                                Toast.fire({
+                                    icon: "success",
+                                    title: "Success! The item has been saved to your wishlist."
+                                });
+                            }
+                        })
                         
 
                     }
@@ -420,6 +439,9 @@
                 <!-- Template  JS -->
                 <script src="/user.assets/js/main.js?v=3.4"></script>
                 <script src="/user.assets/js/shop.js?v=3.4"></script>
+
+                <!--Sweet alert -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
     </body>
 
     </html>

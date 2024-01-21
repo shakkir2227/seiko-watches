@@ -361,6 +361,7 @@ const userAccountController = {
                 $match: {
                     user: user._id,
                     isDefault: true,
+                    isBlocked: false,
                 }
             }
         ])
@@ -371,11 +372,12 @@ const userAccountController = {
             {
                 $match: {
                     user: user._id,
-                    isDefault: false
+                    isDefault: false,
+                    isBlocked:false,
                 }
             }
-        ])   
-             
+        ])
+
         const errorMessage = req.flash("error")[0]
         const successMessage = req.flash('success')[0];
         return res.render("page-account.ejs", { user: res.locals.user, userDefaultAddress, userAddresses, errorMessage, successMessage })
@@ -570,7 +572,7 @@ const userAddressController = {
         handleUpdateAddressForm: asyncHandler(async (req, res) => {
 
             const user = res.locals.user;
-            const { addressId, name, mobileNumber, pincode, houseName, area, landmark, town, state, isDefault } = req.body;      
+            const { addressId, name, mobileNumber, pincode, houseName, area, landmark, town, state, isDefault } = req.body;
 
             // Validating the user entered deatils using JOI
             const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
@@ -631,12 +633,13 @@ const userAddressController = {
         })
     },
 
-    deleteAddress: asyncHandler(async (req, res) => {
+    blockAddress: asyncHandler(async (req, res) => {
+
         const { addressId } = req.body;
 
-        await Address.deleteOne({ _id: addressId })
+        await Address.updateOne({ _id: addressId }, { isBlocked: true })
 
-        return res.status(200).json({message: "Address Removed successfully"})
+        return res.status(200).json({ message: "Address Removed successfully" })
     })
 }
 

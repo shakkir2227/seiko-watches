@@ -281,7 +281,7 @@
                                                                                             class="btn-small">Edit</a>
                                                                                         <a style="margin-left: 20px;"
                                                                                             
-                                                                                            class="btn-small" onclick="deleteAddress('<%=userDefaultAddress[0]._id %>')">Remove</a>
+                                                                                            class="btn-small" onclick="blockAddress('<%=userDefaultAddress[0]._id %>')">Remove</a>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -325,7 +325,7 @@
                                                                                                     class="btn-small">Edit</a>
                                                                                                 <a style="margin-left: 20px;"
                                                                                                    
-                                                                                                    class="btn-small" onclick="deleteAddress('<%=address._id %>')">Remove</a>
+                                                                                                    class="btn-small" onclick="blockAddress('<%=address._id %>')">Remove</a>
                                                                                                 <a onclick="makeAddressDefault('<%=address._id %>')"
                                                                                                     style="margin-left: 20px;"
                                                                                                     class="btn-small">Set
@@ -429,7 +429,7 @@
 
                                 <script>
 
-                                    function deleteAddress(addressId) {
+                                    function blockAddress(addressId) {
         
                                             Swal.fire({
                                                 title: 'Are you sure?',
@@ -449,8 +449,8 @@
         
                                                data = JSON.stringify(data)
         
-                                               fetch("/user/address/delete", {
-                                                   method: "DELETE", headers: {
+                                               fetch("/user/address/block", {
+                                                   method: "PUT", headers: {
                                                        'Content-Type'
                                                            : 'application/json'
                                                    }, body: data,

@@ -18,26 +18,31 @@ const userCheckoutController = {
             {
                 $match: {
                     user: userIdObject,
-                    isDefault: true
+                    isDefault: true,
+                    isBlocked: false,
                 }
             }
         ])
+
+       
         
 
         const userAddresses = await Address.aggregate([
             {
                 $match: {
                     user: userIdObject,
-                    isDefault: false
+                    isDefault: false,
+                    isBlocked:false,
                 }
             }
         ])
 
-
+    
         // When user buys single product, we get productid and qty
         // from query params 
         const { productId, productQuantity } = req.query;
         const productIdObject = new mongoose.Types.ObjectId(productId)
+
 
         if (productId && productQuantity) {
             const product = await Product.aggregate([
@@ -48,7 +53,11 @@ const userCheckoutController = {
                 },
             ])
 
-            const subTotal = product[0].price * productQuantity
+
+            const subTotal = product[0].price * productQuantity;
+
+            console.log(userAddresses);
+            console.log(userDefaultAddress);
 
             return res.render("shop-checkout.ejs", { categories: res.locals.categories, product, productQuantity, subTotal, userDefaultAddress, userAddresses })
         }
@@ -79,9 +88,6 @@ const userCheckoutController = {
                 },
             ]
         );
-
-
-
 
         return res.render("shop-checkout.ejs", { categories: res.locals.categories, userCart, userDefaultAddress, userAddresses })
     }),

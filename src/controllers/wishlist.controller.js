@@ -9,7 +9,6 @@ const addToWishlistController = asyncHandler(async (req, res) => {
     }
 
     const { product } = req.body;
-    console.log(req.body);
 
     // Using addToset, no duplicate product will be added
     await User.updateOne({ _id: user._id }, { $addToSet: { wishlist: product } })
@@ -55,14 +54,29 @@ const viewWishlistController = asyncHandler(async (req, res) => {
         }
 
     ])
-    console.log(userWishlist[0].product[0].stock);
-    console.log(userWishlist);
+
 
     return res.render("shop-wishlist.ejs", { userWishlist, categories: res.locals.categories })
+})
+
+const deleteFromWishlistController = asyncHandler(async (req, res) => {
+
+    const user = res.locals.user
+    const { product } = req.body
+
+    await User.updateOne(({ _id: user._id }, {
+        $pull: {
+            wishlist: product
+        }
+    }))
+
+    return res.status(200).json({ message: "Removed from wishlist successfully" })
+
 })
 
 export {
     addToWishlistController,
     viewWishlistController,
+    deleteFromWishlistController,
 
 }

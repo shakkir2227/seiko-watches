@@ -99,7 +99,7 @@
                                                                             <input
                                                                                 style="width: 20px; margin-right: 30px;"
                                                                                 type="radio" name="addressSelection"
-                                                                                id="defaultAddress"
+                                                                                id="defaultAddress" checked
                                                                                 value="<%=userDefaultAddress[0]._id %>">
                                                                             <label for="address1">
                                                                                 <h5 style="margin-bottom: 5px; ">
@@ -123,16 +123,19 @@
                                                                     <%} %>
                                                                         <%} %>
 
-                                                                            <% userAddresses.forEach((address)=> { %>
-                                                                                <tr>
+                                                                            <%if(userAddresses.length>0 && userDefaultAddress.length !== 0) {%>
 
-                                                                                    <td>
-                                                                                        <input
-                                                                                            style="width: 20px; margin-right: 30px;"
-                                                                                            type="radio"
-                                                                                            name="addressSelection"
-                                                                                            id="address<%= address._id %>"
-                                                                                        value="<%=address._id %>">
+                                                                                <% userAddresses.forEach((address)=> {
+                                                                                    %>
+                                                                                    <tr>
+
+                                                                                        <td>
+                                                                                            <input
+                                                                                                style="width: 20px; margin-right: 30px;"
+                                                                                                type="radio"
+                                                                                                name="addressSelection"
+                                                                                                id="address<%= address._id %>"
+                                                                                                value="<%=address._id %>">
                                                                                             <label for="address1">
                                                                                                 <h5
                                                                                                     style="margin-bottom: 5px; ">
@@ -149,12 +152,48 @@
                                                                                                                 <%=address.mobileNumber
                                                                                                                     %>
                                                                                             </label>
-                                                                                    </td>
+                                                                                        </td>
 
-                                                                                </tr>
-                                                                                <% })%>
-                                                                                    <% }%>
-                                                                                        <!-- Add more rows with similar structure for additional addresses -->
+                                                                                    </tr>
+                                                                                    <% })%>
+                                                                                        <% }%>
+
+                                                                                        <%if((userAddresses.length>0 ) && userDefaultAddress.length == 0) {%>
+                                                                                        
+                                                                                            <% userAddresses.forEach((address)=> {
+                                                                                                %>
+                                                                                                <tr>
+                                                                                        
+                                                                                                    <td>
+                                                                                                        <input style="width: 20px; margin-right: 30px;" type="radio" name="addressSelection"
+                                                                                                            id="address<%= address._id %>" value="<%=address._id %>" checked>
+                                                                                                        <label for="address1">
+                                                                                                            <h5 style="margin-bottom: 5px; ">
+                                                                                                                <%=address.name %>
+                                                                                                            </h5>
+                                                                                                            <%=address.houseName %>,
+                                                                                                                <%=address.area %>
+                                                                                                                    <br>
+                                                                                                                    <%=address.town %>,
+                                                                                                                        <%=address.pincode %>
+                                                                                                                            <br>
+                                                                                                                            <%=address.mobileNumber %>
+                                                                                                        </label>
+                                                                                                    </td>
+                                                                                        
+                                                                                                </tr>
+                                                                                                <% })%>
+                                                                                                    <% }%>
+
+
+
+
+
+
+
+
+                                                                                            <% }%>
+                                                                                                <!-- Add more rows with similar structure for additional addresses -->
                                                     </tbody>
                                                 </table>
 
@@ -322,7 +361,8 @@
                                                                                         <%=product.name %>
                                                                                     </a>
                                                                                 </h5> <span class="product-qty">x
-                                                                                    <%=productQuantity %></span>
+                                                                                    <%=productQuantity %>
+                                                                                </span>
                                                                             </td>
                                                                             <td class="sub-total-individual-products">
                                                                                 <%=subTotal %>
@@ -410,42 +450,25 @@
                 </section>
             </main>
 
+                
 
 
             <script>
 
 
+
                 // if default address is not there, remvoving the collapse
                 // of the select address DIV
 
-                 document.addEventListener("DOMContentLoaded", removeCollapse)
+                document.addEventListener("DOMContentLoaded", removeCollapse)
 
                 function removeCollapse() {
-                    if ('<%=userDefaultAddress.length %>' == 0) {    
+                    if ('<%=userDefaultAddress.length %>' == 0) {
                         document.getElementById("changeAddress").classList.remove("collapse")
                     }
                 }
- 
 
 
-                // When there is default address for the user, checking
-                // the corresponding input box. if not, checking one of 
-                // the address box
-                document.addEventListener("DOMContentLoaded", checkAddressRadio)
-
-                function checkAddressRadio() {
-
-                    if ('<%=userDefaultAddress.length %>'  == 0) {    
-
-                       document.getElementById("address" + '<%=userAddresses[0]._id %>').checked = true;
-
-                    } else {
-                        document.getElementById("defaultAddress").checked = true;
-                    }
-                }
-
-
-                
 
                 // For getting user selected payment method
                 let paymentMethod;
@@ -512,11 +535,11 @@
 
 
                     // For getting the input address  
-                    let selectedAddressIndex= null;
-                    
+                    let selectedAddressIndex = null;
+
 
                     const radioButtons = document.querySelectorAll('input[name="addressSelection"]');
-                  
+
 
                     for (const radioButton of radioButtons) {
                         if (radioButton.checked) {
@@ -525,39 +548,37 @@
                         }
                     }
 
-                        // Calling the function to get product and quantity
-                        getProductIdAndQuantity()
-                        let productDetails = [];
+                    // Calling the function to get product and quantity
+                    getProductIdAndQuantity()
+                    let productDetails = [];
 
-                        // Making a single array from product and quantity array
-                        productId.forEach((element, index) => {
-                            let data = {
-                                product: element,
-                                quantity: quantity[index],
-                            }
-                            productDetails.push(data)
-                        })
-
+                    // Making a single array from product and quantity array
+                    productId.forEach((element, index) => {
                         let data = {
-                            selectedAddressIndex,
-                            productDetails,
-                            totalAmount,
-                            paymentMethod
+                            product: element,
+                            quantity: quantity[index],
                         }
+                        productDetails.push(data)
+                    })
 
-                        data = JSON.stringify(data)
+                    let data = {
+                        selectedAddressIndex,
+                        productDetails,
+                        totalAmount,
+                        paymentMethod
+                    }
 
-                        fetch("/order/buy", {
-                            method: "POST", headers: {
-                                'Content-Type'
-                                    : 'application/json'
-                            }, body: data,
-                        }
-                        )
-                            .then((res) => {
-                                return res.json()
-                            })
-                            .then((data) => {
+                    data = JSON.stringify(data)
+
+                    fetch("/order/buy", {
+                        method: "POST", headers: {
+                            'Content-Type'
+                                : 'application/json'
+                        }, body: data,
+                    }
+                    )
+                        .then((res) => {
+                            if(res.ok) {
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Order Placed Successfully!',
@@ -566,11 +587,20 @@
                                     .then(() => {
                                         window.location.href = "/order/view"
                                     })
-                            })
+                            }
+
+                            else {
+
+                            } Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Sorry, the requested quantity is currently unavailable.!",
+                            });
+                        })
 
 
 
-                    }
+                }
 
 
 

@@ -10,14 +10,10 @@ const addToCartController = asyncHandler(async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 
-    const { product, productQuantity: quantity } = req.body;
+    const { productId: product, productQuantity: quantity } = req.body;
 
-    user.cart.push({
-        product,
-        quantity
-    })
+    await User.updateOne({ _id: user._id, "cart.product": { $ne: product } }, { $addToSet: { cart: { product, quantity } } })
 
-    await user.save();
     return res.status(200).json({ message: "Added to cart successfully" })
 })
 

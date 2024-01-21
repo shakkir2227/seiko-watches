@@ -488,6 +488,8 @@ const productViewController = {
                 $replaceRoot: { newRoot: "$uniqueProduct" }
             }])
 
+
+
             return res.render("shop-product-full.ejs", { product, relatedProducts, availableincart, productWithVariations, categories: res.locals.categories, user: res.locals.user })
 
         }),

@@ -40,6 +40,10 @@ const addressSchema = new Schema({
         type: String,
         required: true,
     },
+    isBlocked: {
+        type: Boolean,
+        default: false,
+    },
     isDefault: {
         type: Boolean,
         default:false
