@@ -34,6 +34,10 @@ router.post("/update", isAdmin, upload.array("images"), updateProductController.
 router.route("/view-admin").get(isAdmin, productViewController.adminProductView)
 router.route("/view-user/:productId").get(productViewController.userProductView.getSingleProductView)
 router.route("/view-user").get(productViewController.userProductView.getAllProductsView)
+router.route("/apply-filter").get(productViewController.userProductView.getFilteredProducts)
+
+
+
 
 
 export default router;

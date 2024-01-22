@@ -91,6 +91,8 @@ const addCategory = asyncHandler(async (req, res) => {
 
     });
 
+    
+
     req.flash('success', `Category ${category.name} has been added in ${parentCategory.name} successfully`);
     return res.redirect("/category/view")
 
@@ -145,7 +147,7 @@ const viewCategory = asyncHandler(async (req, res) => {
     const errorMessage = req.flash("error")[0]
     const successMessage = req.flash('success')[0];
 
-
+  
     return res.render("page-categories.ejs", { allCategories, categoryPathArr, errorMessage, successMessage })
 
     // return res.render("page-categories.ejs", { allCategories, categoryPathArr, message })

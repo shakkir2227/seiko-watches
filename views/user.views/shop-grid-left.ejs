@@ -66,7 +66,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row product-grid-3">
+                                <div class="row product-grid-3" id="productContainer">
                                     <div class="col-lg-4 col-md-4 col-12 col-sm-6">
                                         <div class="product-cart-wrap mb-30">
                                             <div class="product-img-action-wrap">
@@ -136,14 +136,10 @@
                                         <div class="input-upload">
 
                                             <h4 style="margin-top: 20px;">Applied Filters</h4>
-                                            <ul style="display: flex; flex-wrap: wrap  ;">
+                                            <ul style="display: flex; flex-wrap: wrap  ;" id="filter-list">
                                                 <br>
 
-                                                <li style="margin: 10px; font-weight: bolder; font-size: small;"> ffdfd
-                                                    <span style="cursor: pointer;
-                                            color: #e74c3c; margin: 7px; " class="remove-icon"><i
-                                                            class="fas fa-times"></i></span>
-                                                </li>
+
 
                                             </ul>
 
@@ -159,11 +155,12 @@
 
                                                 <div class="custome-checkbox">
                                                     <input class="form-check-input main-category" type="checkbox"
-                                                        name="checkbox" id="<%=category._id %>"
-                                                        value="<%=category._id %>">
-                                                    <label class="form-check-label" for="<%=category._id %>"><span>
-                                                            <%=category.name %>
-                                                        </span></label>
+                                                        onchange="updateMainCategoryFilter()" name="checkbox"
+                                                        id="<%=category._id %>" value="<%=category._id %>">
+                                                    <label class="form-check-label" for="<%=category._id %>"
+                                                        id="label<%=category._id%>">
+                                                        <%=category.name %>
+                                                    </label>
                                                     <br>
                                                 </div>
                                                 <%} %>
@@ -183,11 +180,11 @@
                                                 <%for(const category of subCategoriesofTopCategories) { %>
 
                                                     <input class="form-check-input sub-category" type="checkbox"
-                                                        name="checkbox" id="<%=category._id %>"
+                                                        name="checkbox" id="<%=category._id %>" onchange="updateSubCategoryFilter()"
                                                         value="<%=category._id %>">
-                                                    <label class="form-check-label" for="<%=category._id %>"><span>
-                                                            <%=category.name %>
-                                                        </span></label>
+                                                    <label class="form-check-label" for="<%=category._id %>" id="label<%=category._id%>"> 
+                                                            <%=category.name %> 
+                                                         </label>
                                                     <br>
                                                     <%} %>
                                                         <%} %>
@@ -222,19 +219,41 @@
                                             <label class="fw-900 mt-15">Band Material</label>
                                             <div class="custome-checkbox">
                                                 <input class="form-check-input band-material" type="checkbox"
-                                                    name="checkbox" id="exampleCheckbox11" value="">
+                                                    name="checkbox" id="Leather" value="" onchange="updateBandMaterialFilter()"> 
                                                 <label class="form-check-label"
-                                                    for="exampleCheckbox11"><span>Leather</span></label>
+                                                    for="Leather" id="labelLeather">Leather</label>
                                                 <br>
                                                 <input class="form-check-input band-material" type="checkbox"
-                                                    name="checkbox" id="exampleCheckbox21" value="">
+                                                    name="checkbox" id="Metal" value="" onchange="updateBandMaterialFilter()">
                                                 <label class="form-check-label"
-                                                    for="exampleCheckbox21"><span>Metal</span></label>
+                                                    for="Metal" id="labelMetal">Metal</label>
                                                 <br>
                                                 <input class="form-check-input band-material" type="checkbox"
-                                                    name="checkbox" id="exampleCheckbox31" value="">
+                                                    name="checkbox" id="Titanium" value="" onchange="updateBandMaterialFilter()">
                                                 <label class="form-check-label"
-                                                    for="exampleCheckbox31"><span>Titanium</span></label>
+                                                    for="Titanium" id="labelTitanium">Titanium</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group">
+                                        <div class="list-group-item mb-10 mt-10">
+
+                                            <label class="fw-900 mt-15">Dial Color</label>
+                                            <div class="custome-checkbox">
+                                                <input class="form-check-input dial-color" type="checkbox"
+                                                    name="checkbox" id="Black" value="" onchange="updateDialColorFilter()">
+                                                <label class="form-check-label"
+                                                    for="Black" id="labelBlack">Black</label>
+                                                <br>
+                                                <input class="form-check-input dial-color" type="checkbox"
+                                                    name="checkbox" id="Blue" value="" onchange="updateDialColorFilter()">
+                                                <label class="form-check-label"
+                                                    for="Blue" id="labelBlue" >Blue</label>
+                                                <br>
+                                                <input class="form-check-input dial-color" type="checkbox"
+                                                    name="checkbox" id="Brown" value="" onchange="updateDialColorFilter()">
+                                                <label class="form-check-label"
+                                                    for="Brown"id="labelBrown" >Brown</label>
                                             </div>
                                         </div>
                                     </div>
@@ -248,6 +267,8 @@
                 </section>
             </main>
 
+
+
             <%- include ('./partials/user.footer.ejs') %>
 
                 <% if ( !parentCategory ){ %>
@@ -260,8 +281,6 @@
                             })
                             targetCheckbox.checked = true;
 
-
-                            document.createElement("li")
                         })
                     </script>
                     <% } %>
@@ -289,19 +308,477 @@
                             </script>
                             <% } %>
 
+
+
                                 <script>
-                                    // Ticking the Bandmaterial checkbox
-                                    document.addEventListener("DOMContentLoaded", () => {
-                                        const variationElements = document.getElementsByClassName("band-material")
-                                        const targetVariationElement = Array.from(variationElements).find((element) => {
-                                            return element.value === "<%=selectedCategory.bandMaterial %>"
+
+
+                                    // Checking all the checked boxes, and putting that in the
+                                    // applied filter area; 
+                                    function updateMainCategoryFilter() {
+
+                                        let mainCategorycheckboxes = document.querySelectorAll("input[type='checkbox'].main-category");
+                                        mainCategorycheckboxes = Array.from(mainCategorycheckboxes)
+
+                                        let checkedElements = [];
+                                        let unCheckedElements = []
+
+
+                                        mainCategorycheckboxes.forEach(function (checkbox) {
+                                            if (checkbox.checked) {
+                                                checkedElements.push(checkbox);
+                                            } else {
+                                                unCheckedElements.push(checkbox)
+                                            }
+                                        });
+
+                                        checkedElements.forEach((element) => {
+
+                                            if (elementExistInFilter(element)) {
+                                                return
+                                            }
+
+
+                                            const labelElement = document.getElementById("label" + element.id);
+                                            const listItem = document.createElement("li")
+
+                                            // Step 2: Set attributes and styles for the li element
+                                            listItem.style.margin = "10px";
+                                            listItem.style.fontWeight = "bolder";
+                                            listItem.style.fontSize = "small";
+                                            listItem.classList.add("main-category-filter")
+                                            listItem.id = "li" + element.id;
+
+                                            // Step 3: Add text content to the li element
+                                            listItem.textContent = labelElement.textContent;
+
+                                            // Step 3: Create the span element
+                                            var spanElement = document.createElement("span");
+
+                                            // Step 4: Set attributes and styles for the span element
+                                            spanElement.style.cursor = "pointer";
+                                            spanElement.style.color = "#e74c3c";
+                                            spanElement.style.margin = "7px";
+                                            spanElement.className = "remove-icon"; // Add the "remove-icon" class
+
+                                            // Step 5: Create the i element (Font Awesome icon)
+                                            var iconElement = document.createElement("i");
+                                            iconElement.className = "fas fa-times";
+
+                                            // Step 6: Append the icon element to the span element
+                                            spanElement.appendChild(iconElement);
+
+                                            // Step 7: Append the span element to the li element
+                                            listItem.appendChild(spanElement)
+
+                                            document.getElementById("filter-list").appendChild(listItem)
+
                                         })
-                                        targetVariationElement.checked = true;
-                                    });
+
+                                        if (unCheckedElements.length > 0) {
 
 
+                                            unCheckedElements.forEach((checkbox) => {
+
+                                                const element = document.getElementById("li" + checkbox.id)
+                                                if (element) {
+
+                                                    removeFromFilter(element.id)
+                                                }
+                                            })
+
+                                        }
+
+                                        // Fetching the products by chekcking filter
+                                        applyFilter()
+                                    }
+
+
+                                    // For subCategoryFiltering
+                                    // Checking all the checked boxes, and putting that in the
+                                    // applied filter area if it is not present; 
+                                        function updateSubCategoryFilter() {
+
+                                            let subCategorycheckboxes = document.querySelectorAll("input[type='checkbox'].sub-category");
+                                            subCategorycheckboxes = Array.from(subCategorycheckboxes)
+
+                                            let checkedElements = [];
+                                            let unCheckedElements = []
+
+
+                                            subCategorycheckboxes.forEach(function (checkbox) {
+                                                if (checkbox.checked) {
+                                                    checkedElements.push(checkbox);
+                                                } else {
+                                                    unCheckedElements.push(checkbox)
+                                                }
+                                            });
+
+                                            checkedElements.forEach((element) => {
+
+                                                if (elementExistInFilter(element)) {
+                                                    return
+                                                }
+
+
+                                                const labelElement = document.getElementById("label" + element.id);
+                                                const listItem = document.createElement("li")
+
+                                                // Step 2: Set attributes and styles for the li element
+                                                listItem.style.margin = "10px";
+                                                listItem.style.fontWeight = "bolder";
+                                                listItem.style.fontSize = "small";
+                                                listItem.classList.add("sub-category-filter")
+                                                listItem.id = "li" + element.id;
+
+                                                // Step 3: Add text content to the li element
+                                                listItem.textContent = labelElement.textContent;
+
+                                                // Step 3: Create the span element
+                                                var spanElement = document.createElement("span");
+
+                                                // Step 4: Set attributes and styles for the span element
+                                                spanElement.style.cursor = "pointer";
+                                                spanElement.style.color = "#e74c3c";
+                                                spanElement.style.margin = "7px";
+                                                spanElement.className = "remove-icon"; // Add the "remove-icon" class
+
+                                                // Step 5: Create the i element (Font Awesome icon)
+                                                var iconElement = document.createElement("i");
+                                                iconElement.className = "fas fa-times";
+
+                                                // Step 6: Append the icon element to the span element
+                                                spanElement.appendChild(iconElement);
+
+                                                // Step 7: Append the span element to the li element
+                                                listItem.appendChild(spanElement)
+
+                                                document.getElementById("filter-list").appendChild(listItem)
+
+                                            })
+
+                                            if (unCheckedElements.length > 0) {
+
+                                                unCheckedElements.forEach((checkbox) => {
+
+                                                    const element = document.getElementById("li" + checkbox.id)
+                                                    if (element) {
+                                                        removeFromFilter(element.id)
+                                                    }
+                                                })
+
+                                            }
+
+                                            // Fetching the products by chekcking filter
+                                            applyFilter()
+                                        }
+
+                                        // Update bandMaterialFilter
+
+                                        function updateBandMaterialFilter (){
+
+                                            let bandMaterial = document.querySelectorAll("input[type='checkbox'].band-material");
+                                            bandMaterial = Array.from(bandMaterial)
+
+                                            let checkedElements = [];
+                                            let unCheckedElements = []
+
+
+                                            bandMaterial.forEach(function (checkbox) {
+                                                if (checkbox.checked) {
+                                                    checkedElements.push(checkbox);
+                                                } else {
+                                                    unCheckedElements.push(checkbox)
+                                                }
+                                            });
+
+                                            checkedElements.forEach((element) => {
+
+                                                if (elementExistInFilter(element)) {
+                                                    return
+                                                }
+
+
+                                                const labelElement = document.getElementById("label" + element.id);
+                                                const listItem = document.createElement("li")
+
+                                                // Step 2: Set attributes and styles for the li element
+                                                listItem.style.margin = "10px";
+                                                listItem.style.fontWeight = "bolder";
+                                                listItem.style.fontSize = "small";
+                                                listItem.classList.add("band-material-filter")
+                                                listItem.id = "li" + element.id;
+
+                                                // Step 3: Add text content to the li element
+                                                listItem.textContent = labelElement.textContent;
+
+                                                // Step 3: Create the span element
+                                                var spanElement = document.createElement("span");
+
+                                                // Step 4: Set attributes and styles for the span element
+                                                spanElement.style.cursor = "pointer";
+                                                spanElement.style.color = "#e74c3c";
+                                                spanElement.style.margin = "7px";
+                                                spanElement.className = "remove-icon"; // Add the "remove-icon" class
+
+                                                // Step 5: Create the i element (Font Awesome icon)
+                                                var iconElement = document.createElement("i");
+                                                iconElement.className = "fas fa-times";
+
+                                                // Step 6: Append the icon element to the span element
+                                                spanElement.appendChild(iconElement);
+
+                                                // Step 7: Append the span element to the li element
+                                                listItem.appendChild(spanElement)
+
+                                                document.getElementById("filter-list").appendChild(listItem)
+
+                                            })
+
+                                            if (unCheckedElements.length > 0) {
+
+                                                unCheckedElements.forEach((checkbox) => {
+
+                                                    const element = document.getElementById("li" + checkbox.id)
+                                                    if (element) {
+                                                        removeFromFilter(element.id)
+                                                    }
+                                                })
+
+                                            }
+
+                                            // Fetching the products by chekcking filter
+                                            applyFilter()
+
+
+
+                                        }
+
+
+                                        // For updating dialcolor filter
+                                          function updateDialColorFilter() {
+
+                                                let bandMaterial = document.querySelectorAll("input[type='checkbox'].dial-color");
+                                                bandMaterial = Array.from(bandMaterial)
+
+                                                let checkedElements = [];
+                                                let unCheckedElements = []
+
+
+                                                bandMaterial.forEach(function (checkbox) {
+                                                    if (checkbox.checked) {
+                                                        checkedElements.push(checkbox);
+                                                    } else {
+                                                        unCheckedElements.push(checkbox)
+                                                    }
+                                                });
+
+                                                checkedElements.forEach((element) => {
+
+                                                    if (elementExistInFilter(element)) {
+                                                        return
+                                                    }
+
+
+                                                    const labelElement = document.getElementById("label" + element.id);
+                                                    const listItem = document.createElement("li")
+
+                                                    // Step 2: Set attributes and styles for the li element
+                                                    listItem.style.margin = "10px";
+                                                    listItem.style.fontWeight = "bolder";
+                                                    listItem.style.fontSize = "small";
+                                                    listItem.classList.add("dial-color-filter")
+                                                    listItem.id = "li" + element.id;
+
+                                                    // Step 3: Add text content to the li element
+                                                    listItem.textContent = labelElement.textContent;
+
+                                                    // Step 3: Create the span element
+                                                    var spanElement = document.createElement("span");
+
+                                                    // Step 4: Set attributes and styles for the span element
+                                                    spanElement.style.cursor = "pointer";
+                                                    spanElement.style.color = "#e74c3c";
+                                                    spanElement.style.margin = "7px";
+                                                    spanElement.className = "remove-icon"; // Add the "remove-icon" class
+
+                                                    // Step 5: Create the i element (Font Awesome icon)
+                                                    var iconElement = document.createElement("i");
+                                                    iconElement.className = "fas fa-times";
+
+                                                    // Step 6: Append the icon element to the span element
+                                                    spanElement.appendChild(iconElement);
+
+                                                    // Step 7: Append the span element to the li element
+                                                    listItem.appendChild(spanElement)
+
+                                                    document.getElementById("filter-list").appendChild(listItem)
+
+                                                })
+
+                                                if (unCheckedElements.length > 0) {
+
+                                                    unCheckedElements.forEach((checkbox) => {
+
+                                                        const element = document.getElementById("li" + checkbox.id)
+                                                        if (element) {
+                                                            removeFromFilter(element.id)
+                                                        }
+                                                    })
+
+                                                }
+
+                                                // Fetching the products by chekcking filter
+                                                applyFilter()
+
+                                            }
+
+
+
+
+                                    // Check whether element already exist in filter
+                                    function elementExistInFilter(checkbox) {
+                                        const element = document.getElementById("li" + checkbox.id)
+                                        if (element) {
+                                            return true
+                                        } else {
+                                            return false
+                                        }
+
+                                    }
+
+                                    function removeFromFilter(id) {
+                                        const element = document.getElementById(id)
+                                        element.remove()
+                                    }
+                                </script>
+
+
+
+
+                                <script>
+
+                                    // Fetching the products by applying the filter
+                                    function applyFilter() {
+
+                                        let params = new URLSearchParams()
+
+                                        // Getting main category elements from filter area 
+                                        let elements = document.getElementsByClassName("main-category-filter");
+                                        elements = Array.from(elements);
+
+                                        elements.forEach((element) => {
+
+                                            params.append('parentCategoryFilters', element.id);
+                                        })
+
+                                        // Getting sub category elements from filter area
+                                        let subCategoryElements = document.getElementsByClassName("sub-category-filter")
+                                        subCategoryElements = Array.from(subCategoryElements)
+
+                                        subCategoryElements.forEach((element) => {
+                                              params.append('subCategoryFilters', element.id);
+                                        })
+
+                                        // Getting band material elements from filter area
+                                        let bandMaterial = document.getElementsByClassName("band-material-filter")
+                                        bandMaterial = Array.from(bandMaterial)
+
+                                        bandMaterial.forEach((element) => {
+                                              params.append('bandMaterialFilters', element.id);
+                                        })
+
+                                        // Getting dial color elements from filter area
+                                        let dialColor = document.getElementsByClassName("dial-color-filter")
+                                        dialColor = Array.from(dialColor)
+
+                                        dialColor.forEach((element) => {
+                                              params.append('dialColorFilters', element.id);
+                                        })
+
+
+
+
+                                        fetch('/product/apply-filter?' + params)
+                                            .then((res) => {
+                                                return res.json()
+                                            })
+                                            .then((products) => {
+                                                console.log(products.filteredProducts.length);
+                                                updatePage(products.filteredProducts)
+                                            })
+
+                                    }
+
+
+                                    function updatePage(products) {
+
+                                        const productContainer = document.getElementById('productContainer');
+                                        productContainer.innerHTML = "" // For clearing the previous filter proudcts
+
+                                        products.forEach(product => {
+                                            // Create a product item
+                                            const productItem = document.createElement('div');
+                                            productItem.className = 'col-lg-4 col-md-4 col-12 col-sm-6';
+
+                                            // Set the HTML content for the product item
+                                            productItem.innerHTML = `
+                <div class="product-cart-wrap mb-30">
+                    <div class="product-img-action-wrap">
+                        <div class="product-img product-img-zoom">
+                            <a href="shop-product-right.html">
+                                <img class="default-img" src="${product.images[0].url}" alt="">
+                                <img class="hover-img" src="${product.images[1].url}" alt="">
+                            </a>
+                        </div>
+                        <div class="product-action-1">
+                            <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
+                                <i class="fi-rs-search"></i>
+                            </a>
+                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html">
+                                <i class="fi-rs-heart"></i>
+                            </a>
+                            <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html">
+                                <i class="fi-rs-shuffle"></i>
+                            </a>
+                        </div>
+                        <div class="product-badges product-badges-position product-badges-mrg">
+                            <span class="hot">Hot</span>
+                        </div>
+                    </div>
+                    <div class="product-content-wrap">
+                        <div class="product-category">
+                            <a href="shop-grid-right.html">${product.category}</a>
+                        </div>
+                        <h2><a href="shop-product-right.html">${product.name}</a></h2>
+                        <div class="rating-result" title="">
+                            <span>
+                                <span></span>
+                            </span>
+                        </div>
+                        <div class="product-price">
+                            <span>$${product.price}</span>
+                            <span class="old-price">$${product.price}</span>
+                        </div>
+                        <div class="product-action-1 show">
+                            <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html">
+                                <i class="fi-rs-shopping-bag-add"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                                            // Append the product item to the container
+                                            productContainer.appendChild(productItem);
+                                        });
+
+                                    }
 
                                 </script>
+
+
+
 
                                 <!-- Vendor JS-->
                                 <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>

@@ -81,7 +81,7 @@ const addProductController = {
             , dialColor
         } = req.body;
 
-      
+
 
 
         const { error } = addProductSchema.validate({
@@ -516,18 +516,384 @@ const productViewController = {
 
             const subCategoriesofTopCategories = [];
             for (const category of topCategories) {
-                const subCategories = await Category.find({ parentCategoryId: category._id })
+                const subCategories = await Category.aggregate([
+                    {
+                        $match: {
+                            parentCategoryId: category._id
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            parentCategoryId: 1,
+
+                        }
+                    }
+                ])
                 subCategoriesofTopCategories.push(...subCategories)
             }
 
+            console.log(subCategoriesofTopCategories);
+
+            subCategoriesofTopCategories = subCategoriesofTopCategories.filter((category) )
+
             return res.render("shop-grid-left.ejs", { selectedCategory, parentCategory, topCategories, subCategoriesofTopCategories })
+
+        }),
+
+        getFilteredProducts: asyncHandler(async (req, res) => {
+
+            let { parentCategoryFilters, subCategoryFilters, bandMaterialFilters, dialColorFilters } = req.query
+
+            let parentCategoryIds = [];
+            let subCategoryIds = [];
+            let bandMaterials = []
+            let dialColors = [];
+
+
+            if (parentCategoryFilters) {
+                if (Array.isArray(parentCategoryFilters)) {
+                    parentCategoryFilters.forEach((parentCategoryFilter, index) => {
+                        parentCategoryIds[index] = parentCategoryFilter.replace("li", "")
+                        parentCategoryIds[index] = new mongoose.Types.ObjectId(parentCategoryIds[index])
+                    })
+                } else {
+                    parentCategoryIds[0] = parentCategoryFilters.replace("li", "")
+                    parentCategoryIds[0] = new mongoose.Types.ObjectId(parentCategoryIds[0])
+                }
+            }
+
+            if (subCategoryFilters) {
+                if (Array.isArray(subCategoryFilters)) {
+                    subCategoryFilters.forEach((subCategoryFilter, index) => {
+                        subCategoryIds[index] = subCategoryFilter.replace("li", "")
+                        subCategoryIds[index] = new mongoose.Types.ObjectId(subCategoryIds[index])
+                    })
+                } else {
+                    subCategoryIds[0] = subCategoryFilters.replace("li", "")
+                    subCategoryIds[0] = new mongoose.Types.ObjectId(subCategoryIds[0])
+                }
+
+            }
+            if (bandMaterialFilters) {
+                if (Array.isArray(bandMaterialFilters)) {
+                    bandMaterialFilters.forEach((bandMaterialFilter, index) => {
+                        bandMaterials[index] = bandMaterialFilter.replace("li", "")
+                    })
+                } else {
+                    bandMaterials[0] = bandMaterialFilters.replace("li", "")
+                }
+            }
+            if (dialColorFilters) {
+                if (Array.isArray(dialColorFilters)) {
+                    dialColorFilters.forEach((dialColorFilter, index) => {
+                        dialColors[index] = dialColorFilter.replace("li", "")
+                    })
+                } else {
+                    dialColors[0] = dialColorFilters.replace("li", "")
+                }
+            }
+
+            if (!parentCategoryFilters && !subCategoryFilters) {
+
+                // Finding all products which match the bandMaterial array and dial color array
+
+                const pipeline = [];
+
+                // Add $match stage for bandMaterial if the array is not empty
+                if (bandMaterials.length > 0) {
+                    pipeline.push({
+                        $match: {
+                            bandMaterial: {
+                                $in: bandMaterials
+                            }
+                        }
+                    });
+                }
+
+                // Add $match stage for dialColor if the array is not empty
+                if (dialColors.length > 0) {
+                    pipeline.push({
+                        $match: {
+                            dialColor: {
+                                $in: dialColors
+                            }
+                        }
+                    });
+                }
+
+                // If either of them is present, perform aggregation
+                let filteredProducts;
+                if (bandMaterials.length > 0 || dialColors.length > 0) {
+                    filteredProducts = await Product.aggregate(pipeline);
+                }
+                return res.status(200).json({ filteredProducts })
+            }
+
+
+            if (!subCategoryFilters) {
+
+                // Finding the products which belong to filter categories
+                const pipeline = [{
+                    $match: {
+                        category: {
+                            $in: parentCategoryIds
+                        }
+                    }
+                }];
+
+                // Add $match stage for bandMaterial if the array is not empty
+                if (bandMaterials.length > 0) {
+                    pipeline.push({
+                        $match: {
+                            bandMaterial: {
+                                $in: bandMaterials
+                            }
+                        }
+                    });
+                }
+
+                // Add $match stage for dialColor if the array is not empty
+                if (dialColors.length > 0) {
+                    pipeline.push({
+                        $match: {
+                            dialColor: {
+                                $in: dialColors
+                            }
+                        }
+                    });
+                }
+
+                const filteredProducts = await Product.aggregate(pipeline)
+
+                // Finding the subcategories of filter categories
+                // And also finding the associated products
+                for (const categoryId of parentCategoryIds) {
+                    const categories = await Category.aggregate([
+                        {
+                            $match: {
+                                parentCategoryId: categoryId
+                            }
+                        }
+
+                    ])
+
+                    for (const category of categories) {
+
+                        const pipeline = [
+                            {
+                                $match: {
+                                    category: category._id
+                                }
+                            }
+                        ]
+
+                        // Add $match stage for bandMaterial if the array is not empty
+                        if (bandMaterials.length > 0) {
+                            pipeline.push({
+                                $match: {
+                                    bandMaterial: {
+                                        $in: bandMaterials
+                                    }
+                                }
+                            });
+                        }
+
+                        // Add $match stage for dialColor if the array is not empty
+                        if (dialColors.length > 0) {
+                            pipeline.push({
+                                $match: {
+                                    dialColor: {
+                                        $in: dialColors
+                                    }
+                                }
+                            });
+                        }
+
+                        const prodcuts = await Product.aggregate(pipeline)
+
+                        filteredProducts.push(...prodcuts)
+                    }
+
+                }
+
+                return res.status(200).json({ filteredProducts })
+
+            }
+
+            // When only subcategory is present, find the particular sucategory,
+            // find it's name, then find all the categories with this name, 
+            // Then find all the products with those category ids, 
+            // Find all the subcategories of it, Find all the products of 
+            // it, 
+
+            if (!parentCategoryFilters) {
+
+                const filteredCategories = await Category.aggregate([
+                    {
+                        $match: {
+                            _id: {
+                                $in: subCategoryIds,
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            name: 1,
+                        }
+                    }
+                ])
+
+
+                // Finding all the categories with the filtered category name
+                const sameNamedSubCategories = []
+                for (const category of filteredCategories) {
+                    const arr = await Category.aggregate([
+                        {
+                            $match: {
+                                name: category.name,
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1
+                            }
+                        }
+
+                    ])
+                    sameNamedSubCategories.push(...arr)
+                }
+
+                // Now finding all the products with this categories
+                let filteredProducts = [];
+                for (const category of sameNamedSubCategories) {
+
+                    const pipeline = [
+                        {
+                            $match: {
+                                category: category._id
+                            }
+                        }
+                    ]
+
+                    // Add $match stage for bandMaterial if the array is not empty
+                    if (bandMaterials.length > 0) {
+                        pipeline.push({
+                            $match: {
+                                bandMaterial: {
+                                    $in: bandMaterials
+                                }
+                            }
+                        });
+                    }
+
+                    // Add $match stage for dialColor if the array is not empty
+                    if (dialColors.length > 0) {
+                        pipeline.push({
+                            $match: {
+                                dialColor: {
+                                    $in: dialColors
+                                }
+                            }
+                        });
+                    }
+
+                    const arr = await Product.aggregate(pipeline)
+
+                    filteredProducts.push(...arr)
+                }
+
+                return res.status(200).json({ filteredProducts })
+
+            }
+
+            // When both subcategory and parentcategory are present
+
+            // Find the subcategories from DB
+            const filteredCategories = await Category.aggregate([
+                {
+                    $match: {
+                        _id: {
+                            $in: subCategoryIds,
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        name: 1,
+                    }
+                }
+            ])
+
+            // Finding all the categories with the this subcategory name and 
+            // belongs to the parentcategoryids
+            const sameNamedSubCategories = []
+            for (const category of filteredCategories) {
+                const arr = await Category.aggregate([
+                    {
+                        $match: {
+                            name: category.name,
+                            parentCategoryId: {
+                                $in: parentCategoryIds
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1
+                        }
+                    }
+
+                ])
+                sameNamedSubCategories.push(...arr)
+            }
+
+            // Now finding all the products with this categories
+            let filteredProducts = [];
+            for (const category of sameNamedSubCategories) {
+
+                const pipeline = [
+                    {
+                        $match: {
+                            category: category._id
+                        }
+                    }
+                ];
+
+                // Add $match stage for bandMaterial if the array is not empty
+                if (bandMaterials.length > 0) {
+                    pipeline.push({
+                        $match: {
+                            bandMaterial: {
+                                $in: bandMaterials
+                            }
+                        }
+                    });
+                }
+
+                // Add $match stage for dialColor if the array is not empty
+                if (dialColors.length > 0) {
+                    pipeline.push({
+                        $match: {
+                            dialColor: {
+                                $in: dialColors
+                            }
+                        }
+                    });
+                }
+
+                const arr = await Product.aggregate(pipeline)
+
+                filteredProducts.push(...arr)
+            }
+
+            return res.status(200).json({ filteredProducts })
 
         })
 
 
     }
-
-
 
 }
 
