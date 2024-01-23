@@ -6,7 +6,8 @@ import {
     adminUserDetailsController,
     unBlockUserController,
     adminHomeController,
-    adminLogoutController
+    adminLogoutController,
+    adminReportController
 
 
 } from "../controllers/admin.controller.js";
@@ -26,6 +27,9 @@ router.route("/unblock-user").put(isAdmin, unBlockUserController)
 
 // Users list view for admin
 router.route("/users").get(isAdmin, adminUserDetailsController)
+
+// Generating reports 
+router.route("/report/:period").get(adminReportController)
 
 router.route("/logout").get(isAdmin, adminLogoutController)
 

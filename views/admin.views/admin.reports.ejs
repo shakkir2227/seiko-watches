@@ -16,7 +16,7 @@
                     <section class="content-main">
                         <div class="content-header">
                             <div>
-                                <h2 class="content-title card-title">Dashboard </h2>
+                                <h2 class="content-title card-title">Sales Overview </h2>
                                 <p>Whole data about your business here</p>
                             </div>
 
@@ -96,50 +96,18 @@
                         </div>
                         <div class="card mb-4">
                             <header class="card-header">
-                                <h4 class="card-title">Latest orders</h4>
+                                <h4 class="card-title"></h4>
                                 <div class="row align-items-center">
-                                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                                        <div class="custom_select">
-                                            <select class="form-select select-nice">
-                                                <option selected>All Categories</option>
-                                                <option>Women's Clothing</option>
-                                                <option>Men's Clothing</option>
-                                                <option>Cellphones</option>
-                                                <option>Computer & Office</option>
-                                                <option>Consumer Electronics</option>
-                                                <option>Jewelry & Accessories</option>
-                                                <option>Home & Garden</option>
-                                                <option>Luggage & Bags</option>
-                                                <option>Shoes</option>
-                                                <option>Mother & Kids</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                                        <div class="custom_select">
-                                            <select class="form-select select-nice">
-                                                <option selected>Sales overview</option>
-                                                <option>Daily sales overview</option>
-                                                <option>Weekly sales overview</option>
-                                                <option>Monthly sales overview</option>
-                                                <option>Yearly sales overview</option>
-                                            </select>
-                                        </div>
-                                    </div>
+
+
                                     <div class="col-md-2 col-6">
                                         <input type="date" value="02.05.2022" class="form-control">
                                     </div>
+
                                     <div class="col-md-2 col-6">
-                                        <div class="custom_select">
-                                            <select class="form-select select-nice">
-                                                <option selected>Status</option>
-                                                <option>All</option>
-                                                <option>Paid</option>
-                                                <option>Chargeback</option>
-                                                <option>Refund</option>
-                                            </select>
-                                        </div>
+                                        <input type="date" value="02.05.2022" class="form-control">
                                     </div>
+
                                 </div>
                             </header>
                             <div class="card-body">
@@ -156,15 +124,18 @@
                                                                 for="transactionCheck01"></label>
                                                         </div>
                                                     </th>
-                                                    <th class="align-middle" scope="col">Billing Name</th>
+
                                                     <th class="align-middle" scope="col">Date</th>
-                                                    <th class="align-middle" scope="col">Total</th>
-                                                    <th class="align-middle" scope="col">Payment Status</th>
-                                                    <th class="align-middle" scope="col">Payment Method</th>
-                                                    <th class="align-middle" scope="col">View Details</th>
+                                                    <th class="align-middle" scope="col">Order ID</th>
+                                                    <th class="align-middle" scope="col">Product Name</th>
+                                                    <th class="align-middle" scope="col">Price</th>
+                                                    <th class="align-middle" scope="col">Quantity</th>
+                                                    <th class="align-middle" scope="col">Sub Total</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
+
+                                                <% let totalAmount = 0;%>
                                                 <%if(typeof(orders) !=="undefined" ) {%>
                                                     <%orders.forEach((order)=> { %>
 
@@ -178,37 +149,44 @@
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                <%=order.user[0].name %>
-                                                            </td>
-                                                            <td>
                                                                 <%=order.createdAt %>
                                                             </td>
                                                             <td>
-                                                                <%=order.totalAmount %>
+                                                                orderId
                                                             </td>
                                                             <td>
-                                                                <span class="badge badge-pill badge-soft-success">
-                                                                    <%=order.paymentStatus%>
-                                                                </span>
+                                                                <%=order.product[0].name %>
                                                             </td>
                                                             <td>
-                                                                <i
-                                                                    class="material-icons md-payment font-xxl text-muted mr-5"></i>
-                                                                <%=order.paymentMethod %>
+                                                                <%=order.product[0].price%>
+
+
                                                             </td>
                                                             <td>
-                                                                <a href="/order/view-admin/<%=order._id%>"
-                                                                    class="btn btn-xs"> View details</a>
+                                                                <%=order.productDetails.quantity %>
+                                                            </td>
+                                                            <td>
+                                                                <%=order.subTotal %>
                                                             </td>
 
+                                                            <!-- Incrementing total amount on each iteration-->
+                                                            <% totalAmount +=(order.product[0].price * order.productDetails.quantity); %>
 
-                                                            <% }) %>
-                                                                <%} %>
+                                                                <% }) %>
+                                                                    <%} %>
 
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td colspan="5"></td>
+                                                            <td>Total Sales:</td>
+                                                            <td style="width: 80px; font-weight: bolder; background-color: rgb(173, 234, 156);">₹ <%=totalAmount %>
+                                                            </td>
                                                         </tr>
 
                                             </tbody>
                                         </table>
+
                                     </div>
                                 </div> <!-- table-responsive end// -->
                             </div>
@@ -252,6 +230,10 @@
                         }
                     });
                 }
+
+
+
+
             </script>
 
 

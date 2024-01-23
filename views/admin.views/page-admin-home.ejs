@@ -116,14 +116,13 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                                        <div class="custom_select">
-                                            <select class="form-select select-nice">
-                                                <option selected>Sales overview</option>
-                                                <option>Daily sales overview</option>
-                                                <option>Weekly sales overview</option>
-                                                <option>Monthly sales overview</option>
-                                                <option>Yearly sales overview</option>
-                                            </select>
+                                        <div class="custom_select"> 
+                                        <select class="form-select select-nice" onchange="redirectSalesOverview(this)">
+                                            <option selected>Sales overview</option>
+                                            <option value="daily">Daily sales overview</option>
+                                            <option value="monthly">Monthly sales overview</option>
+                                            <option value="yearly">Yearly sales overview</option>
+                                        </select>
                                         </div>
                                     </div>
                                     <div class="col-md-2 col-6">
@@ -252,6 +251,18 @@
                         }
                     });
                 }
+
+                // When user press different report options, this works
+                 function redirectSalesOverview(selectElement) {
+                        // Get the selected option's value
+                        let selectedOption = selectElement.options[selectElement.selectedIndex].value;
+
+                        // Redirect to the selected URL
+                        window.location.href = "/admin/report/"+selectedOption;
+                    }
+
+
+
             </script>
 
 

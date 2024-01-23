@@ -76,7 +76,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
     ])
 
 
-    return res.render("page-admin-home.ejs", {orders})
+    return res.render("page-admin-home.ejs", { orders })
 })
 
 const blockUserController = asyncHandler(async (req, res) => {
@@ -108,7 +108,7 @@ const blockUserController = asyncHandler(async (req, res) => {
 })
 
 const unBlockUserController = asyncHandler(async (req, res) => {
-    
+
     //take user id from body
     //check if it exist or not
     //if not display user doesnot exist message
@@ -145,11 +145,190 @@ const adminUserDetailsController = asyncHandler(async (req, res) => {
     return res.render("page-users-list.ejs", { users })
 })
 
+const adminReportController = asyncHandler(async (req, res) => {
+
+    // period eg: daily, weekly, monthly, yearly
+    const { period } = req.params;
+
+    // For daily reports
+    if (period === "daily") {
+
+        let date = new Date().toISOString()
+        date = date.split('T')[0];
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(date + 'T00:00:00.000Z'),
+                        $lt: new Date(date + 'T23:59:59.999Z'),
+                    }
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $project: {
+                    product: 1,
+                    productDetails: 1,
+                    subTotal: 1,
+                    createdAt: {
+                        $dateToString: {
+                            format: "%d-%m-%Y",
+                            date: "$createdAt"
+                        }
+                    }
+                }
+            }
+        ])
+
+        return res.render("admin.reports.ejs", { orders })
+    }
+
+    // For weekly reports
+    if (period == "monthly") {
+
+        // Current year
+        const year = new Date().getFullYear()
+        // Current month, month is zero indexed
+        let month = new Date().getMonth() + 1
+        // Making single digit month, double digit using string padStart method
+        month = String(month).padStart(2, "0")
+        // Constructing start date
+        const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+
+        // Calculating the end date of  next month
+        let nextMonth = month === 12 ? 1 : Number(month) + 1;
+        nextMonth = String(nextMonth).padStart(2, '0');
+        const nextYear = month === 12 ? year + 1 : year;
+        const endDate = new Date(`${nextYear}-${nextMonth}-01T00:00:00.000Z`);
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $project: {
+                    product: 1,
+                    productDetails: 1,
+                    subTotal: 1,
+                    createdAt: {
+                        $dateToString: {
+                            format: "%d-%m-%Y",
+                            date: "$createdAt"
+                        }
+                    }
+                }
+            }
+        ])
+
+        return res.render("admin.reports.ejs", { orders })
+    }
+
+    if (period === "yearly") {
+
+        let year = new Date() 
+        year = year.getFullYear() // Current year
+
+        const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endDate = new Date(`${year + 1}-01-01T00:00:00.000Z`);
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $project: {
+                    product: 1,
+                    productDetails: 1,
+                    subTotal: 1,
+                    createdAt: {
+                        $dateToString: {
+                            format: "%d-%m-%Y",
+                            date: "$createdAt"
+                        }
+                    }
+                }
+            }
+        ])
+
+        return res.render("admin.reports.ejs", { orders })
+
+    }
+
+
+})
+
 const adminLogoutController = asyncHandler(async (req, res) => {
     req.session.adminEmail = null;
     res.redirect("/admin/login")
 })
- 
+
 
 
 export {
@@ -158,6 +337,7 @@ export {
     adminUserDetailsController,
     unBlockUserController,
     adminHomeController,
+    adminReportController,
     adminLogoutController
 
 }
