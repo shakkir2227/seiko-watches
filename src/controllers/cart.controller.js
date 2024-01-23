@@ -63,7 +63,6 @@ const viewCartController = asyncHandler(async (req, res) => {
         ]
     );
 
-    console.log(userCart);
 
     return res.render("shop-cart.ejs", { categories: res.locals.categories, userCart })
 })

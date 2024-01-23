@@ -373,7 +373,7 @@ const userAccountController = {
                 $match: {
                     user: user._id,
                     isDefault: false,
-                    isBlocked:false,
+                    isBlocked: false,
                 }
             }
         ])

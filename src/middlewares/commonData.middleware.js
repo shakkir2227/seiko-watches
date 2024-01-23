@@ -16,6 +16,18 @@ async function setCategoryData(req, res, next) {
         ]);
         secondaryCategories.push(...categories);
     }
+
+    // Removing same named secondary categories
+
+    // For removing duplicate category name present along different main categories
+    for (let i = 0; i < secondaryCategories.length - 1; i++) {
+        for (let j = i + 1; j < secondaryCategories.length; j++) {
+            if (secondaryCategories[i].name === secondaryCategories[j].name) {
+                secondaryCategories.splice(j, 1)
+            }
+        }
+    }
+
     const categories = [...primaryCategories, ...secondaryCategories]
 
     res.locals.categories = categories;

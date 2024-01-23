@@ -23,7 +23,8 @@
                             <div class="col-lg-9">
                                 <div class="shop-product-fillter">
                                     <div class="totall-product">
-                                        <p> We found <strong class="text-brand">688</strong> items for you!</p>
+                                        <p> We found <strong class="text-brand" id="filteredItemsQuantity"></strong>
+                                            items for you!</p>
                                     </div>
                                     <div class="sort-by-product-area">
                                         <div class="sort-by-cover mr-10">
@@ -67,51 +68,7 @@
                                     </div>
                                 </div>
                                 <div class="row product-grid-3" id="productContainer">
-                                    <div class="col-lg-4 col-md-4 col-12 col-sm-6">
-                                        <div class="product-cart-wrap mb-30">
-                                            <div class="product-img-action-wrap">
-                                                <div class="product-img product-img-zoom">
-                                                    <a href="shop-product-right.html">
-                                                        <img class="default-img"
-                                                            src="/user.assets/imgs/shop/product-2-1.jpg" alt="">
-                                                        <img class="hover-img"
-                                                            src="/user.assets/imgs/shop/product-2-2.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="product-action-1">
-                                                    <a aria-label="Quick view" class="action-btn hover-up"
-                                                        data-bs-toggle="modal" data-bs-target="#quickViewModal">
-                                                        <i class="fi-rs-search"></i></a>
-                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                        href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                    <a aria-label="Compare" class="action-btn hover-up"
-                                                        href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
-                                                </div>
-                                                <div class="product-badges product-badges-position product-badges-mrg">
-                                                    <span class="hot">Hot</span>
-                                                </div>
-                                            </div>
-                                            <div class="product-content-wrap">
-                                                <div class="product-category">
-                                                    <a href="shop-grid-right.html">Music</a>
-                                                </div>
-                                                <h2><a href="shop-product-right.html">Colorful Pattern Shirts</a></h2>
-                                                <div class="rating-result" title="90%">
-                                                    <span>
-                                                        <span>90%</span>
-                                                    </span>
-                                                </div>
-                                                <div class="product-price">
-                                                    <span>$238.85 </span>
-                                                    <span class="old-price">$245.8</span>
-                                                </div>
-                                                <div class="product-action-1 show">
-                                                    <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                        href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+
 
                                 </div>
                                 <!--pagination-->
@@ -263,8 +220,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i
-                                            class="fi-rs-filter mr-5"></i> Fillter</a>
+
                                 </div>
 
                             </div>
@@ -753,8 +709,8 @@
                                                 }
 
                                                 let id = (element.id).replace("li", "")
-                                               const checkedBox =  document.getElementById(id)
-                                               checkedBox.checked = false;
+                                                const checkedBox = document.getElementById(id)
+                                                checkedBox.checked = false;
 
                                                 applyFilter()
                                             }
@@ -851,7 +807,7 @@
                                                     element.parentNode.removeChild(element);
                                                 }
 
-                                                   let id = (element.id).replace("li", "")
+                                                let id = (element.id).replace("li", "")
                                                 const checkedBox = document.getElementById(id)
                                                 checkedBox.checked = false;
 
@@ -969,9 +925,14 @@
 
                                     function updatePage(products) {
 
+                                        // Updating how many products match this filter
+                                        const filteredItemsQuantity = document.getElementById("filteredItemsQuantity")
+                                        filteredItemsQuantity.innerText = products.length
+
+
                                         const productContainer = document.getElementById('productContainer');
                                         productContainer.innerHTML = "" // For clearing the previous filter proudcts
-                                        
+
 
                                         products.forEach(product => {
                                             // Create a product item
@@ -983,42 +944,36 @@
                 <div class="product-cart-wrap mb-30">
                     <div class="product-img-action-wrap">
                         <div class="product-img product-img-zoom">
-                            <a href="shop-product-right.html">
+                            <a href="/product/view-user/${product._id}">
                                 <img class="default-img" src="${product.images[0].url}" alt="">
                                 <img class="hover-img" src="${product.images[1].url}" alt="">
                             </a>
                         </div>
                         <div class="product-action-1">
-                            <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
-                                <i class="fi-rs-search"></i>
-                            </a>
-                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html">
+                           
+                            <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="addToWishlist('${product._id}')">
                                 <i class="fi-rs-heart"></i>
                             </a>
-                            <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html">
-                                <i class="fi-rs-shuffle"></i>
-                            </a>
+                            
                         </div>
-                        <div class="product-badges product-badges-position product-badges-mrg">
-                            <span class="hot">Hot</span>
-                        </div>
+                       
                     </div>
                     <div class="product-content-wrap">
                         <div class="product-category">
-                            <a href="shop-grid-right.html">${product.category}</a>
+                            <a href="shop-grid-right.html">${product.category[0].name}</a>
                         </div>
-                        <h2><a href="shop-product-right.html">${product.name}</a></h2>
+                        <h2 style="height: 80px;"><a href="shop-product-right.html">${product.name}</a></h2>
                         <div class="rating-result" title="">
                             <span>
                                 <span></span>
                             </span>
                         </div>
                         <div class="product-price">
-                            <span>$${product.price}</span>
-                            <span class="old-price">$${product.price}</span>
+                            <span>&#8377 ${product.price}</span>
+                            
                         </div>
                         <div class="product-action-1 show">
-                            <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html">
+                            <a aria-label="Add To Cart" class="action-btn hover-up"  onclick=addToCart('${product._id}')>
                                 <i class="fi-rs-shopping-bag-add"></i>
                             </a>
                         </div>
@@ -1034,7 +989,91 @@
 
                                 </script>
 
+                                <script>
+                                    // Adding to wishlist
 
+                                     function addToWishlist(productId) {
+
+                                            console.log(productId);
+                                            let data = {
+                                                product: productId
+                                            };
+                                            data = JSON.stringify(data);
+
+
+                                            console.log(data);
+                                            fetch("/wishlist/add", {
+                                                method: "PUT",
+                                                headers: {
+                                                    'Content-Type': 'application/json'
+                                                },
+                                                body: data,
+                                            })
+                                                .then((res) => {
+                                                    if (res.ok) {
+                                                        const Toast = Swal.mixin({
+                                                            toast: true,
+                                                            position: "top-end",
+                                                            showConfirmButton: false,
+                                                            timer: 1500,
+                                                            timerProgressBar: true,
+                                                            didOpen: (toast) => {
+                                                                toast.onmouseenter = Swal.stopTimer;
+                                                                toast.onmouseleave = Swal.resumeTimer;
+                                                            }
+                                                        });
+                                                        Toast.fire({
+                                                            icon: "success",
+                                                            title: "Success! The item has been saved to your wishlist."
+                                                        });
+                                                    }
+                                                })
+
+
+                                        }
+
+                                        // Adding to cart
+                                        function addToCart(productId) {
+                                                
+                                                const data = {
+                                                    productId,
+                            
+                                                }
+                                                const jsonData = JSON.stringify(data)
+                                               
+                                                fetch("/cart/add", {
+                                                    method: "POST",
+                                                    headers: {
+                                                        'Content-Type': 'application/json'
+                                                    },
+                                                    body: jsonData,
+                                                })
+                                                 .then((res) => {
+                                                        if (res.ok) {
+                                                            const Toast = Swal.mixin({
+                                                                toast: true,
+                                                                position: "top-end",
+                                                                showConfirmButton: false,
+                                                                timer: 1500,
+                                                                timerProgressBar: true,
+                                                                didOpen: (toast) => {
+                                                                    toast.onmouseenter = Swal.stopTimer;
+                                                                    toast.onmouseleave = Swal.resumeTimer;
+                                                                }
+                                                            });
+                                                            Toast.fire({
+                                                                icon: "success",
+                                                                title: "Success! The item has been saved to your Cart."
+                                                            });
+                                                        }
+                                                    })
+
+
+                                            }
+
+
+
+                                </script>
 
 
                                 <!-- Vendor JS-->
@@ -1061,6 +1100,9 @@
                                 <!-- Template  JS -->
                                 <script src="/user.assets/js/main.js?v=3.4"></script>
                                 <script src="/user.assets/js/shop.js?v=3.4"></script>
+                                <!--Sweet alert -->
+                                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+
     </body>
 
     </html>

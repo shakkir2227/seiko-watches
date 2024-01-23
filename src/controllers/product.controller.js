@@ -535,9 +535,9 @@ const productViewController = {
             }
 
             // For removing duplicate category name present along different main categories
-            for (let i = 0; i < subCategoriesofTopCategories.length - 1; i++) {           
+            for (let i = 0; i < subCategoriesofTopCategories.length - 1; i++) {
                 for (let j = i + 1; j < subCategoriesofTopCategories.length; j++) {
-                    if(subCategoriesofTopCategories[i].name === subCategoriesofTopCategories[j].name){
+                    if (subCategoriesofTopCategories[i].name === subCategoriesofTopCategories[j].name) {
                         subCategoriesofTopCategories.splice(j, 1)
                     }
                 }
@@ -629,11 +629,58 @@ const productViewController = {
                     });
                 }
 
-                // If either of them is present, perform aggregation
+                pipeline.push(
+                    {   
+                        $lookup: {
+                            from: "categories",
+                            localField: "category",
+                            foreignField: "_id",
+                            as: "category"
+                        }
+                    },
+                    {
+                        $project: {
+                            name: 1,
+                            images: 1,
+                            category: 1,
+                            price: 1,
+                        }
+                    }
+                    
+                )
+
+                // If either of them is present, perform aggregation based on them, 
+                // Else findout all the products
                 let filteredProducts;
+
                 if (bandMaterials.length > 0 || dialColors.length > 0) {
                     filteredProducts = await Product.aggregate(pipeline);
+                } else {
+                    filteredProducts = await Product.aggregate([
+                        {
+                            $match: {
+                                isBlocked: false
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "categories",
+                                localField: "category",
+                                foreignField: "_id",
+                                as: "category"
+                            }
+                        },
+                        {
+                            $project: {
+                                name:1,
+                                images:1,
+                                category:1,
+                                price:1,
+                            }
+                        }
+                    ])
                 }
+     
                 return res.status(200).json({ filteredProducts })
             }
 
@@ -647,6 +694,7 @@ const productViewController = {
                             $in: parentCategoryIds
                         }
                     }
+                    
                 }];
 
                 // Add $match stage for bandMaterial if the array is not empty
@@ -670,6 +718,26 @@ const productViewController = {
                         }
                     });
                 }
+
+                pipeline.push(
+                    {
+                        $lookup: {
+                            from: "categories",
+                            localField: "category",
+                            foreignField: "_id",
+                            as: "category"
+                        }
+                    },
+                    {
+                        $project: {
+                            name: 1,
+                            images: 1,
+                            category: 1,
+                            price: 1,
+                        }
+                    }
+
+                )
 
                 const filteredProducts = await Product.aggregate(pipeline)
 
@@ -716,6 +784,26 @@ const productViewController = {
                                 }
                             });
                         }
+
+                        pipeline.push(
+                            {
+                                $lookup: {
+                                    from: "categories",
+                                    localField: "category",
+                                    foreignField: "_id",
+                                    as: "category"
+                                }
+                            },
+                            {
+                                $project: {
+                                    name: 1,
+                                    images: 1,
+                                    category: 1,
+                                    price: 1,
+                                }
+                            }
+
+                        )
 
                         const prodcuts = await Product.aggregate(pipeline)
 
@@ -805,6 +893,26 @@ const productViewController = {
                         });
                     }
 
+                    pipeline.push(
+                        {
+                            $lookup: {
+                                from: "categories",
+                                localField: "category",
+                                foreignField: "_id",
+                                as: "category"
+                            }
+                        },
+                        {
+                            $project: {
+                                name: 1,
+                                images: 1,
+                                category: 1,
+                                price: 1,
+                            }
+                        }
+
+                    )
+
                     const arr = await Product.aggregate(pipeline)
 
                     filteredProducts.push(...arr)
@@ -888,6 +996,26 @@ const productViewController = {
                         }
                     });
                 }
+
+                pipeline.push(
+                    {
+                        $lookup: {
+                            from: "categories",
+                            localField: "category",
+                            foreignField: "_id",
+                            as: "category"
+                        }
+                    },
+                    {
+                        $project: {
+                            name: 1,
+                            images: 1,
+                            category: 1,
+                            price: 1,
+                        }
+                    }
+
+                )
 
                 const arr = await Product.aggregate(pipeline)
 

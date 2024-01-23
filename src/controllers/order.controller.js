@@ -56,8 +56,6 @@ const userCheckoutController = {
 
             const subTotal = product[0].price * productQuantity;
 
-            console.log(userAddresses);
-            console.log(userDefaultAddress);
 
             return res.render("shop-checkout.ejs", { categories: res.locals.categories, product, productQuantity, subTotal, userDefaultAddress, userAddresses })
         }

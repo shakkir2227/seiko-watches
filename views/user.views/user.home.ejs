@@ -55,7 +55,7 @@
                                                         <div class="product-action-1">
                                                             
                                                             <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                                href="shop-wishlist.html"><i
+                                                               onclick="addToWishlist('<%=product._id %>')"><i
                                                                     class="fi-rs-heart"></i></a>
                                                             
                                                         </div>
@@ -69,7 +69,7 @@
                                                                 <%=product.category[0].name%>
                                                             </a>
                                                         </div>
-                                                        <h2 style="height: 100px;"><a href="shop-product-right.html" >
+                                                        <h2 style="height: 80px;"><a href="shop-product-right.html" >
                                                                 <%=product.name%>
                                                             </a></h2>
                                                         <div class="rating-result" title="90%">
@@ -82,8 +82,8 @@
                                                             <!-- <span class="old-price">$245.8</span> -->
                                                         </div>
                                                         <div class="product-action-1 show">
-                                                            <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                                href="shop-cart.html"><i
+                                                            <a aria-label="Add To Cart" class="action-btn hover-up" onclick= "addToCart('<%=product._id %>')"
+                                                               ><i
                                                                     class="fi-rs-shopping-bag-add"></i></a>
                                                         </div>
                                                     </div>
@@ -170,6 +170,95 @@
             <!--footer partial-->
             <%- include ('./partials/user.footer.ejs') %>
 
+
+            <script>
+                // For adding to wishlist
+                function addToWishlist(productId) {
+
+                        console.log(productId);
+                        let data = {
+                            product: productId
+                        };
+                        data = JSON.stringify(data);
+
+
+                        console.log(data);
+                        fetch("/wishlist/add", {
+                            method: "PUT",
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: data,
+                        })
+                            .then((res) => {
+                                if (res.ok) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: "top-end",
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.onmouseenter = Swal.stopTimer;
+                                            toast.onmouseleave = Swal.resumeTimer;
+                                        }
+                                    });
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: "Success! The item has been saved to your wishlist."
+                                    });
+                                }
+                            })
+
+
+                    }    
+                    
+                    function addToCart(productId) {
+
+                            const data = {
+                                productId,
+
+                            }
+                            const jsonData = JSON.stringify(data)
+
+                            fetch("/cart/add", {
+                                method: "POST",
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: jsonData,
+                            })
+                                .then((res) => {
+                                    if (res.ok) {
+                                        const Toast = Swal.mixin({
+                                            toast: true,
+                                            position: "top-end",
+                                            showConfirmButton: false,
+                                            timer: 1500,
+                                            timerProgressBar: true,
+                                            didOpen: (toast) => {
+                                                toast.onmouseenter = Swal.stopTimer;
+                                                toast.onmouseleave = Swal.resumeTimer;
+                                            }
+                                        });
+                                        Toast.fire({
+                                            icon: "success",
+                                            title: "Success! The item has been saved to your Cart."
+                                        });
+                                    }
+                                })
+
+
+                        }
+
+
+
+                    
+                    
+                    
+                    
+                    </script>
+
                 <!-- Vendor JS-->
                 <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>
                 <script src="/user.assets/js/vendor/jquery-3.6.0.min.js"></script>
@@ -194,6 +283,9 @@
                 <!-- Template  JS -->
                 <script src="/user.assets/js/main.js?v=3.4"></script>
                 <script src="/user.assets/js/shop.js?v=3.4"></script>
+
+                <!--Sweet alert -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
     </body>
 
     </html>
