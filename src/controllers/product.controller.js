@@ -504,7 +504,7 @@ const productViewController = {
 
             const categoryId = req.query.category;
 
-            const selectedCategory = await Category.findOne({ _id: categoryId });
+            const selectedCategory = await Category.findOne({ _id: categoryId }).populate("parentCategoryId");
 
             let parentCategory;
             if (selectedCategory.parentCategoryId) {
@@ -534,9 +534,15 @@ const productViewController = {
                 subCategoriesofTopCategories.push(...subCategories)
             }
 
-            console.log(subCategoriesofTopCategories);
+            // For removing duplicate category name present along different main categories
+            for (let i = 0; i < subCategoriesofTopCategories.length - 1; i++) {           
+                for (let j = i + 1; j < subCategoriesofTopCategories.length; j++) {
+                    if(subCategoriesofTopCategories[i].name === subCategoriesofTopCategories[j].name){
+                        subCategoriesofTopCategories.splice(j, 1)
+                    }
+                }
+            }
 
-            subCategoriesofTopCategories = subCategoriesofTopCategories.filter((category) )
 
             return res.render("shop-grid-left.ejs", { selectedCategory, parentCategory, topCategories, subCategoriesofTopCategories })
 
