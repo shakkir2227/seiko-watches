@@ -5,6 +5,7 @@ import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 import addressValidationSchema from "../utils/validation/address.validation.js"
 import mongoose from "mongoose";
+import Razorpay from "razorpay";
 
 const userCheckoutController = {
 
@@ -90,6 +91,7 @@ const userCheckoutController = {
         return res.render("shop-checkout.ejs", { categories: res.locals.categories, userCart, userDefaultAddress, userAddresses })
     }),
 
+
     addAddress: asyncHandler(async (req, res) => {
         const user = res.locals.user;
 
@@ -127,22 +129,58 @@ const userCheckoutController = {
         return res.status(200).json(userAddress)
     }),
 
-    createOrder: asyncHandler(async (req, res) => {
-       
-        const user = res.locals.user;
-                
-        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body;
-        
-       console.log(paymentMethod);
 
-        if (!selectedAddressIndex) {
-            selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
+    generateRazorPayOrderId: asyncHandler(async (req, res) => {
+
+        const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
+        const { productDetails, totalAmount } = req.body;
+
+        // Before initiating the payment, reducing the stock of each of the products
+        // Checking if the stock becomes negative, if it is, return an error. 
+        for (const productDetail of productDetails) {
+            const product = await Product.findOne({ _id: productDetail.product })
+            product.stock -= productDetail.quantity;
+
+            if (product.stock < 0) {
+                return res.status(500).json({ message: "We're sorry, but your order couldn't be completed due to insufficient stock. Please review your order and try again, or contact customer support for assistance." })
+            }
         }
 
-        const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
+
+        let instance = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET })
+        const options = {
+            amount: totalAmount,
+            currency: "INR",
+        }
+
+        instance.orders.create(
+            options, (error, order) => {
+                if (!error) {
+                    return res.status(200).json({
+                        success: true,
+                        message: "Razor pay order created",
+                        amount: totalAmount,
+                        key_id: RAZORPAY_KEY_ID,
+                        order_id: order.id,
+
+                    })
+                }
+                else {
+                    console.log(error);
+                }
+            }
+        )
+
+    }),
+
+    createOrder: asyncHandler(async (req, res) => {
+
+        const user = res.locals.user;
+
+        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod, paymentId } = req.body;
 
         // Before creating the order, reducing the stock of each of the products
-        // Checking if the stock becomes negative, if it is return an error
+        // Checking if the stock becomes negative, if it is, return an error. 
         for (const productDetail of productDetails) {
             const product = await Product.findOne({ _id: productDetail.product })
             product.stock -= productDetail.quantity;
@@ -151,8 +189,16 @@ const userCheckoutController = {
                 return res.status(500).json({ message: "We're sorry, but your order couldn't be completed due to insufficient stock. Please review your order and try again, or contact customer support for assistance." })
             }
 
-            await product.save()
+            product.save();
         }
+
+        // According to payment method, changing payment status
+        let paymentStatus = paymentMethod === "Cash on delivery" ? "Pending" : "Successful"
+
+        if (!selectedAddressIndex) {
+            selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
+        }
+        const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
 
         const order = await Order.create({
             user: user._id,
@@ -160,11 +206,9 @@ const userCheckoutController = {
             productDetails,
             totalAmount,
             paymentMethod,
-
+            paymentStatus,
+            paymentId,
         })
-
-
-
 
         // Removing the specific number of products from the cart, if the user 
         // buy that in the current order, if the quantity in the cart becomes zero in 
@@ -189,10 +233,12 @@ const userCheckoutController = {
             }
         )
 
-        return res.status(200).json({ message: "Your order has been placed successfully. Thank you for choosing our service." })
+        return res.status(200).json({
+            success: true,
+            message: "Order placed",
+        })
 
     })
-
 }
 
 const userOrderViewController = asyncHandler(async (req, res) => {

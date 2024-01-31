@@ -9,7 +9,7 @@ import {
     userOrderUpdateControler,
     adminOrderViewController,
     adminOrderDetailedViewController,
-    adminOderUpdateController
+    adminOderUpdateController,
 } from "../controllers/order.controller.js";
 
 
@@ -25,7 +25,12 @@ router.route("/buy")
     .get(isAuth, userCheckoutController.renderCheckoutPage)
     .post(isAuth, userCheckoutController.createOrder)
 
+
 router.route("/address").post(isAuth, userCheckoutController.addAddress)
+
+// When user select online payment, generating razorpay ORDER ID
+router.route("/online-payment").post(userCheckoutController.generateRazorPayOrderId)
+
 router.route("/view").get(isAuth, userOrderViewController)
 
 // For detailed view of the order

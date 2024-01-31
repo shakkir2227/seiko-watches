@@ -123,7 +123,8 @@
                                                                     <%} %>
                                                                         <%} %>
 
-                                                                            <%if(userAddresses.length>0 && userDefaultAddress.length !== 0) {%>
+                                                                            <%if(userAddresses.length>0 &&
+                                                                                userDefaultAddress.length !== 0) {%>
 
                                                                                 <% userAddresses.forEach((address)=> {
                                                                                     %>
@@ -158,32 +159,51 @@
                                                                                     <% })%>
                                                                                         <% }%>
 
-                                                                                        <%if((userAddresses.length>0 ) && userDefaultAddress.length == 0) {%>
-                                                                                        
-                                                                                            <% userAddresses.forEach((address)=> {
-                                                                                                %>
-                                                                                                <tr>
-                                                                                        
-                                                                                                    <td>
-                                                                                                        <input style="width: 20px; margin-right: 30px;" type="radio" name="addressSelection"
-                                                                                                            id="address<%= address._id %>" value="<%=address._id %>" checked>
-                                                                                                        <label for="address1">
-                                                                                                            <h5 style="margin-bottom: 5px; ">
-                                                                                                                <%=address.name %>
-                                                                                                            </h5>
-                                                                                                            <%=address.houseName %>,
-                                                                                                                <%=address.area %>
-                                                                                                                    <br>
-                                                                                                                    <%=address.town %>,
-                                                                                                                        <%=address.pincode %>
-                                                                                                                            <br>
-                                                                                                                            <%=address.mobileNumber %>
-                                                                                                        </label>
-                                                                                                    </td>
-                                                                                        
-                                                                                                </tr>
-                                                                                                <% })%>
-                                                                                                    <% }%>
+                                                                                            <%if((userAddresses.length>0
+                                                                                                ) &&
+                                                                                                userDefaultAddress.length
+                                                                                                == 0) {%>
+
+                                                                                                <%
+                                                                                                    userAddresses.forEach((address)=>
+                                                                                                    {
+                                                                                                    %>
+                                                                                                    <tr>
+
+                                                                                                        <td>
+                                                                                                            <input
+                                                                                                                style="width: 20px; margin-right: 30px;"
+                                                                                                                type="radio"
+                                                                                                                name="addressSelection"
+                                                                                                                id="address<%= address._id %>"
+                                                                                                                value="<%=address._id %>"
+                                                                                                                checked>
+                                                                                                            <label
+                                                                                                                for="address1">
+                                                                                                                <h5
+                                                                                                                    style="margin-bottom: 5px; ">
+                                                                                                                    <%=address.name
+                                                                                                                        %>
+                                                                                                                </h5>
+                                                                                                                <%=address.houseName
+                                                                                                                    %>,
+                                                                                                                    <%=address.area
+                                                                                                                        %>
+                                                                                                                        <br>
+                                                                                                                        <%=address.town
+                                                                                                                            %>
+                                                                                                                            ,
+                                                                                                                            <%=address.pincode
+                                                                                                                                %>
+                                                                                                                                <br>
+                                                                                                                                <%=address.mobileNumber
+                                                                                                                                    %>
+                                                                                                            </label>
+                                                                                                        </td>
+
+                                                                                                    </tr>
+                                                                                                    <% })%>
+                                                                                                        <% }%>
 
 
 
@@ -192,8 +212,8 @@
 
 
 
-                                                                                            <% }%>
-                                                                                                <!-- Add more rows with similar structure for additional addresses -->
+                                                                                                            <% }%>
+                                                                                                                <!-- Add more rows with similar structure for additional addresses -->
                                                     </tbody>
                                                 </table>
 
@@ -412,20 +432,20 @@
 
                                                 </div>
                                             </div>
-                                             <div class="custome-radio">
+                                            <div class="custome-radio">
                                                 <input class="form-check-input" required="" type="radio"
-                                                    name="payment_option" id="exampleRadios4" checked="">
-                                                <label class="form-check-label" for="exampleRadios4"
+                                                    name="payment_option" id="rzp-button1" value="Pay online">
+                                                <label class="form-check-label" for="rzp-button1"
                                                     data-bs-toggle="collapse" data-target="#checkPayment"
                                                     aria-controls="checkPayment">Pay online </label>
                                                 <div class="form-group collapse in" id="checkPayment">
-                                                    
+
                                                 </div>
-                                            </div> 
-                                            
+                                            </div>
+
                                         </div>
                                     </div>
-                                    <a onclick="createOrder()" class="btn btn-fill-out btn-block mt-30 "
+                                    <a onclick="selectPayment()" class="btn btn-fill-out btn-block mt-30 "
                                         style="margin-left: 100px;">Place Your Order</a>
                                 </div>
                             </div>
@@ -441,7 +461,7 @@
                 </section>
             </main>
 
-                
+
 
 
             <script>
@@ -465,6 +485,7 @@
                 let paymentMethod = "Cash on delivery";
 
                 const paymentRadioButtons = document.querySelectorAll('input[name="payment_option"]');
+
 
                 paymentRadioButtons.forEach((radio) => {
                     radio.addEventListener('change', () => {
@@ -521,27 +542,13 @@
                 }
 
 
+                let productDetails = [];
+                let paymentId;
 
-                function createOrder() {
-
-
-                    // For getting the input address  
-                    let selectedAddressIndex = null;
-
-
-                    const radioButtons = document.querySelectorAll('input[name="addressSelection"]');
-
-
-                    for (const radioButton of radioButtons) {
-                        if (radioButton.checked) {
-                            selectedAddressIndex = radioButton.value;
-                            break;
-                        }
-                    }
-
+                // According to payment method, creating order
+                function selectPayment() {
                     // Calling the function to get product and quantity
                     getProductIdAndQuantity()
-                    let productDetails = [];
 
                     // Making a single array from product and quantity array
                     productId.forEach((element, index) => {
@@ -552,11 +559,98 @@
                         productDetails.push(data)
                     })
 
+
+                    if (paymentMethod === "Pay online") {
+
+                        // if the user selected online payment, a fetch request for generating..
+                        // razor pay order is sent. 
+                        let onlinePaymentData = {
+                            totalAmount,
+                            productDetails,
+                        }
+
+                        onlinePaymentData = JSON.stringify(onlinePaymentData);
+
+                        fetch("/order/online-payment", {
+                            method: "POST", headers: {
+                                'Content-Type'
+                                    : 'application/json'
+                            }, body: onlinePaymentData,
+                        })
+                            .then((res) => {
+                                return res.json()
+                            })
+                            .then((data) => {
+                                let options = {
+                                    "key": data.key_id,
+                                    "amount": data.amount,
+                                    "currency": "INR",
+                                    "name": "Seiko watches",
+                                    "order_id": data.order_id,
+                                    "handler": function (response) {
+
+                                        // Redirecting the user to creating order,  
+                                        paymentId = response.razorpay_payment_id;
+                                        createOrder()
+
+                                    },
+                                    "theme": {
+                                        "color": "#3399cc"
+                                    }
+                                }
+
+                                var rzp1 = new Razorpay(options);
+
+                                rzp1.on('payment.failed', function (response) {
+                                    alert(response.error.code);
+                                    alert(response.error.description);
+                                    alert(response.error.source);
+                                    alert(response.error.step);
+                                    alert(response.error.reason);
+                                    alert(response.error.metadata.order_id);
+                                    alert(response.error.metadata.payment_id);
+                                });
+
+                                document.getElementById('rzp-button1').onclick = function (e) {
+                                    rzp1.open();
+                                    e.preventDefault();
+                                }
+
+                                document.getElementById('rzp-button1').click();
+
+
+                            })
+
+                    } else {
+
+                        createOrder()
+                    }
+
+                }
+
+
+
+                function createOrder() {
+
+                    // For getting the input address  
+                    let selectedAddressIndex = null;
+
+                    const radioButtons = document.querySelectorAll('input[name="addressSelection"]');
+
+                    for (const radioButton of radioButtons) {
+                        if (radioButton.checked) {
+                            selectedAddressIndex = radioButton.value;
+                            break;
+                        }
+                    }
+
+
                     let data = {
                         selectedAddressIndex,
                         productDetails,
                         totalAmount,
-                        paymentMethod
+                        paymentMethod,
+                        paymentId
                     }
 
                     data = JSON.stringify(data)
@@ -569,7 +663,12 @@
                     }
                     )
                         .then((res) => {
-                            if(res.ok) {
+
+                            return res.json();
+                        })
+
+                        .then((data) => {
+                            if (data.message === "Order placed") {
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Order Placed Successfully!',
@@ -582,21 +681,22 @@
 
                             else {
 
-                             Swal.fire({
-                                icon: "error",
-                                title: "Oops...",
-                                text: "Sorry, the requested quantity is currently unavailable.!",
-                            })
-                            .then(() => {
-                                window.location.href= "/cart/view"
-                            })
-                            ;
-                        } }
-                        )
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: "Sorry, the requested quantity is currently unavailable.!",
+                                })
+                                    .then(() => {
+                                        window.location.href = "/cart/view"
+                                    })
+                                    ;
+                            }
 
 
-
+                        })
                 }
+
+
 
 
 
@@ -787,8 +887,11 @@
                 <script src="/user.assets/js/main.js?v=3.4"></script>
                 <script src="/user.assets/js/shop.js?v=3.4"></script>
 
-                <!--Sweet alert -->
+                // Sweet alert CDN
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+
+                // Razorypay
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     </body>
 
     </html>

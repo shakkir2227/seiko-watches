@@ -148,7 +148,6 @@ const adminHomeController = asyncHandler(async (req, res) => {
 
 
 
-    console.log(orderStatistics);
 
 
     return res.render("page-admin-home.ejs", { orders, orderStatistics, productStatistics, userStatistics, categoryStatistics })
