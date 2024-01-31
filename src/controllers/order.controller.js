@@ -24,20 +24,20 @@ const userCheckoutController = {
             }
         ])
 
-       
-        
+
+
 
         const userAddresses = await Address.aggregate([
             {
                 $match: {
                     user: userIdObject,
                     isDefault: false,
-                    isBlocked:false,
+                    isBlocked: false,
                 }
             }
         ])
 
-    
+
         // When user buys single product, we get productid and qty
         // from query params 
         const { productId, productQuantity } = req.query;
@@ -128,17 +128,17 @@ const userCheckoutController = {
     }),
 
     createOrder: asyncHandler(async (req, res) => {
-
+       
         const user = res.locals.user;
-
-        
+                
         let { selectedAddressIndex, productDetails, totalAmount, paymentMethod } = req.body;
         
+       console.log(paymentMethod);
 
         if (!selectedAddressIndex) {
             selectedAddressIndex = await Address.findOne({ user: user._id, isDefault: true })
         }
-        
+
         const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
 
         // Before creating the order, reducing the stock of each of the products

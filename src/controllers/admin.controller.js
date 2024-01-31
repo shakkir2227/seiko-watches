@@ -2,7 +2,8 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import adminValidationSchema from "../utils/validation/admin.validation.js";
 import { User } from "../models/user.model.js"
 import { Order } from "../models/order.model.js";
-
+import { Product } from "../models/product.model.js"
+import { Category } from "../models/category.model.js"
 
 
 const adminLoginController = {
@@ -45,6 +46,7 @@ const adminLoginController = {
 const adminHomeController = asyncHandler(async (req, res) => {
 
     const orders = await Order.aggregate([
+
         {
             $lookup: {
                 from: "users",
@@ -72,11 +74,84 @@ const adminHomeController = asyncHandler(async (req, res) => {
             $sort: {
                 createdAt: -1
             }
+        },
+
+    ])
+
+    // If all the products in an order got cancelled, the order is also
+    // cancelled, else, change the totalamount accordingly
+
+    const orderStatistics = await Order.aggregate([
+        {
+            $unwind: "$productDetails"
+        },
+        {
+            $match: {
+                "productDetails.deliveryStatus": {
+                    $ne: "Cancelled"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                totalAmount: {
+                    $sum: "$totalAmount"
+                }
+            }
+        },
+        // {
+        //     $group: {
+        //         _id: null,
+        //         totalOrders: {
+        //             $sum: 1
+        //         },
+        //         totalAmount: {
+        //             $sum: "$totalAmount"
+        //         }
+        //     }
+        // }
+    ])
+
+    const productStatistics = await Product.aggregate([
+        {
+            $group: {
+                _id: null,
+                totalProduct: {
+                    $sum: 1
+                }
+            }
+        }
+    ])
+
+    const userStatistics = await User.aggregate([
+        {
+            $group: {
+                _id: null,
+                totalUsers: {
+                    $sum: 1
+                }
+            }
+        }
+    ])
+
+    const categoryStatistics = await Category.aggregate([
+        {
+            $group: {
+                _id: null,
+                totalCategories: {
+                    $sum: 1
+                }
+            }
         }
     ])
 
 
-    return res.render("page-admin-home.ejs", { orders })
+
+    console.log(orderStatistics);
+
+
+    return res.render("page-admin-home.ejs", { orders, orderStatistics, productStatistics, userStatistics, categoryStatistics })
 })
 
 const blockUserController = asyncHandler(async (req, res) => {
@@ -268,7 +343,7 @@ const adminReportController = asyncHandler(async (req, res) => {
 
     if (period === "yearly") {
 
-        let year = new Date() 
+        let year = new Date()
         year = year.getFullYear() // Current year
 
         const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
