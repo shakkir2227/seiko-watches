@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { isAdmin } from "../middlewares/auth.middleware.js";
+import { setCategoryData } from "../middlewares/commonData.middleware.js";
 import {
     adminLoginController,
     blockUserController,
@@ -15,11 +16,13 @@ import {
 
 const router = Router();
 
+router.use(setCategoryData)
+
 router.route("/login")
     .get(adminLoginController.getLoginPage)
     .post(adminLoginController.loginAdmin)
 
-router.route("/home").get( adminHomeController)
+router.route("/home").get(adminHomeController)
 
 // Block Unblock user
 router.route("/block-user").put(isAdmin, blockUserController)

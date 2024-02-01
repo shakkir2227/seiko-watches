@@ -46,7 +46,16 @@ const adminLoginController = {
 const adminHomeController = asyncHandler(async (req, res) => {
 
     const orders = await Order.aggregate([
-
+        {
+            $unwind: "$productDetails"
+        },
+        {
+            $match: {
+                "productDetails.deliveryStatus": {
+                    $ne: "Cancelled"
+                }
+            }
+        },
         {
             $lookup: {
                 from: "users",
@@ -55,6 +64,41 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 as: "user"
             },
 
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "productDetails.product",
+                foreignField: "_id",
+                as: "product"
+            }
+        },
+        {
+            $addFields: {
+                subTotal: {
+                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                user: {
+                    $first: "$user"
+                },
+                paymentMethod: {
+                    $first: "$paymentMethod"
+                },
+                paymentStatus: {
+                    $first: "$paymentStatus"
+                },
+                totalAmount: {
+                    $sum: "$subTotal"
+                },
+                createdAt: {
+                    $first: "$createdAt"
+                }
+            }
         },
         {
             $project: {
@@ -93,42 +137,39 @@ const adminHomeController = asyncHandler(async (req, res) => {
             }
         },
         {
-            $group: {
-                _id: "$_id",
-                totalAmount: {
-                    $sum: "$totalAmount"
+            $lookup: {
+                from: "products",
+                localField: "productDetails.product",
+                foreignField: "_id",
+                as: "product"
+            }
+        },
+        {
+            $addFields: {
+                subTotal: {
+                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
                 }
             }
         },
-        // {
-        //     $group: {
-        //         _id: null,
-        //         totalOrders: {
-        //             $sum: 1
-        //         },
-        //         totalAmount: {
-        //             $sum: "$totalAmount"
-        //         }
-        //     }
-        // }
+        {
+            $group: {
+                _id: null,
+                totalOrders: {
+                    $sum: 1
+                },
+                totalAmount: {
+                    $sum: "$subTotal"
+                }
+            }
+        }
     ])
+
 
     const productStatistics = await Product.aggregate([
         {
             $group: {
                 _id: null,
                 totalProduct: {
-                    $sum: 1
-                }
-            }
-        }
-    ])
-
-    const userStatistics = await User.aggregate([
-        {
-            $group: {
-                _id: null,
-                totalUsers: {
                     $sum: 1
                 }
             }
@@ -147,10 +188,24 @@ const adminHomeController = asyncHandler(async (req, res) => {
     ])
 
 
+    const userStatistics = await User.aggregate([
+        {
+            $match: {
+                isVerified: true
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalUsers: {
+                    $sum: 1
+                }
+            }
+        }
+    ])
 
 
-
-    return res.render("page-admin-home.ejs", { orders, orderStatistics, productStatistics, userStatistics, categoryStatistics })
+    return res.render("page-admin-home.ejs", { orders, orderStatistics, productStatistics, userStatistics, categoryStatistics, categories: res.locals.categories })
 })
 
 const blockUserController = asyncHandler(async (req, res) => {
@@ -243,6 +298,13 @@ const adminReportController = asyncHandler(async (req, res) => {
                 $unwind: "$productDetails"
             },
             {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    }
+                }
+            },
+            {
                 $lookup: {
                     from: "products",
                     localField: "productDetails.product",
@@ -273,7 +335,98 @@ const adminReportController = asyncHandler(async (req, res) => {
             }
         ])
 
-        return res.render("admin.reports.ejs", { orders })
+        const orderStatistics = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(date + 'T00:00:00.000Z'),
+                        $lt: new Date(date + 'T23:59:59.999Z'),
+                    }
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: {
+                        $sum: 1
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    }
+                }
+            }
+        ])
+
+
+        const productStatistics = await Product.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(date + 'T00:00:00.000Z'),
+                        $lt: new Date(date + 'T23:59:59.999Z'),
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalProduct: {
+                        $sum: 1
+                    }
+                }
+            }
+        ])
+
+        const userStatistics = await User.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(date + 'T00:00:00.000Z'),
+                        $lt: new Date(date + 'T23:59:59.999Z'),
+                    }
+                }
+            },
+            {
+                $match: {
+                    isVerified: true
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalUsers: {
+                        $sum: 1
+                    }
+                }
+            }
+        ])
+
+        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics })
     }
 
     // For weekly reports
@@ -307,6 +460,13 @@ const adminReportController = asyncHandler(async (req, res) => {
                 $unwind: "$productDetails"
             },
             {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    }
+                }
+            },
+            {
                 $lookup: {
                     from: "products",
                     localField: "productDetails.product",
@@ -337,7 +497,98 @@ const adminReportController = asyncHandler(async (req, res) => {
             }
         ])
 
-        return res.render("admin.reports.ejs", { orders })
+        const orderStatistics = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: {
+                        $sum: 1
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    }
+                }
+            }
+        ])
+
+        const productStatistics = await Product.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalProduct: {
+                        $sum: 1
+                    }
+                }
+            }
+        ])
+
+        const userStatistics = await User.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $match: {
+                    isVerified: true
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalUsers: {
+                        $sum: 1
+                    }
+                }
+            }
+        ])
+
+
+        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics })
     }
 
     if (period === "yearly") {
@@ -361,6 +612,13 @@ const adminReportController = asyncHandler(async (req, res) => {
                 $unwind: "$productDetails"
             },
             {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    }
+                }
+            },
+            {
                 $lookup: {
                     from: "products",
                     localField: "productDetails.product",
@@ -391,7 +649,98 @@ const adminReportController = asyncHandler(async (req, res) => {
             }
         ])
 
-        return res.render("admin.reports.ejs", { orders })
+        const orderStatistics = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: {
+                        $sum: 1
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    }
+                }
+            }
+        ])
+
+        const productStatistics = await Product.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalProduct: {
+                        $sum: 1
+                    }
+                }
+            }
+        ])
+
+        const userStatistics = await User.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $match: {
+                    isVerified: true
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalUsers: {
+                        $sum: 1
+                    }
+                }
+            }
+        ])
+
+
+        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics })
 
     }
 

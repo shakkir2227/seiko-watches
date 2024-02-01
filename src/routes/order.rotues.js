@@ -10,6 +10,7 @@ import {
     adminOrderViewController,
     adminOrderDetailedViewController,
     adminOderUpdateController,
+    orderFilterController,
 } from "../controllers/order.controller.js";
 
 
@@ -43,6 +44,8 @@ router.route("/cancel").put(isAuth, userOrderUpdateControler.cancelOrder)
 router.route("/view-admin/:orderId").get(isAdmin, adminOrderViewController)
 router.route("/admin-view-one").get(isAdmin, adminOrderDetailedViewController)
 router.route("/update").put(isAdmin, adminOderUpdateController)
+
+router.route("/filter").get(orderFilterController)
 
 
 

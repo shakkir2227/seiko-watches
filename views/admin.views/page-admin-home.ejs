@@ -43,7 +43,9 @@
                                         <span class="icon icon-sm rounded-circle bg-success-light"><i
                                                 class="text-success material-icons md-local_shipping"></i></span>
                                         <div class="text">
-                                            <h6 class="mb-1 card-title">Orders</h6> <span><%=orderStatistics[0].totalOrders %></span>
+                                            <h6 class="mb-1 card-title">Orders</h6> <span>
+                                                <%=orderStatistics[0].totalOrders %>
+                                            </span>
                                             <span class="text-sm">
                                                 Excluding orders cancelled
                                             </span>
@@ -57,9 +59,13 @@
                                         <span class="icon icon-sm rounded-circle bg-warning-light"><i
                                                 class="text-warning material-icons md-qr_code"></i></span>
                                         <div class="text">
-                                            <h6 class="mb-1 card-title">Products</h6> <span>0</span>
+                                            <h6 class="mb-1 card-title">Products</h6> <span>
+                                                <%=productStatistics[0].totalProduct %>
+                                            </span>
                                             <span class="text-sm">
-                                                In 0 Categories
+                                                In
+                                                <%=categoryStatistics[0].totalCategories %>
+                                                    Categories
                                             </span>
                                         </div>
                                     </article>
@@ -71,9 +77,11 @@
                                         <span class="icon icon-sm rounded-circle bg-info-light"><i
                                                 class="text-info material-icons md-shopping_basket"></i></span>
                                         <div class="text">
-                                            <h6 class="mb-1 card-title">Monthly Earning</h6> <span>&#8377 0</span>
+                                            <h6 class="mb-1 card-title">Customers</h6> <span>
+                                                <%=userStatistics[0].totalUsers %>
+                                            </span>
                                             <span class="text-sm">
-                                                Based in your local time.
+                                                Total number of customers
                                             </span>
                                         </div>
                                     </article>
@@ -100,45 +108,47 @@
                                 <div class="row align-items-center">
                                     <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
                                         <div class="custom_select">
-                                            <select class="form-select select-nice">
-                                                <option selected>All Categories</option>
-                                                <option>Women's Clothing</option>
-                                                <option>Men's Clothing</option>
-                                                <option>Cellphones</option>
-                                                <option>Computer & Office</option>
-                                                <option>Consumer Electronics</option>
-                                                <option>Jewelry & Accessories</option>
-                                                <option>Home & Garden</option>
-                                                <option>Luggage & Bags</option>
-                                                <option>Shoes</option>
-                                                <option>Mother & Kids</option>
-                                            </select>
+                                            <%if(categories.length> 0) {%>
+
+                                                <select id="categoryFilter" class="form-select select-nice"
+                                                    onchange="applyFilter()">
+                                                    <option selected>All Categories</option>
+                                                    <%categories.forEach((category)=> { %>
+
+                                                        <option>
+                                                            <%=category.name %>
+                                                        </option>
+
+                                                        <% }) %>
+
+                                                </select>
+
+                                                <%} %>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                                        <div class="custom_select"> 
-                                        <select class="form-select select-nice" onchange="redirectSalesOverview(this)">
-                                            <option selected>Sales overview</option>
-                                            <option value="daily">Daily sales overview</option>
-                                            <option value="monthly">Monthly sales overview</option>
-                                            <option value="yearly">Yearly sales overview</option>
-                                        </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2 col-6">
-                                        <input type="date" value="02.05.2022" class="form-control">
-                                    </div>
-                                    <div class="col-md-2 col-6">
+                                    <div class="col-md-3 col-6">
                                         <div class="custom_select">
-                                            <select class="form-select select-nice">
-                                                <option selected>Status</option>
-                                                <option>All</option>
+                                            <select id="paymentFilter" class="form-select select-nice" onchange="applyFilter()">
+                                                <option selected>All payments</option>
                                                 <option>Paid</option>
-                                                <option>Chargeback</option>
-                                                <option>Refund</option>
+                                                <option>Pending</option>
                                             </select>
                                         </div>
                                     </div>
+        
+                                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3 ml-100">
+                                        <div class="custom_select">
+                                            <select class="form-select select-nice"
+                                                onchange="redirectSalesOverview(this)">
+                                                <option selected>Sales overview</option>
+                                                <option value="daily">Daily sales overview</option>
+                                                <option value="monthly">Monthly sales overview</option>
+                                                <option value="yearly">Yearly sales overview</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                   
+                                   
                                 </div>
                             </header>
                             <div class="card-body">
@@ -163,7 +173,7 @@
                                                     <th class="align-middle" scope="col">View Details</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="orderTableBody">
                                                 <%if(typeof(orders) !=="undefined" ) {%>
                                                     <%orders.forEach((order)=> { %>
 
@@ -183,26 +193,48 @@
                                                                 <%=order.createdAt %>
                                                             </td>
                                                             <td>
-                                                                <%=order.totalAmount %>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge badge-pill badge-soft-success">
-                                                                    <%=order.paymentStatus%>
-                                                                </span>
-                                                            </td>
-                                                            <td>
-                                                                <i
-                                                                    class="material-icons md-payment font-xxl text-muted mr-5"></i>
-                                                                <%=order.paymentMethod %>
-                                                            </td>
-                                                            <td>
-                                                                <a href="/order/view-admin/<%=order._id%>"
-                                                                    class="btn btn-xs"> View details</a>
+                                                                ₹ <%=order.totalAmount %>
                                                             </td>
 
+                                                            <%if(order.paymentStatus==="Successful" ) {%>
 
-                                                            <% }) %>
-                                                                <%} %>
+                                                                <td>
+                                                                    <span class="badge badge-pill badge-soft-success">
+                                                                        <%=order.paymentStatus%>
+                                                                    </span>
+                                                                </td>
+                                                                <%} else {%>
+                                                                    <td>
+                                                                        <span class="badge badge-pill badge-soft-info">
+                                                                            <%=order.paymentStatus%>
+                                                                        </span>
+                                                                    </td>
+                                                                    <%} %>
+
+
+                                                                        <%if(order.paymentMethod==="Pay online" ) {%>
+                                                                            <td>
+                                                                                <i
+                                                                                    class="material-icons md-payment font-xxl text-muted mr-5"></i>
+                                                                                Online payment
+                                                                            </td>
+
+                                                                            <%} else { %>
+                                                                                <td>
+                                                                                    <i
+                                                                                        class="material-icons md-payment font-xxl text-muted mr-5"></i>
+                                                                                    Cash on delivery
+                                                                                </td>
+                                                                                <%} %>
+                                                                                    <td>
+                                                                                        <a href="/order/view-admin/<%=order._id%>"
+                                                                                            class="btn btn-xs"> View
+                                                                                            details</a>
+                                                                                    </td>
+
+
+                                                                                    <% }) %>
+                                                                                        <%} %>
 
                                                         </tr>
 
@@ -232,6 +264,117 @@
 
             </main>
 
+            <script>
+
+
+                function applyFilter() {
+                    let paymentFilterValue = document.getElementById("paymentFilter").value
+                    let categoryFilterValue = document.getElementById("categoryFilter").value
+
+                    let params = new URLSearchParams()
+                    params.append("paymentFilterValue", paymentFilterValue)
+                    params.append("categoryFilterValue", categoryFilterValue)
+
+                    console.log("/order/filter?" + params);
+
+                    fetch("/order/filter?" + params)
+                        .then((res) => {
+                            return res.json()
+                        })
+                        .then(data => {
+                            const tableBody = document.getElementById('orderTableBody');
+                            tableBody.innerHTML = ''; // Clear existing content
+
+                            const revenueCard = document.querySelector('.col-lg-3:nth-child(1) .card .text');
+                            // Clear existing content
+                            revenueCard.innerHTML = ""
+
+                            const ordersCard = document.querySelector('.col-lg-3:nth-child(2) .card .text');
+                            ordersCard.innerHTML = ""
+
+                            if (data.orders) {
+                                data.orders.forEach(order => {
+                                    // Create a new row
+                                    const newRow = document.createElement('tr');
+
+                                    // Add cells to the row
+                                    newRow.innerHTML = `
+              <td class="text-center">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="transactionCheck02">
+                  <label class="form-check-label" for="transactionCheck02"></label>
+                </div>
+              </td>
+              <td>${order.user[0].name}</td>
+              <td>${order.createdAt}</td>
+              <td>₹ ${order.totalAmount}</td>
+              <td>
+                ${order.paymentStatus === "Successful" ?
+                                            `<span class="badge badge-pill badge-soft-success">${order.paymentStatus}</span>` :
+                                            `<span class="badge badge-pill badge-soft-info">${order.paymentStatus}</span>`}
+              </td>
+              <td>
+                ${order.paymentMethod === "Pay online" ?
+                                            `<i class="material-icons md-payment font-xxl text-muted mr-5"></i>Online payment` :
+                                            `<i class="material-icons md-payment font-xxl text-muted mr-5"></i>Cash on delivery`}
+              </td>
+              <td>
+                <a href="/order/view-admin/${order._id}" class="btn btn-xs">View details</a>
+              </td>
+            `;
+
+                                    // Append the new row to the tbody
+                                    tableBody.appendChild(newRow);
+                                });
+                            }
+
+
+                            // Updating the revenue and orders section of dashboard
+                            if (data.orderStatistics && data.orderStatistics.length > 0) {
+                                // Update Revenue card
+
+                                revenueCard.innerHTML = `
+            <h6 class="mb-1 card-title">Revenue</h6>
+            <span>&#8377; ${data.orderStatistics[0].totalAmount} </span>
+            <span class="text-sm">
+              Shipping fees are included
+            </span>
+          `;
+
+                                // Update Orders card
+
+                                ordersCard.innerHTML = `
+            <h6 class="mb-1 card-title">Orders</h6>
+            <span>${data.orderStatistics[0].totalOrders}</span>
+            <span class="text-sm">
+              Excluding orders cancelled
+            </span>
+          `;
+                            } else {
+                                  revenueCard.innerHTML = `
+            <h6 class="mb-1 card-title">Revenue</h6>
+            <span>&#8377; 0 </span>
+            <span class="text-sm">
+              Shipping fees are included
+            </span>
+          `;
+
+                                // Update Orders card
+
+                                ordersCard.innerHTML = `
+            <h6 class="mb-1 card-title">Orders</h6>
+            <span>0</span>
+            <span class="text-sm">
+              Excluding orders cancelled
+            </span>
+          `;
+                            }
+                        })
+
+                }
+
+            </script>
+
             <!--When admin press logout button show him a confirm button, and when he -->
             <!--click confirm then only move to the logout controller-->
             <script>
@@ -253,13 +396,13 @@
                 }
 
                 // When user press different report options, this works
-                 function redirectSalesOverview(selectElement) {
-                        // Get the selected option's value
-                        let selectedOption = selectElement.options[selectElement.selectedIndex].value;
+                function redirectSalesOverview(selectElement) {
+                    // Get the selected option's value
+                    let selectedOption = selectElement.options[selectElement.selectedIndex].value;
 
-                        // Redirect to the selected URL
-                        window.location.href = "/admin/report/"+selectedOption;
-                    }
+                    // Redirect to the selected URL
+                    window.location.href = "/admin/report/" + selectedOption;
+                }
 
 
 

@@ -248,6 +248,7 @@ const userOrderViewController = asyncHandler(async (req, res) => {
     const userOrders = await Order.aggregate([
         { $match: { user: user._id } },
         { $unwind: "$productDetails" },
+        { $match: { "productDetails.deliveryStatus": { $ne: "Cancelled" } } },
         { $lookup: { from: "products", localField: "productDetails.product", foreignField: "_id", as: "product" } },
         { $lookup: { from: "addresses", localField: "address", foreignField: "_id", as: "address" } },
         { $sort: { createdAt: -1 } },
@@ -408,6 +409,13 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
         },
         {
             $unwind: "$productDetails"
+        },
+        {
+            $match: {
+                "productDetails.deliveryStatus": {
+                    $ne: "Cancelled"
+                }
+            }
         },
         {
             $lookup: {
@@ -584,6 +592,508 @@ const adminOderUpdateController = asyncHandler(async (req, res) => {
     }
 })
 
+const orderFilterController = asyncHandler(async (req, res) => {
+
+    let { paymentFilterValue, categoryFilterValue } = req.query;
+    console.log(req.query);
+    
+
+    if (paymentFilterValue === "All payments") {
+
+        const orders = await Order.aggregate([
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    },
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                },
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "product.category",
+                    foreignField:"_id",
+                    as: "category"
+                }
+            },
+            {
+                $match: {
+                    $expr: {
+                        $cond: {
+                            if: { $ne: [categoryFilterValue, "All Categories"] },
+                            then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
+                            else: true
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    user: {
+                        $first: "$user"
+                    },
+                    paymentMethod: {
+                        $first: "$paymentMethod"
+                    },
+                    paymentStatus: {
+                        $first: "$paymentStatus"
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    },
+                    createdAt: {
+                        $first: "$createdAt"
+                    }
+                }
+            },
+            {
+                $project: {
+                    user: 1,
+                    totalAmount: 1,
+                    paymentMethod: 1,
+                    paymentStatus: 1,
+                    createdAt: {
+                        $dateToString: {
+                            format: "%d-%m-%Y",
+                            date: "$createdAt"
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            },
+
+        ])
+
+        console.log(orders);
+
+        const orderStatistics = await Order.aggregate([
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    },
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "product.category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $match: {
+                    $expr: {
+                        $cond: {
+                            if: { $ne: [categoryFilterValue, "All Categories"] },
+                            then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
+                            else: true
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: {
+                        $sum: 1
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    }
+                }
+            }
+        ])
+
+
+        return res.status(200).json({ orders, orderStatistics })
+
+    }
+    if (paymentFilterValue === "Paid") {
+
+        const orders = await Order.aggregate([
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    },
+                    paymentStatus: {
+                        $ne: "Pending"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                },
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "product.category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $match: {
+                    $expr: {
+                        $cond: {
+                            if: { $ne: [categoryFilterValue, "All Categories"] },
+                            then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
+                            else: true
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    user: {
+                        $first: "$user"
+                    },
+                    paymentMethod: {
+                        $first: "$paymentMethod"
+                    },
+                    paymentStatus: {
+                        $first: "$paymentStatus"
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    },
+                    createdAt: {
+                        $first: "$createdAt"
+                    }
+                }
+            },
+            {
+                $project: {
+                    user: 1,
+                    totalAmount: 1,
+                    paymentMethod: 1,
+                    paymentStatus: 1,
+                    createdAt: {
+                        $dateToString: {
+                            format: "%d-%m-%Y",
+                            date: "$createdAt"
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            },
+
+        ])
+
+
+
+        const orderStatistics = await Order.aggregate([
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled",
+                    },
+                    paymentStatus: {
+                        $ne: "Pending"
+                    }
+
+                },
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "product.category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $match: {
+                    $expr: {
+                        $cond: {
+                            if: { $ne: [categoryFilterValue, "All Categories"] },
+                            then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
+                            else: true
+                        }
+                    }
+                }
+            },  
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: {
+                        $sum: 1
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    }
+                }
+            }
+        ])
+        return res.status(200).json({ orders, orderStatistics})
+
+    }
+    if (paymentFilterValue === "Pending") {
+
+        const orders = await Order.aggregate([
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled"
+                    },
+                    paymentStatus: {
+                        $eq: "Pending"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                },
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "product.category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $match: {
+                   $expr: {
+                    $cond: {
+                           if: { $ne: [categoryFilterValue, "All Categories"] },
+                           then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
+                        else: true
+                    }
+                   }
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    user: {
+                        $first: "$user"
+                    },
+                    paymentMethod: {
+                        $first: "$paymentMethod"
+                    },
+                    paymentStatus: {
+                        $first: "$paymentStatus"
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    },
+                    createdAt: {
+                        $first: "$createdAt"
+                    }
+                }
+            },
+            {
+                $project: {
+                    user: 1,
+                    totalAmount: 1,
+                    paymentMethod: 1,
+                    paymentStatus: 1,
+                    createdAt: {
+                        $dateToString: {
+                            format: "%d-%m-%Y",
+                            date: "$createdAt"
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            },
+
+        ])
+
+        console.log(orders);
+
+        const orderStatistics = await Order.aggregate([
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.deliveryStatus": {
+                        $ne: "Cancelled",
+                    },
+                    paymentStatus: {
+                        $eq: "Pending"
+                    }
+
+                },
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "productDetails.product",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "product.category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $match: {
+                    $expr: {
+                        $cond: {
+                            if: { $ne: [categoryFilterValue, "All Categories"] },
+                            then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
+                            else: true
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    subTotal: {
+                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: {
+                        $sum: 1
+                    },
+                    totalAmount: {
+                        $sum: "$subTotal"
+                    }
+                }
+            }
+        ])
+
+        return res.status(200).json({ orders, orderStatistics })
+
+    }
+})
+
 export {
     userCheckoutController,
     userOrderViewController,
@@ -591,5 +1101,6 @@ export {
     userOrderUpdateControler,
     adminOrderViewController,
     adminOrderDetailedViewController,
-    adminOderUpdateController
+    adminOderUpdateController,
+    orderFilterController
 }

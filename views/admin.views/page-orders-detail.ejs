@@ -34,18 +34,7 @@
 
 
 
-                                    <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                                        <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
-                                            <option>Change status</option>
-                                            <option>Awaiting payment</option>
-                                            <option>Confirmed</option>
-                                            <option>Shipped</option>
-                                            <option>Delivered</option>
-                                        </select>
-                                        <a class="btn btn-primary" href="#">Save</a>
-                                        <a class="btn btn-secondary print ms-2" href="#"><i
-                                                class="icon material-icons md-print"></i></a>
-                                    </div>
+                                   
 
 
                                 </div>
@@ -102,8 +91,11 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                    <% let totalAmount = 0; %>
                                                     <%if(typeof(order) !=="undefined" ) {%>
                                                         <%order.forEach((order)=> { %>
+
+                                                            <%totalAmount += order.subTotal %>
 
                                                             <tr>
                                                                 <td>
@@ -125,7 +117,7 @@
                                                                     </a>
                                                                 </td>
                                                                 <td>
-                                                                    <%=order.product[0].price %>
+                                                                ₹ <%=order.product[0].price %>
                                                                 </td>
                                                                 <td >
                                                                     <%=order.productDetails.quantity %>
@@ -134,7 +126,7 @@
                                                                     <%=order.productDetails.deliveryStatus %>
                                                                 </td>
                                                                 <td >   
-                                                                    <%=order.subTotal %>
+                                                                ₹  <%=order.subTotal %>
                                                                 </td>
                                                                 <td>
                                                                 <a href="/order/admin-view-one?orderId=<%=order._id %>&productId=<%=order.product[0]._id%>">View order</a>
@@ -150,7 +142,7 @@
                                                                                 <dl class="dlist">
                                                                                     <dt>Subtotal:</dt>
                                                                                     <dd>
-                                                                                        <%=order[0].totalAmount %>
+                                                                                    ₹ <%=totalAmount %>
                                                                                     </dd>
                                                                                 </dl>
                                                                                 <dl class="dlist">
@@ -160,17 +152,27 @@
                                                                                 <dl class="dlist">
                                                                                     <dt>Grand total:</dt>
                                                                                     <dd> <b class="h5">
-                                                                                            <%=order[0].totalAmount %>
+                                                                                        ₹ <%=totalAmount %>
                                                                                         </b> </dd>
                                                                                 </dl>
                                                                                 <dl class="dlist">
                                                                                     <dt class="text-muted">Status:</dt>
-                                                                                    <dd>
-                                                                                        <span
-                                                                                            class="badge rounded-pill alert-success text-success">
-                                                                                            <%=order[0].paymentMethod %>
-                                                                                        </span>
-                                                                                    </dd>
+                                                                                    <%if(order[0].paymentMethod === "Cash on delivery") {%>
+                                                                                        
+                                                                                        <dd>
+                                                                                            <span
+                                                                                                class="badge rounded-pill alert-success text-info">
+                                                                                                <%=order[0].paymentMethod %>
+                                                                                            </span>
+                                                                                        </dd>
+                                                                                        <% } else {%>
+                                                                                            <dd>
+                                                                                                <span class="badge rounded-pill alert-success text-success">
+                                                                                                   Paid online
+                                                                                                </span>
+                                                                                            </dd>
+
+                                                                                            <%} %>
                                                                                 </dl>
                                                                             </article>
                                                                         </td>
