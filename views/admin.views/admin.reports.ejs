@@ -40,7 +40,12 @@
                                                 class="text-primary material-icons md-monetization_on"></i></span>
                                         <div class="text">
                                             <h6 class="mb-1 card-title">Revenue</h6>
-                                            <span>&#8377 <%=orderStatistics[0].totalAmount %> </span>
+
+                                            <%if(orderStatistics.length>0) { %>
+                                                <span>&#8377 <%=orderStatistics[0].totalAmount %> </span>
+                                           <% } else { %>
+                                            <span>&#8377 0 </span>
+                                            <% }%>
                                             <span class="text-sm">
                                                 Shipping fees are included
                                             </span>
@@ -55,7 +60,14 @@
                                                 class="text-success material-icons md-local_shipping"></i></span>
                                         <div class="text">
                                             <h6 class="mb-1 card-title">Orders</h6> <span>
+
+                                                <%if(orderStatistics.length>0) { %>
+
                                                 <%=orderStatistics[0].totalOrders %>
+
+                                                <% } else { %>
+                                                    0
+                                                    <%} %>
                                             </span>
                                             <span class="text-sm">
                                                 Excluding orders cancelled </span>

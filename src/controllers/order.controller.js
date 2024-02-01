@@ -149,7 +149,7 @@ const userCheckoutController = {
 
         let instance = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET })
         const options = {
-            amount: totalAmount,
+            amount: totalAmount * 100,
             currency: "INR",
         }
 
@@ -159,7 +159,7 @@ const userCheckoutController = {
                     return res.status(200).json({
                         success: true,
                         message: "Razor pay order created",
-                        amount: totalAmount,
+                        amount: totalAmount * 100,
                         key_id: RAZORPAY_KEY_ID,
                         order_id: order.id,
 

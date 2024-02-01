@@ -45,6 +45,12 @@ const adminLoginController = {
 
 const adminHomeController = asyncHandler(async (req, res) => {
 
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const skip = (page - 1) * 10;
+
+
+
     const orders = await Order.aggregate([
         {
             $unwind: "$productDetails"
@@ -106,6 +112,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 totalAmount: 1,
                 paymentMethod: 1,
                 paymentStatus: 1,
+                totalOrders:1,
                 createdAt: {
                     $dateToString: {
                         format: "%d-%m-%Y",
@@ -122,6 +129,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
 
     ])
 
+    console.log(orders);
     // If all the products in an order got cancelled, the order is also
     // cancelled, else, change the totalamount accordingly
 

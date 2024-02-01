@@ -29,10 +29,15 @@
                                                 class="text-primary material-icons md-monetization_on"></i></span>
                                         <div class="text">
                                             <h6 class="mb-1 card-title">Revenue</h6>
-                                            <span>&#8377 <%=orderStatistics[0].totalAmount %> </span>
-                                            <span class="text-sm">
-                                                Shipping fees are included
-                                            </span>
+
+                                            <%if(orderStatistics.length>0) { %>
+                                                <span>&#8377 <%=orderStatistics[0].totalAmount %> </span>
+                                                <%} else { %>
+                                                    <span>&#8377 0 </span>
+                                                    <%} %>
+                                                        <span class="text-sm">
+                                                            Shipping fees are included
+                                                        </span>
                                         </div>
                                     </article>
                                 </div>
@@ -44,7 +49,13 @@
                                                 class="text-success material-icons md-local_shipping"></i></span>
                                         <div class="text">
                                             <h6 class="mb-1 card-title">Orders</h6> <span>
-                                                <%=orderStatistics[0].totalOrders %>
+
+                                                <%if(orderStatistics.length>0) { %>
+                                                    <%=orderStatistics[0].totalOrders %>
+                                                        <%} else { %>
+                                                            0
+                                                            <% }%>
+
                                             </span>
                                             <span class="text-sm">
                                                 Excluding orders cancelled
@@ -128,14 +139,15 @@
                                     </div>
                                     <div class="col-md-3 col-6">
                                         <div class="custom_select">
-                                            <select id="paymentFilter" class="form-select select-nice" onchange="applyFilter()">
+                                            <select id="paymentFilter" class="form-select select-nice"
+                                                onchange="applyFilter()">
                                                 <option selected>All payments</option>
                                                 <option>Paid</option>
                                                 <option>Pending</option>
                                             </select>
                                         </div>
                                     </div>
-        
+
                                     <div class="col-md-3 col-12 me-auto mb-md-0 mb-3 ml-100">
                                         <div class="custom_select">
                                             <select class="form-select select-nice"
@@ -147,8 +159,8 @@
                                             </select>
                                         </div>
                                     </div>
-                                   
-                                   
+
+
                                 </div>
                             </header>
                             <div class="card-body">
@@ -351,7 +363,7 @@
             </span>
           `;
                             } else {
-                                  revenueCard.innerHTML = `
+                                revenueCard.innerHTML = `
             <h6 class="mb-1 card-title">Revenue</h6>
             <span>&#8377; 0 </span>
             <span class="text-sm">
