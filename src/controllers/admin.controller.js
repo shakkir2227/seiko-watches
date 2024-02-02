@@ -45,11 +45,43 @@ const adminLoginController = {
 
 const adminHomeController = asyncHandler(async (req, res) => {
 
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
-    const skip = (page - 1) * 10;
+
+    // For pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
 
 
+    // Finding out total orders
+    const totalOrders = await Order.aggregate([
+        {
+            $unwind: "$productDetails"
+        },
+        {
+            $match: {
+                "productDetails.deliveryStatus": {
+                    $ne: "Cancelled"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id"
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalOrders: {
+                    $sum: 1,
+                }
+            }
+        }
+    ])
+
+
+    // Finding out total pages
+    const totalPages = Math.ceil((totalOrders[0].totalOrders) / limit)
 
     const orders = await Order.aggregate([
         {
@@ -107,12 +139,23 @@ const adminHomeController = asyncHandler(async (req, res) => {
             }
         },
         {
+            $sort: {
+                createdAt: -1
+            }
+        },
+        {
+            $skip: skip
+        },
+        {
+            $limit: limit
+        },
+        {
             $project: {
                 user: 1,
                 totalAmount: 1,
                 paymentMethod: 1,
                 paymentStatus: 1,
-                totalOrders:1,
+                totalOrders: 1,
                 createdAt: {
                     $dateToString: {
                         format: "%d-%m-%Y",
@@ -121,18 +164,10 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 }
             }
         },
-        {
-            $sort: {
-                createdAt: -1
-            }
-        },
-
     ])
 
-    console.log(orders);
     // If all the products in an order got cancelled, the order is also
     // cancelled, else, change the totalamount accordingly
-
     const orderStatistics = await Order.aggregate([
         {
             $unwind: "$productDetails"
@@ -213,7 +248,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
     ])
 
 
-    return res.render("page-admin-home.ejs", { orders, orderStatistics, productStatistics, userStatistics, categoryStatistics, categories: res.locals.categories })
+    return res.render("page-admin-home.ejs", { orders, page, totalPages, orderStatistics, productStatistics, userStatistics, categoryStatistics, categories: res.locals.categories })
 })
 
 const blockUserController = asyncHandler(async (req, res) => {
