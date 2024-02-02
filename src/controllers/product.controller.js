@@ -428,7 +428,63 @@ const productViewController = {
         const successMessage = req.flash('success')[0];
         const products = await Product.find({}).populate("category")
 
-        return res.render("page-products-list.ejs", { products, errorMessage, successMessage })
+
+        return res.render("page-products-list.ejs", { products, categories: res.locals.categories, errorMessage, successMessage })
+
+    }),
+
+    adminProductFilterController: asyncHandler(async (req, res) => {
+        console.log(req.query);
+        const { search, category, stockFilter, status } = req.query
+
+        // For searching
+        const regex = new RegExp(search, 'i');
+        console.log(regex);
+
+        // For pagination
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+
+        const commonAggregationPipeline = [
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $match: {
+                    name: {
+                        $regex: regex
+                    },
+                    $expr: {
+                        $cond: {
+                            if: { $ne: [category, "All category"] },
+                            then: { $eq: ["$category.name", category] },
+                            else: true
+                        }
+                    },
+                    $expr: {
+                        $cond: {
+                            if: { $eq: [status, "Active"] },
+                            then: { $eq: ["$isBlocked", false] },
+                            else: {
+                                $cond: {
+                                    if: { $eq: [status, "Blocked"] },
+                                    then: {$eq: ["$isBlocked", true]},
+                                    else: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        ]
+
 
     }),
 
@@ -630,7 +686,7 @@ const productViewController = {
                 }
 
                 pipeline.push(
-                    {   
+                    {
                         $lookup: {
                             from: "categories",
                             localField: "category",
@@ -646,7 +702,7 @@ const productViewController = {
                             price: 1,
                         }
                     }
-                    
+
                 )
 
                 // If either of them is present, perform aggregation based on them, 
@@ -672,15 +728,15 @@ const productViewController = {
                         },
                         {
                             $project: {
-                                name:1,
-                                images:1,
-                                category:1,
-                                price:1,
+                                name: 1,
+                                images: 1,
+                                category: 1,
+                                price: 1,
                             }
                         }
                     ])
                 }
-     
+
                 return res.status(200).json({ filteredProducts })
             }
 
@@ -694,7 +750,7 @@ const productViewController = {
                             $in: parentCategoryIds
                         }
                     }
-                    
+
                 }];
 
                 // Add $match stage for bandMaterial if the array is not empty
@@ -1038,5 +1094,6 @@ export {
     updateProductController,
     unblockProductController,
     productViewController,
+
 
 }

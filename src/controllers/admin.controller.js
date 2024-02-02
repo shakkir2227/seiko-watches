@@ -313,8 +313,83 @@ const unBlockUserController = asyncHandler(async (req, res) => {
 
 const adminUserDetailsController = asyncHandler(async (req, res) => {
 
-    const users = await User.find({ isVerified: true });
-    return res.render("page-users-list.ejs", { users })
+    return res.render("page-users-list.ejs")
+})
+
+const adminUserFilterController = asyncHandler(async (req, res) => {
+
+    const { status, search } = req.query
+    console.log(req.query);
+    
+    // For searching
+    const regex = new RegExp(search, 'i');
+    console.log(regex);
+
+    // For pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = 4;
+    const skip = (page - 1) * limit;
+
+    const commonAggregationPipeline = [
+        {
+            $match: {
+                isVerified: true,
+                $expr: {
+                    $cond: {
+                        if: { $eq: [status, "Active"] },
+                        then: { $eq: ["$isBlocked", false] },
+                        else: {
+                            $cond: {
+                                if: { $eq: [status, "Blocked"] },
+                                then: { $eq: ["$isBlocked", true] },
+                                else: true
+                            }
+                        }
+                    }
+                },
+                $or: [{ name: { $regex: regex } }, { email: { $regex: regex } }, { mobileNumber: { $regex: regex } }]
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        }
+    ]
+
+    const users = await User.aggregate([
+        ...commonAggregationPipeline,
+        {
+            $skip: skip
+        },
+        {
+            $limit: limit
+        }
+    ])
+
+    const totalUsers = await User.aggregate([
+        ...commonAggregationPipeline,
+        {
+            $group: {
+                _id: null,
+                totalUsers: {
+                    $sum: 1
+                }
+            }
+        }
+    ]);
+
+    let totalPages
+    if (totalUsers.length > 0) {
+        totalPages = Math.ceil((totalUsers[0].totalUsers) / limit)
+    }
+
+    return res.status(200).json({ page, users, totalPages })
+
+})
+
+const adminUserSearchController = asyncHandler(async (req, res) => {
+    console.log(req.query);
 })
 
 const adminReportController = asyncHandler(async (req, res) => {
@@ -801,6 +876,8 @@ export {
     adminLoginController,
     blockUserController,
     adminUserDetailsController,
+    adminUserFilterController,
+    adminUserSearchController,
     unBlockUserController,
     adminHomeController,
     adminReportController,

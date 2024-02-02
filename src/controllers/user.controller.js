@@ -105,7 +105,6 @@ const registerController = {
                 await OTP.deleteOne({ userId: user._id })
             }, 60000);
 
-            console.log(OTPNumber);
             req.session.email = user.email;
 
             // return res.send("Verification Email has been sent")
@@ -202,7 +201,7 @@ const verifyController = {
 
         const otp = await OTP.findOne({ userId: user._id })
         if (!otp) {
-            req.flash('error', `OTP expired. Please register again`);
+            req.flash('error', `OTP expired. Generate New OTP !!`);
             return res.redirect("/user/verify")
         }
 

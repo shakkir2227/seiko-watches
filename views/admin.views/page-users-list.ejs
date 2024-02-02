@@ -23,19 +23,36 @@
                         </div>
                         <div class="card mb-4">
                             <header class="card-header">
-                                <div class="row gx-3">
-                                    <div class="col-lg-4 col-md-6 me-auto">
-                                        <input type="text" placeholder="Search..." class="form-control">
+
+                                <div style="display: flex; justify-content: space-around;">
+
+                                    <div class="col-search" style="width: 400px;">
+                                        <form class="searchform">
+                                            <div class="input-group">
+                                                <input list="search_terms" type="text" class="form-control"
+                                                    id="searchValue" placeholder="Enter name, mobile number, or email"
+                                                    oninput="searchUser()">
+                                                <button class="btn btn-light bg" type="button">
+                                                    <i class="material-icons md-search"></i></button>
+                                            </div>
+
+                                        </form>
                                     </div>
-                                    <div class="col-lg-2 col-md-3 col-6">
-                                        <select class="form-select">
-                                            <option>Show all</option>
-                                            <option>Active</option>
-                                            <option>Disabled</option>
-                                        </select>
+
+                                    <div class="row gx-3">
+
+                                        <div class="col-lg-3 col-md-3 col-6" style="width: 300px;">
+                                            <select id="userStatus" onchange="filterUserData()" class="form-select">
+                                                <option>Show all</option>
+                                                <option>Active</option>
+                                                <option>Blocked</option>
+                                            </select>
+                                        </div>
+
                                     </div>
 
                                 </div>
+
                             </header> <!-- card-header end// -->
 
                             <div class="card-body">
@@ -51,80 +68,8 @@
                                                 <th class="pl-15"> Action </th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <% if (typeof users !=="undefined" && Array.isArray(users)) { %>
-                                                <% users.forEach(function(user) { %>
-                                                    <tr>
-                                                        <td width="20%">
-                                                            <a href="#" class="itemside">
-                                                                <!-- <div class="left">
-                                                <img src="/admin.assets/imgs/people/avatar1.jpg" class="img-sm img-avatar" alt="Userpic">
-                                            </div> -->
-                                                                <div class="info pl-3">
-                                                                    <h6 class="mb-0 title">
-                                                                        <%= user.name %>
-                                                                    </h6>
+                                        <tbody id="userTableBody">
 
-                                                                </div>
-                                                            </a>
-                                                        </td>
-                                                        <td>
-                                                            <%= user.email %>
-                                                        </td>
-                                                        <td>
-                                                            <%= user.mobileNumber %>
-                                                        </td>
-
-                                                        <% if(user.isBlocked===true) { %>
-                                                            <td><span class="badge rounded-pill alert-danger">
-                                                                    Blocked
-                                                                </span>
-                                                            </td>
-                                                            <% } %>
-
-                                                                <% if(user.isBlocked===false) { %>
-                                                                    <td><span class="badge rounded-pill alert-success">
-                                                                            Active
-                                                                        </span>
-                                                                    </td>
-                                                                    <% } %>
-
-                                                                        <!-- <td class="text-end">
-                                                                <div class="dropdown">
-                                                                    <a href="#" data-bs-toggle="dropdown"
-                                                                        class="btn btn-light rounded btn-sm font-sm"> <i
-                                                                            class="material-icons md-more_horiz"></i>
-                                                                    </a>
-                                                                    <div class="dropdown-menu">
-                                                                 <a class="dropdown-item" href="#">View detail</a>
-                                                                                            <a class="dropdown-item" href="#">Edit info</a> -->
-                                                                        <!-- <a class="dropdown-item text"
-                                                                            href="#">Activate</a>
-                                                                        <a class="dropdown-item text-danger"
-                                                                            href="#">Block</a> -->
-                                                                        <!-- </div>
-                                                                </div>  dropdown //end -->
-                                                                        <!-- </td> -->
-
-                                                                        <td>
-                                                                            <button
-                                                                                onclick="toggleUserBlock('<%= user._id %>', `<%=  user.isBlocked %>`)"
-                                                                                type="button"
-                                                                                class="btn btn-md font-sm rounded btn-brand">
-                                                                                <i class="material-icons"></i>
-                                                                                <span>
-                                                                                    <% if(user.isBlocked===true) { %>
-                                                                                        Unblock
-                                                                                        <% } else { %>
-                                                                                            Block
-                                                                                            <% } %>
-                                                                                </span>
-                                                                            </button>
-                                                                        </td>
-
-                                                    </tr>
-                                                    <% }); %>
-                                                        <% } %>
                                         </tbody>
                                     </table> <!-- table-responsive.// -->
                                 </div>
@@ -132,14 +77,9 @@
                         </div> <!-- card end// -->
                         <div class="pagination-area mt-15 mb-50">
                             <nav aria-label="Page navigation example">
-                                <ul class="pagination justify-content-start">
+                                <ul id="paginationList" class="pagination justify-content-start">
                                     <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">16</a></li>
-                                    <li class="page-item"><a class="page-link" href="#"><i
-                                                class="material-icons md-chevron_right"></i></a></li>
+
                                 </ul>
                             </nav>
                         </div>
@@ -149,6 +89,127 @@
                     <%- include ('./partials/admin.footer.ejs') %>
 
             </main>
+
+            <script>
+
+                async function searchUser() {
+
+                    // Making the status filter as show all, so that we can 
+                    // search all users
+                    const userStatusSelect = document.getElementById('userStatus');
+                    const options = userStatusSelect.options;
+
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].text === 'Show all') {
+                            options[i].selected = true;
+                            break;
+                        }
+                    }
+
+                    await filterUserData()
+
+
+
+                }
+
+                // When dom content loads, updating the user data
+                document.addEventListener("DOMContentLoaded", () => {
+                    filterUserData()
+                })
+
+                // For updating the users data
+                async function filterUserData(page) {
+
+
+                    const userStatus = document.getElementById("userStatus").value
+                    params.append("status", userStatus)
+
+                    params.append("page", page)
+
+                    // For user search 
+                    const searchValue = document.getElementById("searchValue").value
+                    params.append("search", searchValue)
+
+                    const response = await fetch("/admin/users-filter?" + params)
+                    const data = await response.json();
+
+                    console.log(data);
+
+                    const tbody = document.getElementById('userTableBody');
+
+                    // Clear existing content in tbody
+
+                    tbody.innerHTML = '';
+
+
+
+                    // Check if fetchResponse is defined and is an array
+                    if (typeof data !== 'undefined' && Array.isArray(data.users)) {
+
+                        // Iterate over the users in the fetch data and append rows
+                        data.users.forEach(user => {
+                            const row = document.createElement('tr');
+
+                            // Create table cells for each user property
+                            row.innerHTML = `
+            <td width="20%">
+                <a href="#" class="itemside">
+                    <div class="info pl-3">
+                        <h6 class="mb-0 title">${user.name}</h6>
+                    </div>
+                </a>
+            </td>
+            <td>${user.email}</td>
+            <td>${user.mobileNumber}</td>
+            <td>
+                ${user.isBlocked === true
+                                    ? '<span class="badge rounded-pill alert-danger">Blocked</span>'
+                                    : '<span class="badge rounded-pill alert-success">Active</span>'}
+            </td>
+            <td>
+                <button
+                    onclick="toggleUserBlock('${user._id}', '${user.isBlocked}')"
+                    type="button"
+                    class="btn btn-md font-sm rounded btn-brand">
+                    <i class="material-icons"></i>
+                    <span>${user.isBlocked ? 'Unblock' : 'Block'}</span>
+                </button>
+            </td>`;
+
+                            // Append the row to the tbody
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    // Making the pagination dynamic
+                    const paginationList = document.getElementById('paginationList');
+                    paginationList.innerHTML = '';
+
+                    if (typeof data !== 'undefined' && data.totalPages) {
+                        // Iterate over the total number of pages and create pagination items
+                        for (let i = 0; i < data.totalPages; i++) {
+                            const liElement = document.createElement('li');
+                            liElement.id = `page0${i + 1}`;
+                            liElement.className = 'page-item';
+                            const aElement = document.createElement('a');
+                            aElement.className = 'page-link';
+                            aElement.onclick = function () {
+                                filterUserData(i + 1);
+                            };
+                            aElement.textContent = `0${i + 1}`;
+                            liElement.appendChild(aElement);
+                            paginationList.appendChild(liElement);
+                        }
+                    }
+                    if (typeof data !== 'undefined' && data.totalPages) {
+
+                        const pageli = document.getElementById("page0" + data.page)
+                        pageli.classList.add("active")
+                    }
+                }
+
+
+            </script>
 
             <script>
                 async function toggleUserBlock(id, isBlocked) {

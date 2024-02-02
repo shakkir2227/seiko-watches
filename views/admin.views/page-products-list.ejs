@@ -27,28 +27,51 @@
                         <div class="card mb-4">
                             <header class="card-header">
                                 <div class="row align-items-center">
-                                    <div class="col col-check flex-grow-0">
-                                        <div class="form-check ms-2">
-                                            <input class="form-check-input" type="checkbox" value="">
-                                        </div>
+
+                                    <div class="col-search" style="width: 300px;">
+                                        <form class="searchform">
+                                            <div class="input-group">
+                                                <input list="search_terms" type="text" class="form-control"
+                                                    id="searchValue" placeholder="Enter product name"
+                                                    oninput="searchProduct()">
+                                                <button class="btn btn-light bg" type="button">
+                                                    <i class="material-icons md-search"></i></button>
+                                            </div>
+
+                                        </form>
                                     </div>
+
                                     <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                                        <select class="form-select">
+                                        <select id="categoryValue" class="form-select">
+
                                             <option selected>All category</option>
-                                            <option>Electronics</option>
-                                            <option>Clothes</option>
-                                            <option>Automobile</option>
+
+                                            <%if(categories.length> 0) {%>
+                                                <%categories.forEach((category)=> { %>
+                                                    <option>
+                                                        <%=category.name %>
+                                                    </option>
+                                                    <% }) %>
+
+                                                        <% } %>
+
+
                                         </select>
                                     </div>
-                                    <div class="col-md-2 col-6">
-                                        <input type="date" value="02.05.2022" class="form-control">
+                                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                                        <select id="stockFilter" class="form-select">
+                                            <option selected>Sort by</option>
+                                            <option>Stock--Low to High</option>
+                                            <option>Stock--High to Low</option>
+
+                                        </select>
                                     </div>
+
                                     <div class="col-md-2 col-6">
-                                        <select class="form-select">
-                                            <option selected>Status</option>
+                                        <select id="productStatus" class="form-select">
+                                            <option selected>Show all</option>
                                             <option>Active</option>
-                                            <option>Disabled</option>
-                                            <option>Show all</option>
+                                            <option>Blocked</option>
                                         </select>
                                     </div>
                                 </div>
@@ -97,20 +120,24 @@
 
 
 
-                                                        <div class="row align-items-center mb-30" >
-                                                            
+                                                        <div class="row align-items-center mb-30">
 
-                                                           
-                                                            <div class="col-lg-2 col-sm-2 col-4 col-price ml-130"> <span>
+
+
+                                                            <div class="col-lg-2 col-sm-2 col-4 col-price ml-130">
+                                                                <span>
                                                                     Name
 
-                                                                </span> </div>
-                                                            <div class="col-lg-2 col-sm-2 col-4 col-price ml-100"> <span>
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-lg-2 col-sm-2 col-4 col-price ml-100">
+                                                                <span>
                                                                     Category name
-                                                                </span> </div>
+                                                                </span>
+                                                            </div>
                                                             <div class="col-lg-2 col-sm-3 col-3 col-date ml-7">
                                                                 <span>
-                                                                   Stock
+                                                                    Stock
                                                                 </span>
                                                             </div>
 
@@ -119,75 +146,73 @@
                                                                     Status
                                                                 </span>
                                                             </div>
-                                                           
+
 
                                                         </div>
 
 
 
 
-                                                            <% for(let i=0; i<products.length; i++) { %>
-                                                                <div class="row align-items-center">
-                                                                    <div class="col col-check flex-grow-0">
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input"
-                                                                                type="checkbox">
+                                                        <% for(let i=0; i<products.length; i++) { %>
+                                                            <div class="row align-items-center">
+                                                                <div class="col col-check flex-grow-0">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="checkbox">
+                                                                    </div>
+                                                                </div>
+                                                                <div
+                                                                    class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                                                                    <a class="itemside" href="#">
+                                                                        <div class="left">
+                                                                            <img src="<%=products[i].images[0].url%>"
+                                                                                class="img-sm img-thumbnail" alt="Item">
                                                                         </div>
-                                                                    </div>
-                                                                    <div
-                                                                        class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                                                                        <a class="itemside" href="#">
-                                                                            <div class="left">
-                                                                                <img src="<%=products[i].images[0].url%>"
-                                                                                    class="img-sm img-thumbnail"
-                                                                                    alt="Item">
-                                                                            </div>
-                                                                            <div class="info">
-                                                                                <h6 class="mb-0">
-                                                                                    <%=products[i].name%>
-                                                                                </h6>
-                                                                            </div>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="col-lg-2 col-sm-2 col-4 col-price">
-                                                                        <span>
-                                                                            <%=products[i].category.name%>
-                                                                        </span> </div>
-                                                                    <div class="col-lg-2 col-sm-3 col-3 col-date">
-                                                                        <span>
-                                                                            <%=products[i].stock%>
-                                                                        </span>
-                                                                    </div>
+                                                                        <div class="info">
+                                                                            <h6 class="mb-0">
+                                                                                <%=products[i].name%>
+                                                                            </h6>
+                                                                        </div>
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col-lg-2 col-sm-2 col-4 col-price">
+                                                                    <span>
+                                                                        <%=products[i].category.name%>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="col-lg-2 col-sm-3 col-3 col-date">
+                                                                    <span>
+                                                                        <%=products[i].stock%>
+                                                                    </span>
+                                                                </div>
 
-                                                                    <% if(products[i].isBlocked===false) {%>
+                                                                <% if(products[i].isBlocked===false) {%>
+                                                                    <div class="col-lg-1 col-sm-2 col-4 col-status">
+                                                                        <span
+                                                                            class="badge rounded-pill alert-success">Active</span>
+                                                                    </div>
+                                                                    <%} else {%>
+
                                                                         <div class="col-lg-1 col-sm-2 col-4 col-status">
                                                                             <span
-                                                                                class="badge rounded-pill alert-success">Active</span>
+                                                                                class="badge rounded-pill alert-danger">Blocked</span>
                                                                         </div>
-                                                                        <%} else {%>
+                                                                        <%}%>
 
                                                                             <div
-                                                                                class="col-lg-1 col-sm-2 col-4 col-status">
-                                                                                <span
-                                                                                    class="badge rounded-pill alert-danger">Blocked</span>
-                                                                            </div>
-                                                                            <%}%>
-
-                                                                                <div
-                                                                                    class="col-lg-2 col-sm-2 col-4 col-action text-end">
-                                                                                    <a href="/product/update/<%=products[i]._id%>"
-                                                                                        class="btn btn-sm font-sm rounded btn-brand">
-                                                                                        <i
-                                                                                            class="material-icons md-edit"></i>
-                                                                                        Edit
-                                                                                    </a>
-                                                                                    <!-- <a href="#" class="btn btn-sm font-sm btn-light rounded">
+                                                                                class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                                                                                <a href="/product/update/<%=products[i]._id%>"
+                                                                                    class="btn btn-sm font-sm rounded btn-brand">
+                                                                                    <i
+                                                                                        class="material-icons md-edit"></i>
+                                                                                    Edit
+                                                                                </a>
+                                                                                <!-- <a href="#" class="btn btn-sm font-sm btn-light rounded">
                                     <i class="material-icons md-delete_forever"></i> Delete
                                 </a> -->
-                                                                                </div>
-                                                                </div> <!-- row .// -->
+                                                                            </div>
+                                                            </div> <!-- row .// -->
+                                                            <%}%>
                                                                 <%}%>
-                                                                    <%}%>
                                                 </article> <!-- itemlist  .// -->
 
                             </div> <!-- card-body end// -->
@@ -212,6 +237,39 @@
 
 
             </main>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    filterProductData()
+                })
+            </script>
+
+            <script>
+                // For filtering products based on search, category, stock, status
+                async function filterProductData(page) {
+
+                    let params = new URLSearchParams()
+
+                    params.append("page", page)
+
+                    const searchValue = document.getElementById("searchValue").value
+                    params.append("search", searchValue)
+
+                    const categoryValue = document.getElementById("categoryValue").value
+                    params.append("category", categoryValue)
+
+                    const stockFilterValue = document.getElementById("stockFilter").value
+                    params.append("stockFilter", stockFilterValue)
+
+                    const productStatusValue = document.getElementById("productStatus").value
+                    params.append("status", productStatusValue)
+
+                    await fetch("/product/view-admin/apply-filter?" + params)
+
+                }
+
+            </script>
+
             <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
             <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
             <script src="/admin.assets/js/vendors/select2.min.js"></script>

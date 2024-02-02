@@ -5,10 +5,13 @@ import {
     adminLoginController,
     blockUserController,
     adminUserDetailsController,
+    adminUserFilterController,
+    adminUserSearchController,
     unBlockUserController,
     adminHomeController,
     adminLogoutController,
-    adminReportController
+    adminReportController,
+
 
 
 } from "../controllers/admin.controller.js";
@@ -29,7 +32,13 @@ router.route("/block-user").put(isAdmin, blockUserController)
 router.route("/unblock-user").put(isAdmin, unBlockUserController)
 
 // Users list view for admin
-router.route("/users").get(isAdmin, adminUserDetailsController)
+router.route("/users").get( adminUserDetailsController)
+
+// Users filtering, pagination for admin
+router.route("/users-filter").get(adminUserFilterController)
+
+// Users search for admin
+router.route("/users/search").get(adminUserSearchController)
 
 // Generating reports 
 router.route("/report/:period").get(adminReportController)
