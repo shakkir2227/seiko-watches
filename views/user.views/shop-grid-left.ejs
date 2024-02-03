@@ -26,46 +26,7 @@
                                         <p> We found <strong class="text-brand" id="filteredItemsQuantity"></strong>
                                             items for you!</p>
                                     </div>
-                                    <div class="sort-by-product-area">
-                                        <div class="sort-by-cover mr-10">
-                                            <div class="sort-by-product-wrap">
-                                                <div class="sort-by">
-                                                    <span><i class="fi-rs-apps"></i>Show:</span>
-                                                </div>
-                                                <div class="sort-by-dropdown-wrap">
-                                                    <span> 50 <i class="fi-rs-angle-small-down"></i></span>
-                                                </div>
-                                            </div>
-                                            <div class="sort-by-dropdown">
-                                                <ul>
-                                                    <li><a class="active" href="#">50</a></li>
-                                                    <li><a href="#">100</a></li>
-                                                    <li><a href="#">150</a></li>
-                                                    <li><a href="#">200</a></li>
-                                                    <li><a href="#">All</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="sort-by-cover">
-                                            <div class="sort-by-product-wrap">
-                                                <div class="sort-by">
-                                                    <span><i class="fi-rs-apps-sort"></i>Sort by:</span>
-                                                </div>
-                                                <div class="sort-by-dropdown-wrap">
-                                                    <span> Featured <i class="fi-rs-angle-small-down"></i></span>
-                                                </div>
-                                            </div>
-                                            <div class="sort-by-dropdown">
-                                                <ul>
-                                                    <li><a class="active" href="#">Featured</a></li>
-                                                    <li><a href="#">Price: Low to High</a></li>
-                                                    <li><a href="#">Price: High to Low</a></li>
-                                                    <li><a href="#">Release Date</a></li>
-                                                    <li><a href="#">Avg. Rating</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </div>
                                 <div class="row product-grid-3" id="productContainer">
 
@@ -155,19 +116,43 @@
                                 </div>
 
                                 <!-- Fillter By Price -->
-                                <div class="sidebar-widget price_range range mb-30">
-                                    <div class="widget-header position-relative mb-20 pb-10">
-                                        <h5 class="widget-title mb-10">Fill by price</h5>
-                                        <div class="bt-1 border-color-1"></div>
-                                    </div>
-                                    <div class="price-filter">
-                                        <div class="price-filter-inner">
-                                            <div id="slider-range"></div>
-                                            <div class="price_slider_amount">
-                                                <div class="label-input">
-                                                    <span>Range:</span><input type="text" id="amount" name="price"
-                                                        placeholder="Add Your Price" />
-                                                </div>
+                                <div class="sidebar-widget price_range range">
+
+                                    <div class="list-group">
+                                        <div class="list-group-item  ">
+
+                                            <label class="fw-900">Price</label>
+                                            <div class="custome-checkbox">
+                                                <input class="form-check-input price" type="checkbox" name="checkbox"
+                                                    id="under500" value="" onchange="updatePriceRangeFilter()">
+                                                <label class="form-check-label" for="under500" id="labelunder500">Under
+                                                    &#8377 500</label>
+                                                <br>
+
+                                                <input class="form-check-input price" type="checkbox" name="checkbox"
+                                                    id="500to1000" value="" onchange="updatePriceRangeFilter()">
+                                                <label class="form-check-label" for="500to1000"
+                                                    id="label500to1000">&#8377 500 - &#8377 1000</label>
+                                                <br>
+
+                                                <input class="form-check-input price" type="checkbox" name="checkbox"
+                                                    id="1000to2000" value="" onchange="updatePriceRangeFilter()">
+                                                <label class="form-check-label" for="1000to2000"
+                                                    id="label1000to2000">&#8377 1000 - &#8377 2000</label>
+                                                <br>
+
+                                                <input class="form-check-input price" type="checkbox" name="checkbox"
+                                                    id="2000to3000" value="" onchange="updatePriceRangeFilter()">
+                                                <label class="form-check-label" for="2000to3000"
+                                                    id="label2000to3000">&#8377 2000 - &#8377 3000</label>
+                                                <br>
+
+                                                <input class="form-check-input price" type="checkbox" name="checkbox"
+                                                    id="over3000" value="" onchange="updatePriceRangeFilter()">
+                                                <label class="form-check-label" for="over3000" id="labelover3000">Over
+                                                    &#8377
+                                                    3000</label>
+
                                             </div>
                                         </div>
                                     </div>
@@ -273,7 +258,6 @@
                             });
 
                             function removeParentLi(element) {
-                                console.log("HELLO");
                                 if (element && element.parentNode) {
                                     element.parentNode.removeChild(element);
                                 }
@@ -352,7 +336,6 @@
                                             element.parentNode.removeChild(element);
                                         }
 
-                                        console.log(mainTargetCheckbox);
 
                                         mainTargetCheckbox.checked = false;
 
@@ -449,7 +432,101 @@
 
                                 <script>
 
+                                    // Updating the price range
+                                    function updatePriceRangeFilter() {
+                                       let priceRangecheckboxes = document.querySelectorAll("input[type='checkbox'].price");
+                                        priceRangecheckboxes = Array.from(priceRangecheckboxes)
 
+                                         let checkedElements = [];
+                                        let unCheckedElements = [];
+
+                                        priceRangecheckboxes.forEach(function (checkbox) {
+                                            if (checkbox.checked) {
+                                                checkedElements.push(checkbox);
+                                            } else {
+                                                unCheckedElements.push(checkbox)
+                                            }
+                                        });
+
+                                         checkedElements.forEach((element) => {
+
+                                            if (elementExistInFilter(element)) {
+                                                return
+                                            }
+
+
+                                            const labelElement = document.getElementById("label" + element.id);
+                                            const listItem = document.createElement("li")
+
+                                            // Step 2: Set attributes and styles for the li element
+                                            listItem.style.margin = "10px";
+                                            listItem.style.fontWeight = "bolder";
+                                            listItem.style.fontSize = "small";
+                                            listItem.classList.add("price-filter")
+                                            listItem.id = "li" + element.id;
+
+                                            // Step 3: Add text content to the li element
+                                            listItem.textContent = labelElement.textContent;
+
+                                            // Step 3: Create the span element
+                                            var spanElement = document.createElement("span");
+
+                                            // Step 4: Set attributes and styles for the span element
+                                            spanElement.style.cursor = "pointer";
+                                            spanElement.style.color = "#e74c3c";
+                                            spanElement.style.margin = "7px";
+                                            spanElement.className = "remove-icon"; // Add the "remove-icon" class
+
+                                            spanElement.addEventListener("click", function () {
+                                                // Call a function to remove the parent li element
+                                                removeParentLi(listItem);
+                                            });
+
+                                            function removeParentLi(element) {
+                                                if (element && element.parentNode) {
+                                                    element.parentNode.removeChild(element);
+                                                }
+
+                                                let id = (element.id).replace("li", "")
+                                                const checkedBox = document.getElementById(id)
+                                                checkedBox.checked = false;
+
+
+                                                applyFilter()
+                                            }
+
+                                            // Step 5: Create the i element (Font Awesome icon)
+                                            var iconElement = document.createElement("i");
+                                            iconElement.className = "fas fa-times";
+
+                                            // Step 6: Append the icon element to the span element
+                                            spanElement.appendChild(iconElement);
+
+                                            // Step 7: Append the span element to the li element
+                                            listItem.appendChild(spanElement)
+
+                                            document.getElementById("filter-list").appendChild(listItem)
+
+                                        })
+
+                                        if (unCheckedElements.length > 0) {
+
+
+                                            unCheckedElements.forEach((checkbox) => {
+
+                                                const element = document.getElementById("li" + checkbox.id)
+                                                if (element) {
+
+                                                    removeFromFilter(element.id)
+                                                }
+                                            })
+
+                                        }
+
+                                        // Fetching the products by chekcking filter
+                                        applyFilter()
+
+                                    }
 
 
                                     // Checking all the checked boxes, and putting that in the
@@ -511,9 +588,7 @@
                                                 }
 
                                                 let id = (element.id).replace("li", "")
-                                                console.log(id);
                                                 const checkedBox = document.getElementById(id)
-                                                console.log("CheckedBox" + checkedBox);
                                                 checkedBox.checked = false;
 
 
@@ -892,6 +967,16 @@
                                             params.append('subCategoryFilters', element.id);
                                         })
 
+                                        // Getting sub category elements from filter area
+                                        let priceRangeElements = document.getElementsByClassName("price-filter")
+                                        priceRangeElements = Array.from(priceRangeElements)
+
+                                        priceRangeElements.forEach((element) => {
+                                            params.append('priceRangeFilters', element.id);
+                                        })
+
+
+
                                         // Getting band material elements from filter area
                                         let bandMaterial = document.getElementsByClassName("band-material-filter")
                                         bandMaterial = Array.from(bandMaterial)
@@ -916,7 +1001,6 @@
                                                 return res.json()
                                             })
                                             .then((products) => {
-                                                console.log(products.filteredProducts.length);
                                                 updatePage(products.filteredProducts)
                                             })
 
@@ -992,84 +1076,82 @@
                                 <script>
                                     // Adding to wishlist
 
-                                     function addToWishlist(productId) {
+                                    function addToWishlist(productId) {
 
-                                            console.log(productId);
-                                            let data = {
-                                                product: productId
-                                            };
-                                            data = JSON.stringify(data);
+                                        let data = {
+                                            product: productId
+                                        };
+                                        data = JSON.stringify(data);
 
 
-                                            console.log(data);
-                                            fetch("/wishlist/add", {
-                                                method: "PUT",
-                                                headers: {
-                                                    'Content-Type': 'application/json'
-                                                },
-                                                body: data,
+                                        fetch("/wishlist/add", {
+                                            method: "PUT",
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: data,
+                                        })
+                                            .then((res) => {
+                                                if (res.ok) {
+                                                    const Toast = Swal.mixin({
+                                                        toast: true,
+                                                        position: "top-end",
+                                                        showConfirmButton: false,
+                                                        timer: 1500,
+                                                        timerProgressBar: true,
+                                                        didOpen: (toast) => {
+                                                            toast.onmouseenter = Swal.stopTimer;
+                                                            toast.onmouseleave = Swal.resumeTimer;
+                                                        }
+                                                    });
+                                                    Toast.fire({
+                                                        icon: "success",
+                                                        title: "Success! The item has been saved to your wishlist."
+                                                    });
+                                                }
                                             })
-                                                .then((res) => {
-                                                    if (res.ok) {
-                                                        const Toast = Swal.mixin({
-                                                            toast: true,
-                                                            position: "top-end",
-                                                            showConfirmButton: false,
-                                                            timer: 1500,
-                                                            timerProgressBar: true,
-                                                            didOpen: (toast) => {
-                                                                toast.onmouseenter = Swal.stopTimer;
-                                                                toast.onmouseleave = Swal.resumeTimer;
-                                                            }
-                                                        });
-                                                        Toast.fire({
-                                                            icon: "success",
-                                                            title: "Success! The item has been saved to your wishlist."
-                                                        });
-                                                    }
-                                                })
 
+
+                                    }
+
+                                    // Adding to cart
+                                    function addToCart(productId) {
+
+                                        const data = {
+                                            productId,
 
                                         }
+                                        const jsonData = JSON.stringify(data)
 
-                                        // Adding to cart
-                                        function addToCart(productId) {
-                                                
-                                                const data = {
-                                                    productId,
-                            
-                                                }
-                                                const jsonData = JSON.stringify(data)
-                                               
-                                                fetch("/cart/add", {
-                                                    method: "POST",
-                                                    headers: {
-                                                        'Content-Type': 'application/json'
-                                                    },
-                                                    body: jsonData,
-                                                })
-                                                 .then((res) => {
-                                                        if (res.ok) {
-                                                            const Toast = Swal.mixin({
-                                                                toast: true,
-                                                                position: "top-end",
-                                                                showConfirmButton: false,
-                                                                timer: 1500,
-                                                                timerProgressBar: true,
-                                                                didOpen: (toast) => {
-                                                                    toast.onmouseenter = Swal.stopTimer;
-                                                                    toast.onmouseleave = Swal.resumeTimer;
-                                                                }
-                                                            });
-                                                            Toast.fire({
-                                                                icon: "success",
-                                                                title: "Success! The item has been saved to your Cart."
-                                                            });
+                                        fetch("/cart/add", {
+                                            method: "POST",
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: jsonData,
+                                        })
+                                            .then((res) => {
+                                                if (res.ok) {
+                                                    const Toast = Swal.mixin({
+                                                        toast: true,
+                                                        position: "top-end",
+                                                        showConfirmButton: false,
+                                                        timer: 1500,
+                                                        timerProgressBar: true,
+                                                        didOpen: (toast) => {
+                                                            toast.onmouseenter = Swal.stopTimer;
+                                                            toast.onmouseleave = Swal.resumeTimer;
                                                         }
-                                                    })
+                                                    });
+                                                    Toast.fire({
+                                                        icon: "success",
+                                                        title: "Success! The item has been saved to your Cart."
+                                                    });
+                                                }
+                                            })
 
 
-                                            }
+                                    }
 
 
 
@@ -1101,7 +1183,8 @@
                                 <script src="/user.assets/js/main.js?v=3.4"></script>
                                 <script src="/user.assets/js/shop.js?v=3.4"></script>
                                 <!--Sweet alert -->
-                                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+                                <script
+                                    src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 
     </body>
 
