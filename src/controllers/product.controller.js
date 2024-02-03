@@ -434,12 +434,11 @@ const productViewController = {
     }),
 
     adminProductFilterController: asyncHandler(async (req, res) => {
-        console.log(req.query);
+
         const { search, category, stockFilter, status } = req.query
 
         // For searching
         const regex = new RegExp(search, 'i');
-        console.log(regex);
 
         // For pagination
         const page = parseInt(req.query.page) || 1;
@@ -461,30 +460,84 @@ const productViewController = {
                         $regex: regex
                     },
                     $expr: {
-                        $cond: {
-                            if: { $ne: [category, "All category"] },
-                            then: { $eq: ["$category.name", category] },
-                            else: true
-                        }
-                    },
-                    $expr: {
-                        $cond: {
-                            if: { $eq: [status, "Active"] },
-                            then: { $eq: ["$isBlocked", false] },
-                            else: {
+                        $and: [
+                            {
                                 $cond: {
-                                    if: { $eq: [status, "Blocked"] },
-                                    then: {$eq: ["$isBlocked", true]},
+                                    if: { $ne: [category, "All category"] },
+                                    then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, category] },
                                     else: true
                                 }
+                            },
+                            {
+                                $cond: {
+                                    if: { $eq: [status, "Active"] },
+                                    then: { $eq: ["$isBlocked", false] },
+                                    else: {
+                                        $cond: {
+                                            if: { $eq: [status, "Blocked"] },
+                                            then: { $eq: ["$isBlocked", true] },
+                                            else: true
+                                        }
+                                    }
+                                }
                             }
-                        }
+                        ]
+                    }
+                }
+            },
+        ]
+
+        // Based on stock filter, sort the docs, because cond operator won't work in 
+        // sort stage
+
+        if (stockFilter === "Stock--Low to High") {
+            commonAggregationPipeline.push(
+                {
+                    $sort: {
+                        stock: 1
+                    }
+                }
+            )
+        } else if (stockFilter === "Stock--High to Low") {
+            commonAggregationPipeline.push(
+                {
+                    $sort: {
+                        stock: -1
+                    }
+                }
+            )
+        }
+
+        const products = await Product.aggregate([
+            ...commonAggregationPipeline,
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+
+        ])
+
+        // For finding out total pages for pagination
+        const totalProducts = await Product.aggregate([
+            ...commonAggregationPipeline,
+            {
+                $group: {
+                    _id: null,
+                    totalProducts: {
+                        $sum:1
                     }
                 }
             }
+        ])
 
-        ]
+        let totalPages;
+        if (totalProducts.length > 0) {       
+            totalPages = Math.ceil((totalProducts[0].totalProducts / limit))
+        }
 
+        return res.status(200).json({ page, products, totalPages })
 
     }),
 
@@ -607,6 +660,11 @@ const productViewController = {
         getFilteredProducts: asyncHandler(async (req, res) => {
 
             let { parentCategoryFilters, subCategoryFilters, bandMaterialFilters, dialColorFilters } = req.query
+            
+            // For pagination
+            const page = parseInt(req.query.page) || 1;
+            const limit = 5;
+            const skip = (page - 1) * limit;
 
             let parentCategoryIds = [];
             let subCategoryIds = [];

@@ -119,7 +119,7 @@
 
                 // For updating the users data
                 async function filterUserData(page) {
-
+                    let params = new URLSearchParams()
 
                     const userStatus = document.getElementById("userStatus").value
                     params.append("status", userStatus)

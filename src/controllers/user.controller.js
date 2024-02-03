@@ -152,7 +152,6 @@ const registerController = {
             }, 60000);
 
 
-            console.log(OTPNumber);
             req.session.email = existedUser.email;
 
             req.flash('success', `Verification Email has been sent`);

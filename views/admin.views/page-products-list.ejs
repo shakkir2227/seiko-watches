@@ -42,7 +42,7 @@
                                     </div>
 
                                     <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                                        <select id="categoryValue" class="form-select">
+                                        <select id="categoryValue" class="form-select" onchange="filterProductData()">
 
                                             <option selected>All category</option>
 
@@ -59,7 +59,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                                        <select id="stockFilter" class="form-select">
+                                        <select id="stockFilter" class="form-select" onchange="filterProductData()">
                                             <option selected>Sort by</option>
                                             <option>Stock--Low to High</option>
                                             <option>Stock--High to Low</option>
@@ -68,7 +68,7 @@
                                     </div>
 
                                     <div class="col-md-2 col-6">
-                                        <select id="productStatus" class="form-select">
+                                        <select id="productStatus" class="form-select" onchange="filterProductData()">
                                             <option selected>Show all</option>
                                             <option>Active</option>
                                             <option>Blocked</option>
@@ -115,118 +115,49 @@
 
 
 
-                                                <article class="itemlist">
-                                                    <% if(typeof(products)!=="undefined" ) {%>
+                                                <div class="row align-items-center mb-10 ">
 
 
 
-                                                        <div class="row align-items-center mb-30">
+                                                    <div class="col-lg-2 col-sm-2 col-4 col-price ml-130">
+                                                        <span>
+                                                            Name
+
+                                                        </span>
+                                                    </div>
+                                                    <div class="col-lg-2 col-sm-2 col-4 col-price ml-100">
+                                                        <span>
+                                                            Category name
+                                                        </span>
+                                                    </div>
+                                                    <div class="col-lg-2 col-sm-3 col-3 col-date ml-7">
+                                                        <span>
+                                                            Stock
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="col-lg-2 col-sm-3 col-3 col-date ml-10">
+                                                        <span>
+                                                            Status
+                                                        </span>
+                                                    </div>
 
 
+                                                </div>
 
-                                                            <div class="col-lg-2 col-sm-2 col-4 col-price ml-130">
-                                                                <span>
-                                                                    Name
+                                                <article class="itemlist" id="productsList">
 
-                                                                </span>
-                                                            </div>
-                                                            <div class="col-lg-2 col-sm-2 col-4 col-price ml-100">
-                                                                <span>
-                                                                    Category name
-                                                                </span>
-                                                            </div>
-                                                            <div class="col-lg-2 col-sm-3 col-3 col-date ml-7">
-                                                                <span>
-                                                                    Stock
-                                                                </span>
-                                                            </div>
-
-                                                            <div class="col-lg-2 col-sm-3 col-3 col-date ml-10">
-                                                                <span>
-                                                                    Status
-                                                                </span>
-                                                            </div>
+                                                    <!-- This is the where products will be listed-->
 
 
-                                                        </div>
-
-
-
-
-                                                        <% for(let i=0; i<products.length; i++) { %>
-                                                            <div class="row align-items-center">
-                                                                <div class="col col-check flex-grow-0">
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox">
-                                                                    </div>
-                                                                </div>
-                                                                <div
-                                                                    class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                                                                    <a class="itemside" href="#">
-                                                                        <div class="left">
-                                                                            <img src="<%=products[i].images[0].url%>"
-                                                                                class="img-sm img-thumbnail" alt="Item">
-                                                                        </div>
-                                                                        <div class="info">
-                                                                            <h6 class="mb-0">
-                                                                                <%=products[i].name%>
-                                                                            </h6>
-                                                                        </div>
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col-lg-2 col-sm-2 col-4 col-price">
-                                                                    <span>
-                                                                        <%=products[i].category.name%>
-                                                                    </span>
-                                                                </div>
-                                                                <div class="col-lg-2 col-sm-3 col-3 col-date">
-                                                                    <span>
-                                                                        <%=products[i].stock%>
-                                                                    </span>
-                                                                </div>
-
-                                                                <% if(products[i].isBlocked===false) {%>
-                                                                    <div class="col-lg-1 col-sm-2 col-4 col-status">
-                                                                        <span
-                                                                            class="badge rounded-pill alert-success">Active</span>
-                                                                    </div>
-                                                                    <%} else {%>
-
-                                                                        <div class="col-lg-1 col-sm-2 col-4 col-status">
-                                                                            <span
-                                                                                class="badge rounded-pill alert-danger">Blocked</span>
-                                                                        </div>
-                                                                        <%}%>
-
-                                                                            <div
-                                                                                class="col-lg-2 col-sm-2 col-4 col-action text-end">
-                                                                                <a href="/product/update/<%=products[i]._id%>"
-                                                                                    class="btn btn-sm font-sm rounded btn-brand">
-                                                                                    <i
-                                                                                        class="material-icons md-edit"></i>
-                                                                                    Edit
-                                                                                </a>
-                                                                                <!-- <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                    <i class="material-icons md-delete_forever"></i> Delete
-                                </a> -->
-                                                                            </div>
-                                                            </div> <!-- row .// -->
-                                                            <%}%>
-                                                                <%}%>
                                                 </article> <!-- itemlist  .// -->
 
                             </div> <!-- card-body end// -->
                         </div> <!-- card end// -->
                         <div class="pagination-area mt-30 mb-50">
                             <nav aria-label="Page navigation example">
-                                <ul class="pagination justify-content-start">
-                                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">16</a></li>
-                                    <li class="page-item"><a class="page-link" href="#"><i
-                                                class="material-icons md-chevron_right"></i></a></li>
+                                <ul id="paginationList" class="pagination justify-content-start">
+
                                 </ul>
                             </nav>
                         </div>
@@ -239,12 +170,58 @@
             </main>
 
             <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                    filterProductData()
+                document.addEventListener("DOMContentLoaded", async () => {
+                    await filterProductData()
                 })
             </script>
 
             <script>
+
+                // When user search for products, for getting all products,
+                // removing the other filters
+
+                async function searchProduct() {
+
+                    // Setting category value as all category
+                    const categoryValueSelect = document.getElementById('categoryValue');
+                    const categoryValueOptions = categoryValueSelect.options;
+                    for (let i = 0; i < categoryValueOptions.length; i++) {
+                        if (categoryValueOptions[i].text === 'All category') {
+                            categoryValueOptions[i].selected = true;
+                            break;
+                        }
+                    }
+
+                    // Setting stockfilter value as not sorted
+                    const stockFilterSelect = document.getElementById("stockFilter")
+                    const stockFilterSelectOptions = stockFilterSelect.options;
+                    for (let i = 0; i < stockFilterSelectOptions.length; i++) {
+                        if (stockFilterSelectOptions[i].text === 'Sort by') {
+                            stockFilterSelectOptions[i].selected = true;
+                            break;
+                        }
+                    }
+
+                    // Setting product status value as show all
+                    const productStatusOptions = document.getElementById("productStatus")
+                    const productStatusOptionsOptions = productStatusOptions.options;
+                    for (let i = 0; i < productStatusOptionsOptions.length; i++) {
+                        if (productStatusOptionsOptions[i].text === 'Show all') {
+                            productStatusOptionsOptions[i].selected = true;
+                            break;
+                        }
+                    }
+
+
+
+
+
+                    await filterProductData()
+                }
+
+
+
+
                 // For filtering products based on search, category, stock, status
                 async function filterProductData(page) {
 
@@ -264,7 +241,89 @@
                     const productStatusValue = document.getElementById("productStatus").value
                     params.append("status", productStatusValue)
 
-                    await fetch("/product/view-admin/apply-filter?" + params)
+                    const response = await fetch("/product/view-admin/apply-filter?" + params)
+                    const data = await response.json()
+
+                    console.log(data);
+
+                    // Assuming data is the response from your fetch call
+
+                    const productListElement = document.getElementById('productsList');
+
+                    // Clear existing content in productListElement
+                    productListElement.innerHTML = '';
+
+                    if (typeof data !== 'undefined' && Array.isArray(data.products)) {
+                        data.products.forEach(product => {
+                            const productRow = document.createElement('div');
+                            productRow.className = 'row align-items-center';
+
+                            // Create and append the columns for each product property
+                            productRow.innerHTML = `
+            <div class="col col-check flex-grow-0">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox">
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                <a class="itemside" href="#">
+                    <div class="left">
+                        <img src="${product.images[0].url}" class="img-sm img-thumbnail" alt="Item">
+                    </div>
+                    <div class="info">
+                        <h6 class="mb-0">${product.name}</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-2 col-sm-2 col-4 col-price">
+                <span>${product.category[0].name}</span>
+            </div>
+            <div class="col-lg-2 col-sm-3 col-3 col-date">
+                <span>${product.stock}</span>
+            </div>
+            <div class="col-lg-1 col-sm-2 col-4 col-status">
+                <span class="badge rounded-pill ${product.isBlocked ? 'alert-danger' : 'alert-success'}">
+                    ${product.isBlocked ? 'Blocked' : 'Active'}
+                </span>
+            </div>
+            <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                <a href="/product/update/${product._id}" class="btn btn-sm font-sm rounded btn-brand">
+                    <i class="material-icons md-edit"></i> Edit
+                </a>
+                <!-- Add your delete button or any other actions here -->
+            </div>`;
+
+                            // Append the productRow to the productListElement
+                            productListElement.appendChild(productRow);
+                        });
+                    }
+
+                    // Making the pagination dynamic
+                    const paginationList = document.getElementById('paginationList');
+                    paginationList.innerHTML = '';
+
+                    if (typeof data !== 'undefined' && data.totalPages) {
+                        // Iterate over the total number of pages and create pagination items
+                        for (let i = 0; i < data.totalPages; i++) {
+                            const liElement = document.createElement('li');
+                            liElement.id = `page0${i + 1}`;
+                            liElement.className = 'page-item';
+                            const aElement = document.createElement('a');
+                            aElement.className = 'page-link';
+                            aElement.onclick = function () {
+                                filterProductData(i + 1);
+                            };
+                            aElement.textContent = `0${i + 1}`;
+                            liElement.appendChild(aElement);
+                            paginationList.appendChild(liElement);
+                        }
+                    }
+                    if (typeof data !== 'undefined' && data.totalPages) {
+
+                        const pageli = document.getElementById("page0" + data.page)
+                        pageli.classList.add("active")
+                    }
+
 
                 }
 

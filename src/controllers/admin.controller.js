@@ -319,11 +319,9 @@ const adminUserDetailsController = asyncHandler(async (req, res) => {
 const adminUserFilterController = asyncHandler(async (req, res) => {
 
     const { status, search } = req.query
-    console.log(req.query);
     
     // For searching
     const regex = new RegExp(search, 'i');
-    console.log(regex);
 
     // For pagination
     const page = parseInt(req.query.page) || 1;
@@ -388,9 +386,7 @@ const adminUserFilterController = asyncHandler(async (req, res) => {
 
 })
 
-const adminUserSearchController = asyncHandler(async (req, res) => {
-    console.log(req.query);
-})
+
 
 const adminReportController = asyncHandler(async (req, res) => {
 
@@ -877,7 +873,6 @@ export {
     blockUserController,
     adminUserDetailsController,
     adminUserFilterController,
-    adminUserSearchController,
     unBlockUserController,
     adminHomeController,
     adminReportController,

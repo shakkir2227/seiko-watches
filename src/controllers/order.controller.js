@@ -596,7 +596,6 @@ const orderFilterController = asyncHandler(async (req, res) => {
 
     let { paymentFilterValue, categoryFilterValue } = req.query;
 
-    console.log(req.query);
 
     // For pagination
     const page = parseInt(req.query.page) || 1;
@@ -863,7 +862,6 @@ const orderFilterController = asyncHandler(async (req, res) => {
         }
     ])
 
-    console.log(orderStatistics);
 
     return res.status(200).json({ page, totalPages, orders, orderStatistics })
 

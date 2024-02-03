@@ -6,7 +6,6 @@ import {
     blockUserController,
     adminUserDetailsController,
     adminUserFilterController,
-    adminUserSearchController,
     unBlockUserController,
     adminHomeController,
     adminLogoutController,
@@ -34,11 +33,8 @@ router.route("/unblock-user").put(isAdmin, unBlockUserController)
 // Users list view for admin
 router.route("/users").get( adminUserDetailsController)
 
-// Users filtering, pagination for admin
+// Users filtering, pagination, search for admin
 router.route("/users-filter").get(adminUserFilterController)
-
-// Users search for admin
-router.route("/users/search").get(adminUserSearchController)
 
 // Generating reports 
 router.route("/report/:period").get(adminReportController)
