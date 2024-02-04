@@ -45,10 +45,10 @@ router.route("/address/add")
     .get(isAuth, userAddressController.addAddressController.renderAddAddressPage)
     .post(isAuth, userAddressController.addAddressController.handleAddAddressForm)
 
-router.route("/address/change-default").put(userAddressController.changeDefaultAddressController)
-router.route("/address/update/:addressId").get(userAddressController.updateAddress.renderUpdateAddressPage)
-router.route("/address/update").post(userAddressController.updateAddress.handleUpdateAddressForm)
-router.route("/address/block").put(userAddressController.blockAddress)
+router.route("/address/change-default").put(isAuth, userAddressController.changeDefaultAddressController)
+router.route("/address/update/:addressId").get(isAuth, userAddressController.updateAddress.renderUpdateAddressPage)
+router.route("/address/update").post(isAuth, userAddressController.updateAddress.handleUpdateAddressForm)
+router.route("/address/block").put(isAuth, userAddressController.blockAddress)
 
 router.route("/logout").get(isAuth, userLogoutController)
 

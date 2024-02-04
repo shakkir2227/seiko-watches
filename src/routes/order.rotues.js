@@ -30,7 +30,7 @@ router.route("/buy")
 router.route("/address").post(isAuth, userCheckoutController.addAddress)
 
 // When user select online payment, generating razorpay ORDER ID
-router.route("/online-payment").post(userCheckoutController.generateRazorPayOrderId)
+router.route("/online-payment").post(isAuth, userCheckoutController.generateRazorPayOrderId)
 
 router.route("/view").get(isAuth, userOrderViewController)
 
@@ -45,7 +45,7 @@ router.route("/view-admin/:orderId").get(isAdmin, adminOrderViewController)
 router.route("/admin-view-one").get(isAdmin, adminOrderDetailedViewController)
 router.route("/update").put(isAdmin, adminOderUpdateController)
 
-router.route("/filter").get(orderFilterController)
+router.route("/filter").get(isAdmin, orderFilterController)
 
 
 

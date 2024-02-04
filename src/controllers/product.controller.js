@@ -665,15 +665,14 @@ const productViewController = {
 
             // For pagination
             const page = parseInt(req.query.page) || 1;
-            const limit = 5;
+            const limit = 6;
             const skip = (page - 1) * limit;
 
             let parentCategoryIds = [];
             let subCategoryIds = [];
-            let priceRangeIds = [];
+            let priceRanges = [];
             let bandMaterials = []
             let dialColors = [];
-
 
             if (parentCategoryFilters) {
                 if (Array.isArray(parentCategoryFilters)) {
@@ -703,13 +702,12 @@ const productViewController = {
             if (priceRangeFilters) {
                 if (Array.isArray(priceRangeFilters)) {
                     priceRangeFilters.forEach((priceRangeFilter, index) => {
-                        priceRangeIds[index] = priceRangeFilter.replace("li", "")
+                        priceRanges[index] = priceRangeFilter.replace("li", "")
                     })
                 } else {
-                    priceRangeIds[0] = priceRangeFilters.replace("li", "")
+                    priceRanges[0] = priceRangeFilters.replace("li", "")
                 }
             }
-            console.log(priceRangeIds);
 
             if (bandMaterialFilters) {
                 if (Array.isArray(bandMaterialFilters)) {
@@ -720,6 +718,7 @@ const productViewController = {
                     bandMaterials[0] = bandMaterialFilters.replace("li", "")
                 }
             }
+
             if (dialColorFilters) {
                 if (Array.isArray(dialColorFilters)) {
                     dialColorFilters.forEach((dialColorFilter, index) => {
@@ -730,218 +729,147 @@ const productViewController = {
                 }
             }
 
+            // We have to use OR stage here, becuase if user selected both
+            // below 500 and above 2000, we have to show them both
+            // so according to the price, we are pushing to the OR stage
+
+            let priceRange = []
+
+            if (priceRanges.find((element => {
+                return element === "under500"
+            }))) {
+                priceRange.push({
+                    price: {
+                        $lt: 500
+                    }
+                })
+            }
+
+            if (priceRanges.find((element => {
+                return element === "500to1000"
+            }))) {
+                priceRange.push({
+                    price: {
+                        $gte: 500,
+                        $lt: 1000
+                    }
+                })
+            }
+            if (priceRanges.find((element => {
+                return element === "1000to2000"
+            }))) {
+                priceRange.push({
+                    price: {
+                        $gte: 1000,
+                        $lt: 2000,
+                    }
+                })
+            }
+            if (priceRanges.find((element => {
+                return element === "2000to3000"
+            }))) {
+                priceRange.push({
+                    price: {
+                        $gte: 2000,
+                        $lt: 3000
+                    }
+                })
+            }
+            if (priceRanges.find((element => {
+                return element === "over3000"
+            }))) {
+                priceRange.push({
+                    price: {
+                        $gte: 3000
+                    }
+                })
+            }
+
+            let priceRangePipeline;
+            if (priceRange.length > 0) {
+                priceRangePipeline = [{
+                    $match: {
+                        $or: priceRange
+                    }
+                }];
+            }
+
+            // This common aggregation pipline is for filtering bandmaterial, dialcolor
+            // and price range
+            let commonAggregationPipeline = []
+
+            // Add $match stage for bandMaterial if the array is not empty
+            if (bandMaterials.length > 0) {
+                commonAggregationPipeline.push({
+                    $match: {
+                        bandMaterial: {
+                            $in: bandMaterials
+                        }
+                    }
+                });
+            }
+
+            // Add $match stage for dialColor if the array is not empty
+            if (dialColors.length > 0) {
+                commonAggregationPipeline.push({
+                    $match: {
+                        dialColor: {
+                            $in: dialColors
+                        }
+                    }
+                });
+            }
+
+            if (priceRangePipeline && priceRangePipeline.length > 0) {
+                commonAggregationPipeline.push(...priceRangePipeline)
+            }
+
+            commonAggregationPipeline.push(
+                {
+                    $match: {
+                        isBlocked: false,
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "categories",
+                        localField: "category",
+                        foreignField: "_id",
+                        as: "category"
+                    }
+                },
+                {
+                    $project: {
+                        name: 1,
+                        images: 1,
+                        category: 1,
+                        price: 1,
+                    }
+                },
+
+            )
+
+            let commonAggregationPipelineWithPagination = [
+                ...commonAggregationPipeline,
+                {
+                    $skip: skip
+                },
+                {
+                    $limit: limit
+                }
+            ]
 
             if (!parentCategoryFilters && !subCategoryFilters) {
 
-                // Finding all products which match the bandMaterial array and dial color array
+                // If either of them is present, perform aggregation based on them, 
+                // Else findout all the products
+                const filteredProductsBeforePagination = await Product.aggregate(commonAggregationPipeline)
 
-                // const pipeline = [];
+                const filteredProductsAfterPagination = await Product.aggregate(commonAggregationPipelineWithPagination);
 
+                const totalPages = Math.ceil(filteredProductsBeforePagination.length / limit)
 
-                // // Add $match stage for bandMaterial if the array is not empty
-                // if (bandMaterials.length > 0) {
-                //     pipeline.push({
-                //         $match: {
-                //             bandMaterial: {
-                //                 $in: bandMaterials
-                //             }
-                //         }
-                //     });
-                // }
-
-                // // Add $match stage for dialColor if the array is not empty
-                // if (dialColors.length > 0) {
-                //     pipeline.push({
-                //         $match: {
-                //             dialColor: {
-                //                 $in: dialColors
-                //             }
-                //         }
-                //     });
-                // }
-
-                // pipeline.push(
-                // {
-                //     $lookup: {
-                //         from: "categories",
-                //         localField: "category",
-                //         foreignField: "_id",
-                //         as: "category"
-                //     }
-                // },
-                // {
-                //     $project: {
-                //         name: 1,
-                //         images: 1,
-                //         category: 1,
-                //         price: 1,
-                //     }
-                // }
-
-                // )
-
-                // // If either of them is present, perform aggregation based on them, 
-                // // Else findout all the products
-                // let filteredProducts;
-
-                // if (bandMaterials.length > 0 || dialColors.length > 0) {
-                //     filteredProducts = await Product.aggregate(pipeline);
-                // } else {
-                //     filteredProducts = await Product.aggregate([
-                //         {
-                //             $match: {
-                //                 isBlocked: false
-                //             }
-                //         },
-                //         {
-                //             $lookup: {
-                //                 from: "categories",
-                //                 localField: "category",
-                //                 foreignField: "_id",
-                //                 as: "category"
-                //             }
-                //         },
-                //         {
-                //             $project: {
-                //                 name: 1,
-                //                 images: 1,
-                //                 category: 1,
-                //                 price: 1,
-                //             }
-                //         }
-                //     ])
-                // }
-
-                // const filteredProducts = await Product.aggregate([
-                //     {
-                //         $match: {
-                //             isBlocked: false,
-                //             $expr: {
-                //                 $and: [
-                //                     {
-                //                         $cond: {
-                //                             if: {
-                //                                 $gt: [
-                //                                     { $size: bandMaterials }, // Checking the bandMaterial is not empty
-                //                                     0
-                //                                 ]
-                //                             },
-                //                             then: {
-                //                                 bandMaterial: {
-                //                                     $in: bandMaterials
-                //                                 }
-                //                             }
-                //                         }
-
-                //                     },
-                //                     {
-                //                         $cond: {
-                //                             if: {
-                //                                 $gt: [
-                //                                     { $size: dialColors }, // Checking the dialColor is not empty
-                //                                     0
-                //                                 ]
-                //                             },
-                //                             dialColor: {
-                //                                 $in: dialColors
-                //                             }
-
-                //                         }
-                //                     }
-                //                 ]
-                //             },
-                //         },
-                //     },
-                //     {
-                //         $lookup: {
-                //             from: "categories",
-                //             localField: "category",
-                //             foreignField: "_id",
-                //             as: "category"
-                //         }
-                //     },
-                //     {
-                //         $project: {
-                //             name: 1,
-                //             images: 1,
-                //             category: 1,
-                //             price: 1,
-                //         }
-                //     }
-                // ])
-
-                const filteredProducts = await Product.aggregate([
-                    {
-                        $match: {
-                            isBlocked: false,
-
-                        }
-                    },
-                    {
-                        $addFields: {
-                            bandMaterials: bandMaterials, // Temporarily adding 2 fields for finding it's length using size operator
-                            dialColors: dialColors
-                        }
-                    },
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    {
-                                        $cond: {
-                                            if: {
-                                                $gt: [{ $size: "$bandMaterials" }, 0] // Checking the bandMaterial is not empty
-                                            },
-                                            then: {
-
-                                                    $in: "$bandMaterial", bandMaterials
-
-                                            }
-                                        }
-
-                                    },
-                                    {
-                                        $cond: {
-                                            if: {
-                                                $gt: [
-                                                    { $size: "$dialColors" }, // Checking the dialColor is not empty
-                                                    0
-                                                ]
-                                            },
-                                            then: {
-                                                $in: ["$dialColor", dialColors]
-                                            },
-
-                                        }
-                                    }
-
-                                ]
-                            }
-                        }
-                    },
-                   
-
-                    {
-                        $lookup: {
-                            from: "categories",
-                            localField: "category",
-                            foreignField: "_id",
-                            as: "category"
-                        }
-                    },
-                    {
-                        $project: {
-                            name: 1,
-                            images: 1,
-                            category: 1,
-                            price: 1
-                        }
-                    }
-                ]);
-
-
-                console.log(filteredProducts.length);
-                return res.status(200).json({ filteredProducts })
+                return res.status(200).json({ filteredProducts: filteredProductsAfterPagination, page, totalPages })
             }
 
 
@@ -957,49 +885,9 @@ const productViewController = {
 
                 }];
 
-                // Add $match stage for bandMaterial if the array is not empty
-                if (bandMaterials.length > 0) {
-                    pipeline.push({
-                        $match: {
-                            bandMaterial: {
-                                $in: bandMaterials
-                            }
-                        }
-                    });
-                }
+                pipeline.push(...commonAggregationPipeline)
 
-                // Add $match stage for dialColor if the array is not empty
-                if (dialColors.length > 0) {
-                    pipeline.push({
-                        $match: {
-                            dialColor: {
-                                $in: dialColors
-                            }
-                        }
-                    });
-                }
-
-                pipeline.push(
-                    {
-                        $lookup: {
-                            from: "categories",
-                            localField: "category",
-                            foreignField: "_id",
-                            as: "category"
-                        }
-                    },
-                    {
-                        $project: {
-                            name: 1,
-                            images: 1,
-                            category: 1,
-                            price: 1,
-                        }
-                    }
-
-                )
-
-                const filteredProducts = await Product.aggregate(pipeline)
+                let filteredProducts = await Product.aggregate(pipeline)
 
                 // Finding the subcategories of filter categories
                 // And also finding the associated products
@@ -1023,47 +911,7 @@ const productViewController = {
                             }
                         ]
 
-                        // Add $match stage for bandMaterial if the array is not empty
-                        if (bandMaterials.length > 0) {
-                            pipeline.push({
-                                $match: {
-                                    bandMaterial: {
-                                        $in: bandMaterials
-                                    }
-                                }
-                            });
-                        }
-
-                        // Add $match stage for dialColor if the array is not empty
-                        if (dialColors.length > 0) {
-                            pipeline.push({
-                                $match: {
-                                    dialColor: {
-                                        $in: dialColors
-                                    }
-                                }
-                            });
-                        }
-
-                        pipeline.push(
-                            {
-                                $lookup: {
-                                    from: "categories",
-                                    localField: "category",
-                                    foreignField: "_id",
-                                    as: "category"
-                                }
-                            },
-                            {
-                                $project: {
-                                    name: 1,
-                                    images: 1,
-                                    category: 1,
-                                    price: 1,
-                                }
-                            }
-
-                        )
+                        pipeline.push(...commonAggregationPipeline)
 
                         const prodcuts = await Product.aggregate(pipeline)
 
@@ -1071,8 +919,13 @@ const productViewController = {
                     }
 
                 }
+                
+                const totalPages = Math.ceil(filteredProducts.length / limit)
 
-                return res.status(200).json({ filteredProducts })
+                // Pagination using js
+                filteredProducts = filteredProducts.splice(skip, limit)
+
+                return res.status(200).json({ filteredProducts, page, totalPages })
 
             }
 
@@ -1131,54 +984,20 @@ const productViewController = {
                         }
                     ]
 
-                    // Add $match stage for bandMaterial if the array is not empty
-                    if (bandMaterials.length > 0) {
-                        pipeline.push({
-                            $match: {
-                                bandMaterial: {
-                                    $in: bandMaterials
-                                }
-                            }
-                        });
-                    }
-
-                    // Add $match stage for dialColor if the array is not empty
-                    if (dialColors.length > 0) {
-                        pipeline.push({
-                            $match: {
-                                dialColor: {
-                                    $in: dialColors
-                                }
-                            }
-                        });
-                    }
-
-                    pipeline.push(
-                        {
-                            $lookup: {
-                                from: "categories",
-                                localField: "category",
-                                foreignField: "_id",
-                                as: "category"
-                            }
-                        },
-                        {
-                            $project: {
-                                name: 1,
-                                images: 1,
-                                category: 1,
-                                price: 1,
-                            }
-                        }
-
-                    )
+                    pipeline.push(...commonAggregationPipeline)
 
                     const arr = await Product.aggregate(pipeline)
 
                     filteredProducts.push(...arr)
                 }
 
-                return res.status(200).json({ filteredProducts })
+
+                const totalPages = Math.ceil(filteredProducts.length / limit)
+
+                // Pagination using js
+                filteredProducts = filteredProducts.splice(skip, limit)
+
+                return res.status(200).json({ filteredProducts, page, totalPages })
 
             }
 
@@ -1235,54 +1054,20 @@ const productViewController = {
                     }
                 ];
 
-                // Add $match stage for bandMaterial if the array is not empty
-                if (bandMaterials.length > 0) {
-                    pipeline.push({
-                        $match: {
-                            bandMaterial: {
-                                $in: bandMaterials
-                            }
-                        }
-                    });
-                }
-
-                // Add $match stage for dialColor if the array is not empty
-                if (dialColors.length > 0) {
-                    pipeline.push({
-                        $match: {
-                            dialColor: {
-                                $in: dialColors
-                            }
-                        }
-                    });
-                }
-
-                pipeline.push(
-                    {
-                        $lookup: {
-                            from: "categories",
-                            localField: "category",
-                            foreignField: "_id",
-                            as: "category"
-                        }
-                    },
-                    {
-                        $project: {
-                            name: 1,
-                            images: 1,
-                            category: 1,
-                            price: 1,
-                        }
-                    }
-
-                )
+                pipeline.push(...commonAggregationPipeline)
 
                 const arr = await Product.aggregate(pipeline)
 
                 filteredProducts.push(...arr)
             }
 
-            return res.status(200).json({ filteredProducts })
+            const totalPages = Math.ceil(filteredProducts.length / limit)
+            console.log("Filtered products are --- "+filteredProducts.length);
+
+            // Pagination using js
+            filteredProducts = filteredProducts.splice(skip, limit)
+
+            return res.status(200).json({ filteredProducts, page, totalPages })
 
         })
 

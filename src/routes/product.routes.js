@@ -31,8 +31,8 @@ router.get("/update/:id", isAdmin, updateProductController.renderUpdateForm)
 router.post("/update", isAdmin, upload.array("images"), updateProductController.updateProduct)
 
 // For viewing the products by admin and user
-router.route("/view-admin").get( productViewController.adminProductView)
-router.route("/view-admin/apply-filter").get(productViewController.adminProductFilterController)
+router.route("/view-admin").get(isAdmin, productViewController.adminProductView)
+router.route("/view-admin/apply-filter").get(isAdmin, productViewController.adminProductFilterController)
 router.route("/view-user/:productId").get(productViewController.userProductView.getSingleProductView)
 router.route("/view-user").get(productViewController.userProductView.getAllProductsView)
 router.route("/apply-filter").get(productViewController.userProductView.getFilteredProducts)

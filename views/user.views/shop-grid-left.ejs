@@ -35,14 +35,8 @@
                                 <!--pagination-->
                                 <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                                     <nav aria-label="Page navigation example">
-                                        <ul class="pagination justify-content-start">
-                                            <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">02</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">03</a></li>
-                                            <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">16</a></li>
-                                            <li class="page-item"><a class="page-link" href="#"><i
-                                                        class="fi-rs-angle-double-small-right"></i></a></li>
+                                        <ul id="paginationList" class="pagination justify-content-start">
+
                                         </ul>
                                     </nav>
                                 </div>
@@ -434,10 +428,10 @@
 
                                     // Updating the price range
                                     function updatePriceRangeFilter() {
-                                       let priceRangecheckboxes = document.querySelectorAll("input[type='checkbox'].price");
+                                        let priceRangecheckboxes = document.querySelectorAll("input[type='checkbox'].price");
                                         priceRangecheckboxes = Array.from(priceRangecheckboxes)
 
-                                         let checkedElements = [];
+                                        let checkedElements = [];
                                         let unCheckedElements = [];
 
                                         priceRangecheckboxes.forEach(function (checkbox) {
@@ -448,7 +442,7 @@
                                             }
                                         });
 
-                                         checkedElements.forEach((element) => {
+                                        checkedElements.forEach((element) => {
 
                                             if (elementExistInFilter(element)) {
                                                 return
@@ -946,9 +940,11 @@
                                 <script>
 
                                     // Fetching the products by applying the filter
-                                    function applyFilter() {
+                                    function applyFilter(page) {
 
                                         let params = new URLSearchParams()
+
+                                        params.append("page", page)
 
                                         // Getting main category elements from filter area 
                                         let elements = document.getElementsByClassName("main-category-filter");
@@ -1001,13 +997,13 @@
                                                 return res.json()
                                             })
                                             .then((products) => {
-                                                updatePage(products.filteredProducts)
+                                                updatePage(products.filteredProducts, products.totalPages, products.page)
                                             })
 
                                     }
 
 
-                                    function updatePage(products) {
+                                    function updatePage(products, totalPages, page) {
 
                                         // Updating how many products match this filter
                                         const filteredItemsQuantity = document.getElementById("filteredItemsQuantity")
@@ -1068,6 +1064,32 @@
                                             // Append the product item to the container
                                             productContainer.appendChild(productItem);
                                         });
+
+
+                                        const paginationList = document.getElementById('paginationList');
+                                        paginationList.innerHTML = '';
+
+                                        if (totalPages) {
+                                            // Iterate over the total number of pages and create pagination items
+                                            for (let i = 0; i < totalPages; i++) {
+                                                const liElement = document.createElement('li');
+                                                liElement.id = `page0${i + 1}`;
+                                                liElement.className = 'page-item';
+                                                const aElement = document.createElement('a');
+                                                aElement.className = 'page-link';
+                                                aElement.onclick = function () {
+                                                    applyFilter(i + 1);
+                                                };
+                                                aElement.textContent = `0${i + 1}`;
+                                                liElement.appendChild(aElement);
+                                                paginationList.appendChild(liElement);
+                                            }
+                                        }
+                                        if (totalPages) {
+
+                                            const pageli = document.getElementById("page0" + page)
+                                            pageli.classList.add("active")
+                                        }
 
                                     }
 

@@ -24,20 +24,20 @@ router.route("/login")
     .get(adminLoginController.getLoginPage)
     .post(adminLoginController.loginAdmin)
 
-router.route("/home").get(adminHomeController)
+router.route("/home").get(isAdmin, adminHomeController)
 
 // Block Unblock user
 router.route("/block-user").put(isAdmin, blockUserController)
 router.route("/unblock-user").put(isAdmin, unBlockUserController)
 
 // Users list view for admin
-router.route("/users").get( adminUserDetailsController)
+router.route("/users").get(isAdmin, adminUserDetailsController)
 
 // Users filtering, pagination, search for admin
-router.route("/users-filter").get(adminUserFilterController)
+router.route("/users-filter").get(isAdmin, adminUserFilterController)
 
 // Generating reports 
-router.route("/report/:period").get(adminReportController)
+router.route("/report/:period").get(isAdmin, adminReportController)
 
 router.route("/logout").get(isAdmin, adminLogoutController)
 
