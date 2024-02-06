@@ -50,7 +50,8 @@
 
                                                         </td>
                                                         <td class="price" data-title="Price"><span>&#8377
-                                                                <%=element.product[0].price %> </span></td>
+                                                                <%=element.product[0].price %>
+                                                            </span></td>
 
 
 
@@ -60,7 +61,8 @@
                                                                 <span class="color3 font-weight-bold">In Stock</span>
                                                             </td>
                                                             <td class="text-right" data-title="Cart">
-                                                                <button class="btn btn-sm" onclick="moveToCart('<%=element.product[0]._id %>')"><i
+                                                                <button class="btn btn-sm"
+                                                                    onclick="moveToCart('<%=element.product[0]._id %>')"><i
                                                                         class="fi-rs-shopping-bag mr-5"></i>Add to
                                                                     cart</button>
                                                             </td>
@@ -92,15 +94,17 @@
 
 
                                 <%if(userWishlist.length===0) {%>
-                                
+
                                     <div class="cart-action mt-45 " style="margin-left: 350px;">
                                         <h4>Your SEIKO Wishlist is empty.</h4>
-                                        <p style="margin-top: 30px;">Check your Saved for later items below or continue shopping.</p>
-                                        <a style="margin-top: 30px;" class="btn " href="/user/home"><i class="fi-rs-shopping-bag mr-10"></i>Continue
+                                        <p style="margin-top: 30px;">Check your Saved for later items below or continue
+                                            shopping.</p>
+                                        <a style="margin-top: 30px;" class="btn " href="/user/home"><i
+                                                class="fi-rs-shopping-bag mr-10"></i>Continue
                                             Shopping</a>
                                     </div>
                                     <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
-                                
+
                                     <% }%>
 
                             </div>
@@ -112,7 +116,7 @@
 
             <script>
 
-                function moveToCart (product) {
+                function moveToCart(product) {
                     let data = {
                         productId: product,
                     }
@@ -120,19 +124,33 @@
                     data = JSON.stringify(data);
 
                     fetch("/cart/add", {
-                        method: "post", 
+                        method: "post",
                         headers: {
                             'Content-Type': 'application/json'
-                        }, 
+                        },
                         body: data
                     })
-                    .then((res) => {
-                        if(res.ok) {
-                            
-                            deleteFromWishlist(product)
-                            
-                        }
-                    })
+                        .then((res) => {
+                            if (res.ok) {
+
+                                const Toast = Swal.mixin({
+                                    toast: true,
+                                    position: "top-end",
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    }
+                                });
+                                Toast.fire({
+                                    icon: "success",
+                                    title: "Success! The item has been saved to your Cart."
+                                });
+
+                            }
+                        })
                 }
 
 
@@ -147,17 +165,17 @@
                     data = JSON.stringify(data)
 
                     fetch("/wishlist/delete", {
-                         method: "DELETE",
-                          headers: {
+                        method: "DELETE",
+                        headers: {
                             'Content-Type': 'application/json'
                         },
-                         body: data,
+                        body: data,
                     })
-                    .then((res) => {
-                        if(res.ok) {
-                            window.location.reload()
-                        }
-                    })
+                        .then((res) => {
+                            if (res.ok) {
+                                window.location.reload()
+                            }
+                        })
 
 
                 }
@@ -187,6 +205,10 @@
             <!-- Template  JS -->
             <script src="./assets/js/main.js?v=3.4"></script>
             <script src="./assets/js/shop.js?v=3.4"></script>
+
+            <!--Sweet alert -->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+
     </body>
 
     </html>

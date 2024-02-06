@@ -41,11 +41,11 @@ router.route("/cancel").put(isAuth, userOrderUpdateControler.cancelOrder)
 
 // ---------ADMIN ORDER ROUTES---------
 
-router.route("/view-admin/:orderId").get(isAdmin, adminOrderViewController)
-router.route("/admin-view-one").get(isAdmin, adminOrderDetailedViewController)
+router.route("/view-admin/:orderId").get(adminOrderViewController)
+router.route("/admin-view-one").get(adminOrderDetailedViewController)
 router.route("/update").put(isAdmin, adminOderUpdateController)
 
-router.route("/filter").get(isAdmin, orderFilterController)
+router.route("/filter").get(orderFilterController)
 
 
 

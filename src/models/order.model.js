@@ -12,8 +12,9 @@ const orderSchema = new Schema({
     productDetails: [{
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", },
         quantity: { type: Number },
+        price: { type: Number },
         deliveryStatus: {
-            type: String, 
+            type: String,
             enum: ["Confirmed", "Shipped", "Our For Delivery", "Delivered", "Cancelled", "Returned"],
             default: "Confirmed"
         }

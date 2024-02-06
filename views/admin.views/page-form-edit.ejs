@@ -127,14 +127,18 @@
                                                                 <div class="mb-4">
                                                                     <select class="form-select" name="bandMaterial"
                                                                         id="bandMaterial">
-                                                                        <option selected value="<%=product.bandMaterial%>"> <%=product.bandMaterial%>
+                                                                        <option selected
+                                                                            value="<%=product.bandMaterial%>">
+                                                                            <%=product.bandMaterial%>
                                                                         </option>
-                                                                        <% if (typeof(materialVariations) !=="undefined" ) { %>
-                                                                            <% materialVariations.forEach((element)=> {%>
+                                                                        <% if (typeof(materialVariations) !=="undefined"
+                                                                            ) { %>
+                                                                            <% materialVariations.forEach((element)=>
+                                                                                {%>
                                                                                 <option value="<%=element %>">
                                                                                     <%=element %>
                                                                                 </option>
-                                                                        
+
                                                                                 <% }) %>
                                                                                     <% } %>
 
@@ -150,17 +154,21 @@
                                                                     <label class="mb-4"></label>
                                                                     <select class="form-select" name="dialColor"
                                                                         id="dialColor">
-                                                                        <option selected  value="<%=product.dialColor%>"> <%=product.dialColor%>
+                                                                        <option selected value="<%=product.dialColor%>">
+                                                                            <%=product.dialColor%>
                                                                         </option>
 
-                                                                        <% if (typeof(colorVariations) !== "undefined") { %>
-                                                                           <% colorVariations.forEach((element) => {%>
-                                                                            <option value="<%=element %>"> <%=element %> </option>
+                                                                        <% if (typeof(colorVariations) !=="undefined" )
+                                                                            { %>
+                                                                            <% colorVariations.forEach((element)=> {%>
+                                                                                <option value="<%=element %>">
+                                                                                    <%=element %>
+                                                                                </option>
 
-                                                                            <% }) %>
-                                                                        <% } %>
+                                                                                <% }) %>
+                                                                                    <% } %>
 
-                            
+
                                                                     </select>
                                                                     <div id="dialColorError" class="text-danger"></div>
                                                                 </div>
@@ -227,7 +235,8 @@
 
                                             </ul>
                                             <input type="hidden" name="productId" value="<%=product._id%>">
-                                            <input class="form-control" type="file" multiple id="images" name="images">
+                                            <input class="form-control" type="file" multiple id="images" name="images"
+                                                accept="image/*">
                                         </div>
                                     </div>
                                 </div> <!-- card end// -->
@@ -240,7 +249,9 @@
                                             <div class="col-sm-12 mb-3">
                                                 <label class="form-label">Category</label>
                                                 <select class="form-select" name="categoryPath" id="category">
-                                                    <option value="<%=product.category._id%>" selected ><%=categoryPathOfCurrentProduct %></option>
+                                                    <option value="<%=product.category._id%>" selected>
+                                                        <%=categoryPathOfCurrentProduct %>
+                                                    </option>
                                                     <% if(typeof(categoryPathArr)!=="undefined" ) %>
                                                         <% for(let i=0; i<categoryPathArr.length; i++) { %>
                                                             <option value="<%= categoryPathArr[i].category._id %>">
@@ -271,8 +282,8 @@
                                             </div>
                                             <div class="col-sm-12 mb-3">
                                                 <!-- <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> -->
-                                                <button
-                                                    class="btn btn-md rounded font-sm hover-up ml-100" type="submit">Update</button>
+                                                <button class="btn btn-md rounded font-sm hover-up ml-100"
+                                                    type="submit">Update</button>
                                             </div>
 
 
@@ -433,9 +444,9 @@
                 const validateForm = () => {
 
                     // Call individual validation functions
-                    validateFieldName()     
+                    validateFieldName()
                     validateProductDescription();
-                    validatePrice();                  
+                    validatePrice();
                     validateStock();
                     validateBandMaterial();
                     validateDialColor();
@@ -454,10 +465,10 @@
                         return false;
 
                     }
-                    else{
+                    else {
 
                         removedPhotos.forEach((removePhotoUrl) => {
-    
+
                             const input = document.createElement("input");
                             input.type = "hidden",
                                 input.name = "removedImages",

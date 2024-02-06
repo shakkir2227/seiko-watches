@@ -348,6 +348,8 @@
                                                                 value="<%=user.product[0]._id %>">
                                                             <input type="hidden" class="productQuantity"
                                                                 value="<%=user.cart.quantity %>">
+                                                            <input type="hidden" class="productPrice"
+                                                                value="<%=user.product[0].price%>">
                                                             <td>
                                                                 <h5><a href="shop-product-full.html">
                                                                         <%=user.product[0].name %>
@@ -376,6 +378,8 @@
                                                                                 value="<%=product._id %>">
                                                                             <input type="hidden" class="productQuantity"
                                                                                 value="<%=productQuantity %>">
+                                                                            <input type="hidden" class="productPrice"
+                                                                                value="<%=product.price%>">
                                                                             <td>
                                                                                 <h5><a href="shop-product-full.html">
                                                                                         <%=product.name %>
@@ -496,20 +500,27 @@
                 // For getting the productid and quantity
                 let productId = [];
                 let quantity = [];
+                let productPrice = [];
 
 
                 function getProductIdAndQuantity() {
                     let productIdElements = document.getElementsByClassName("productId")
                     let productQuantityElements = document.getElementsByClassName("productQuantity")
+                    let productPriceElements = document.getElementsByClassName("productPrice")
 
                     productIdElements = Array.from(productIdElements)
                     productQuantityElements = Array.from(productQuantityElements)
+                    productPriceElements = Array.from(productPriceElements)
 
                     productIdElements.forEach((element) => {
                         productId.push(element.value)
                     })
-                    productQuantityElements.forEach((element) => {
+                    productQuantityElements.forEach((element) => { 
                         quantity.push(element.value)
+                    })
+
+                    productPriceElements.forEach((element) => {
+                        productPrice.push(element.value)
                     })
 
                 }
@@ -555,6 +566,7 @@
                         let data = {
                             product: element,
                             quantity: quantity[index],
+                            price: productPrice[index]
                         }
                         productDetails.push(data)
                     })
@@ -581,6 +593,26 @@
                                 return res.json()
                             })
                             .then((data) => {
+                                console.log(data);
+                                if (data.message === "Sorry, the requested quantity is currently unavailable.!") {
+
+                                    console.log("HELLO");
+
+
+
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Oops...",
+                                        text: "Sorry, the requested quantity is currently unavailable.!",
+                                    })
+                                        .then(() => {
+                                            window.location.href = "/cart/view"
+
+                                        })
+
+                                    return
+
+                                }
                                 let options = {
                                     "key": data.key_id,
                                     "amount": data.amount,

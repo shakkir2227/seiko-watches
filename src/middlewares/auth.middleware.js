@@ -5,7 +5,7 @@ const isAuth = (req, res, next) => {
     const user = res.locals.user;
 
     if (!user) {
-        return res.redirect("/user/login")
+        return res.redirect(307, "/user/login")
     }
 
     if (user?.isBlocked) {
@@ -18,7 +18,7 @@ const isAuth = (req, res, next) => {
         req.flash('error', `Welcome back! It seems like your account is not verified. Please check your email for a verification link to complete the process and enjoy full access.`);
         return res.redirect("/user/verify")
     }
-    
+
     next();
 
 }

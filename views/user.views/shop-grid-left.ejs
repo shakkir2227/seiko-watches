@@ -288,6 +288,7 @@
 
                                 // Ticking the selected category and it's parent category; 
                                 document.addEventListener("DOMContentLoaded", () => {
+
                                     const mainCategoryElements = document.getElementsByClassName("main-category");
                                     const mainTargetCheckbox = Array.from(mainCategoryElements).find((element) => {
                                         return element.value === "<%= selectedCategory.parentCategoryId._id %>";
@@ -421,6 +422,8 @@
 
                             </script>
                             <% } %>
+
+
 
 
 
@@ -1114,6 +1117,7 @@
                                             body: data,
                                         })
                                             .then((res) => {
+                                                console.log(res);
                                                 if (res.ok) {
                                                     const Toast = Swal.mixin({
                                                         toast: true,
@@ -1153,7 +1157,9 @@
                                             body: jsonData,
                                         })
                                             .then((res) => {
+                                                console.log(res);
                                                 if (res.ok) {
+                                                
                                                     const Toast = Swal.mixin({
                                                         toast: true,
                                                         position: "top-end",

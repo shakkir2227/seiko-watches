@@ -50,15 +50,15 @@
                                         <div class="text">
                                             <h6 class="mb-1 card-title">Orders</h6> <span>
 
-                                                <%if(orderStatistics.length>0) { %>
-                                                    <%=orderStatistics[0].totalOrders %>
+                                                <%if(totalOrders.length>0) { %>
+                                                    <%=totalOrders[0].totalOrders %>
                                                         <%} else { %>
                                                             0
                                                             <% }%>
 
                                             </span>
                                             <span class="text-sm">
-                                                Excluding orders cancelled
+                                                Including orders cancelled
                                             </span>
                                         </div>
                                     </article>
@@ -182,6 +182,7 @@
                                                     <th class="align-middle" scope="col">Total</th>
                                                     <th class="align-middle" scope="col">Payment Status</th>
                                                     <th class="align-middle" scope="col">Payment Method</th>
+                                                    <th class="align-middle" scope="col">Order status</th>
                                                     <th class="align-middle" scope="col">View Details</th>
                                                 </tr>
                                             </thead>
@@ -223,7 +224,6 @@
                                                                     </td>
                                                                     <%} %>
 
-
                                                                         <%if(order.paymentMethod==="Pay online" ) {%>
                                                                             <td>
                                                                                 <i
@@ -238,15 +238,47 @@
                                                                                     Cash on delivery
                                                                                 </td>
                                                                                 <%} %>
-                                                                                    <td>
-                                                                                        <a href="/order/view-admin/<%=order._id%>"
-                                                                                            class="btn btn-xs"> View
-                                                                                            details</a>
-                                                                                    </td>
 
 
-                                                                                    <% }) %>
-                                                                                        <%} %>
+                                                                                    <%if(order.status==="Delivered" )
+                                                                                        {%>
+
+                                                                                        <td>
+                                                                                            <span
+                                                                                                class="badge badge-pill badge-soft-success">
+                                                                                                Delivered
+                                                                                            </span>
+                                                                                        </td>
+                                                                                        <%} else if
+                                                                                            (order.status==="Cancelled"
+                                                                                            ) {%>
+                                                                                            <td>
+                                                                                                <span
+                                                                                                    class="badge badge-pill badge-soft-danger">
+                                                                                                    Cancelled
+                                                                                                </span>
+                                                                                            </td>
+                                                                                            <%} else {%>
+                                                                                                <td>
+                                                                                                    <span
+                                                                                                        class="badge badge-pill badge-soft-info">
+                                                                                                        Processing
+                                                                                                    </span>
+                                                                                                </td>
+
+                                                                                                <% }%>
+
+
+                                                                                                    <td>
+                                                                                                        <a href="/order/view-admin/<%=order._id%>"
+                                                                                                            class="btn btn-xs">
+                                                                                                            View
+                                                                                                            details</a>
+                                                                                                    </td>
+
+
+                                                                                                    <% }) %>
+                                                                                                        <%} %>
 
                                                         </tr>
 
@@ -308,6 +340,7 @@
 
                             fetch("/order/filter?" + params)
                                 .then((res) => {
+                                    console.log(res);
                                     return res.json()
                                 })
                                 .then(data => {
@@ -321,7 +354,8 @@
                                     const ordersCard = document.querySelector('.col-lg-3:nth-child(2) .card .text');
                                     ordersCard.innerHTML = ""
 
-                                    if (data.orders) {
+                                    if (data.orders && data.orders.length > 0) {
+                                        console.log("data .orders");
                                         data.orders.forEach(order => {
                                             // Create a new row
                                             const newRow = document.createElement('tr');
@@ -347,6 +381,16 @@
                                                     `<i class="material-icons md-payment font-xxl text-muted mr-5"></i>Online payment` :
                                                     `<i class="material-icons md-payment font-xxl text-muted mr-5"></i>Cash on delivery`}
               </td>
+
+              <td>
+    ${order.status === "Delivered" ?
+                                                    `<span class="badge badge-pill badge-soft-success">Delivered</span>` :
+                                                    (order.status === "Cancelled" ?
+                                                        `<span class="badge badge-pill badge-soft-danger">Cancelled</span>` :
+                                                        `<span class="badge badge-pill badge-soft-info">Processing</span>`
+                                                    )}
+</td>
+              
               <td>
                 <a href="/order/view-admin/${order._id}" class="btn btn-xs">View details</a>
               </td>
@@ -359,6 +403,7 @@
 
 
                                     // Updating the revenue and orders section of dashboard
+
                                     if (data.orderStatistics && data.orderStatistics.length > 0) {
                                         // Update Revenue card
 
@@ -370,15 +415,6 @@
             </span>
           `;
 
-                                        // Update Orders card
-
-                                        ordersCard.innerHTML = `
-            <h6 class="mb-1 card-title">Orders</h6>
-            <span>${data.orderStatistics[0].totalOrders}</span>
-            <span class="text-sm">
-              Excluding orders cancelled
-            </span>
-          `;
                                     } else {
                                         revenueCard.innerHTML = `
             <h6 class="mb-1 card-title">Revenue</h6>
@@ -387,6 +423,18 @@
               Shipping fees are included
             </span>
           `;
+                                    }
+                                    if (data.totalOrders && data.totalOrders.length > 0) {
+                                        ordersCard.innerHTML = `
+            <h6 class="mb-1 card-title">Orders</h6>
+            <span>${data.totalOrders[0].totalOrders}</span>
+            <span class="text-sm">
+              Including orders cancelled
+            </span>
+          `;
+                                    } else
+
+
 
                                         // Update Orders card
 
@@ -397,7 +445,7 @@
               Excluding orders cancelled
             </span>
           `;
-                                    }
+
 
                                     // Updating the pagination list
                                     const totalPages = data.totalPages;

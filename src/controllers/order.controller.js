@@ -142,7 +142,7 @@ const userCheckoutController = {
             product.stock -= productDetail.quantity;
 
             if (product.stock < 0) {
-                return res.status(500).json({ message: "We're sorry, but your order couldn't be completed due to insufficient stock. Please review your order and try again, or contact customer support for assistance." })
+                return res.status(500).json({ message: "Sorry, the requested quantity is currently unavailable.!" })
             }
         }
 
@@ -174,6 +174,8 @@ const userCheckoutController = {
     }),
 
     createOrder: asyncHandler(async (req, res) => {
+
+        console.log(req.body);
 
         const user = res.locals.user;
 
@@ -248,7 +250,6 @@ const userOrderViewController = asyncHandler(async (req, res) => {
     const userOrders = await Order.aggregate([
         { $match: { user: user._id } },
         { $unwind: "$productDetails" },
-        { $match: { "productDetails.deliveryStatus": { $ne: "Cancelled" } } },
         { $lookup: { from: "products", localField: "productDetails.product", foreignField: "_id", as: "product" } },
         { $lookup: { from: "addresses", localField: "address", foreignField: "_id", as: "address" } },
         { $sort: { createdAt: -1 } },
@@ -319,7 +320,7 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
                 }
             }
         },
@@ -362,6 +363,8 @@ const userOrderUpdateControler = {
             { $set: { "productDetails.$.deliveryStatus": "Cancelled" } }
         )
 
+
+
         // When user cancel the order, increase the corresponding product's stock
         const cancelledProduct = await Order.aggregate([
 
@@ -398,8 +401,10 @@ const userOrderUpdateControler = {
 }
 
 const adminOrderViewController = asyncHandler(async (req, res) => {
+
     const { orderId } = req.params;
     const orderIdObject = new mongoose.Types.ObjectId(orderId)
+
     const order = await Order.aggregate([
         {
             $match: {
@@ -409,13 +414,6 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
         },
         {
             $unwind: "$productDetails"
-        },
-        {
-            $match: {
-                "productDetails.deliveryStatus": {
-                    $ne: "Cancelled"
-                }
-            }
         },
         {
             $lookup: {
@@ -441,11 +439,21 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
                 as: "product",
             }
         },
-
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    $cond: {
+                        if: {
+                            $and: [
+                                // If it is cash on delivery, and a particular product of the order
+                                // is cancelled, then subtotal is set to zero
+                                { $eq: ["$productDetails.deliveryStatus", "Cancelled"] }, //
+                                { $eq: ["$paymentStatus", "Pending"] }
+                            ]
+                        },
+                        then: 0,
+                        else: { $multiply: ["$productDetails.quantity", "$productDetails.price"] }
+                    }
                 }
             }
         },
@@ -471,6 +479,8 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
         }
 
     ])
+
+    console.log(order);
 
 
     return res.render("page-orders-detail.ejs", { order })
@@ -524,7 +534,7 @@ const adminOrderDetailedViewController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                    $multiply: ['$productDetails.quantity', "$productDetails.price"]
                 }
             }
         },
@@ -581,6 +591,13 @@ const adminOderUpdateController = asyncHandler(async (req, res) => {
             { _id: orderIdObject, "productDetails.product": productIdObject },
             { $set: { "productDetails.$.deliveryStatus": "Delivered" } }
         )
+
+        // When order is delivered, update the payment status to successful
+        await Order.updateOne(
+            { _id: orderIdObject },
+            { $set: { paymentStatus: "Successful" } }
+        )
+
         return res.status(200).json({ message: "Your order has been successfully Updated. If you have any further questions or concerns, please feel free to contact our customer support" })
 
     } else {
@@ -610,9 +627,6 @@ const orderFilterController = asyncHandler(async (req, res) => {
         },
         {
             $match: {
-                "productDetails.deliveryStatus": {
-                    $ne: "Cancelled"
-                },
                 $expr: {
                     $cond: {
                         if: { $eq: [paymentFilterValue, "Paid"] },
@@ -671,6 +685,8 @@ const orderFilterController = asyncHandler(async (req, res) => {
         }
     ])
 
+    console.log(totalOrders);
+
     // Finding out total pages
     let totalPages;
     if (totalOrders.length > 0) {
@@ -683,9 +699,6 @@ const orderFilterController = asyncHandler(async (req, res) => {
         },
         {
             $match: {
-                "productDetails.deliveryStatus": {
-                    $ne: "Cancelled"
-                },
                 $expr: {
                     $cond: {
                         if: { $eq: [paymentFilterValue, "Paid"] },
@@ -701,7 +714,6 @@ const orderFilterController = asyncHandler(async (req, res) => {
                 }
             },
         },
-
         {
             $lookup: {
                 from: "users",
@@ -740,7 +752,7 @@ const orderFilterController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
                 }
             }
         },
@@ -761,6 +773,9 @@ const orderFilterController = asyncHandler(async (req, res) => {
                 },
                 createdAt: {
                     $first: "$createdAt"
+                },
+                statuses: {
+                    $push: "$productDetails.deliveryStatus"
                 }
             }
         },
@@ -786,34 +801,60 @@ const orderFilterController = asyncHandler(async (req, res) => {
                         format: "%d-%m-%Y",
                         date: "$createdAt"
                     }
-                }
+                },
+                status: {
+                    $cond: {
+                        if: {
+                            $allElementsTrue: { // If all products got cancelled, then order status is cancelled
+                                $map: {
+                                    input: "$statuses",
+                                    as: "status",
+                                    in: {
+                                        $eq: ["$$status", "Cancelled"]
+                                    }
+                                }
+                            }
+                        },
+                        then: "Cancelled",
+                        else: {
+                            $cond: {
+                                if: {
+                                    $allElementsTrue: { // If all the orders are delivered, status is delivered, else processing
+                                        $map: {
+                                            input: "$statuses",
+                                            as: "status",
+                                            in: {
+                                                $cond: {
+                                                    if: { $eq: ["$$status", "Cancelled"] },
+                                                    then: true,
+                                                    else: { $eq: ["$$status", "Delivered"] }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                then: "Delivered",
+                                else: "Processing"
+                            }
+                        }
+
+                    }
+                },
             }
         },
+
     ])
+
+    console.log(orders);
 
     const orderStatistics = await Order.aggregate([
         {
-            $unwind: "$productDetails"
+            $match: {
+                paymentStatus: "Successful"
+            }
         },
         {
-            $match: {
-                "productDetails.deliveryStatus": {
-                    $ne: "Cancelled"
-                },
-                $expr: {
-                    $cond: {
-                        if: { $eq: [paymentFilterValue, "Paid"] },
-                        then: { $eq: ["$paymentStatus", "Successful"] },
-                        else: {
-                            $cond: {
-                                if: { $eq: [paymentFilterValue, "Pending"] },
-                                then: { $eq: ["$paymentStatus", "Pending"] },
-                                else: true
-                            }
-                        }
-                    }
-                }
-            }
+            $unwind: "$productDetails"
         },
         {
             $lookup: {
@@ -842,19 +883,44 @@ const orderFilterController = asyncHandler(async (req, res) => {
                 }
             }
         },
+        // If it is online payment, taking the orders which are not cancelled, 
+        // if it is COD, taking the orders which are delivered
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    $cond: {
+                        if: {
+                            $eq: ["$paymentMethod", "Pay online"]
+                        },
+                        then: {
+                            $cond: {
+                                if: {
+                                    $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        },
+                        else: {
+                            $cond: {
+                                if: {
+                                    $eq: ["$productDetails.deliveryStatus", "Delivered"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        }
+                    }
                 }
             }
         },
         {
             $group: {
                 _id: null,
-                totalOrders: {
-                    $sum: 1
-                },
                 totalAmount: {
                     $sum: "$subTotal"
                 }
@@ -862,343 +928,8 @@ const orderFilterController = asyncHandler(async (req, res) => {
         }
     ])
 
+    return res.status(200).json({ page, totalPages, totalOrders, orders, orderStatistics })
 
-    return res.status(200).json({ page, totalPages, orders, orderStatistics })
-
-
-    // if (paymentFilterValue === "Paid") {
-
-    //     const orders = await Order.aggregate([
-    //         {
-    //             $unwind: "$productDetails"
-    //         },
-    //         {
-    //             $match: {
-    //                 "productDetails.deliveryStatus": {
-    //                     $ne: "Cancelled"
-    //                 },
-
-    //                 paymentStatus: {
-    //                     $ne: "Pending"
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "users",
-    //                 localField: "user",
-    //                 foreignField: "_id",
-    //                 as: "user"
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "products",
-    //                 localField: "productDetails.product",
-    //                 foreignField: "_id",
-    //                 as: "product"
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "categories",
-    //                 localField: "product.category",
-    //                 foreignField: "_id",
-    //                 as: "category"
-    //             }
-    //         },
-    //         {
-    //             $match: {
-    //                 $expr: {
-    //                     $cond: {
-    //                         if: { $ne: [categoryFilterValue, "All Categories"] },
-    //                         then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
-    //                         else: true
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $addFields: {
-    //                 subTotal: {
-    //                     $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$_id",
-    //                 user: {
-    //                     $first: "$user"
-    //                 },
-    //                 paymentMethod: {
-    //                     $first: "$paymentMethod"
-    //                 },
-    //                 paymentStatus: {
-    //                     $first: "$paymentStatus"
-    //                 },
-    //                 totalAmount: {
-    //                     $sum: "$subTotal"
-    //                 },
-    //                 createdAt: {
-    //                     $first: "$createdAt"
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $project: {
-    //                 user: 1,
-    //                 totalAmount: 1,
-    //                 paymentMethod: 1,
-    //                 paymentStatus: 1,
-    //                 createdAt: {
-    //                     $dateToString: {
-    //                         format: "%d-%m-%Y",
-    //                         date: "$createdAt"
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $sort: {
-    //                 createdAt: -1
-    //             }
-    //         },
-
-    //     ])
-
-
-
-    //     const orderStatistics = await Order.aggregate([
-    //         {
-    //             $unwind: "$productDetails"
-    //         },
-    //         {
-    //             $match: {
-    //                 "productDetails.deliveryStatus": {
-    //                     $ne: "Cancelled",
-    //                 },
-    //                 paymentStatus: {
-    //                     $ne: "Pending"
-    //                 }
-
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "products",
-    //                 localField: "productDetails.product",
-    //                 foreignField: "_id",
-    //                 as: "product"
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "categories",
-    //                 localField: "product.category",
-    //                 foreignField: "_id",
-    //                 as: "category"
-    //             }
-    //         },
-    //         {
-    //             $match: {
-    //                 $expr: {
-    //                     $cond: {
-    //                         if: { $ne: [categoryFilterValue, "All Categories"] },
-    //                         then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
-    //                         else: true
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $addFields: {
-    //                 subTotal: {
-    //                     $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: null,
-    //                 totalOrders: {
-    //                     $sum: 1
-    //                 },
-    //                 totalAmount: {
-    //                     $sum: "$subTotal"
-    //                 }
-    //             }
-    //         }
-    //     ])
-    //     return res.status(200).json({ orders, orderStatistics })
-
-    // }
-    // if (paymentFilterValue === "Pending") {
-
-    //     const orders = await Order.aggregate([
-    //         {
-    //             $unwind: "$productDetails"
-    //         },
-    //         {
-    //             $match: {
-    //                 "productDetails.deliveryStatus": {
-    //                     $ne: "Cancelled"
-    //                 },
-    //                 paymentStatus: {
-    //                     $eq: "Pending"
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "users",
-    //                 localField: "user",
-    //                 foreignField: "_id",
-    //                 as: "user"
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "products",
-    //                 localField: "productDetails.product",
-    //                 foreignField: "_id",
-    //                 as: "product"
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "categories",
-    //                 localField: "product.category",
-    //                 foreignField: "_id",
-    //                 as: "category"
-    //             }
-    //         },
-    //         {
-    //             $match: {
-    //                 $expr: {
-    //                     $cond: {
-    //                         if: { $ne: [categoryFilterValue, "All Categories"] },
-    //                         then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
-    //                         else: true
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $addFields: {
-    //                 subTotal: {
-    //                     $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$_id",
-    //                 user: {
-    //                     $first: "$user"
-    //                 },
-    //                 paymentMethod: {
-    //                     $first: "$paymentMethod"
-    //                 },
-    //                 paymentStatus: {
-    //                     $first: "$paymentStatus"
-    //                 },
-    //                 totalAmount: {
-    //                     $sum: "$subTotal"
-    //                 },
-    //                 createdAt: {
-    //                     $first: "$createdAt"
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $project: {
-    //                 user: 1,
-    //                 totalAmount: 1,
-    //                 paymentMethod: 1,
-    //                 paymentStatus: 1,
-    //                 createdAt: {
-    //                     $dateToString: {
-    //                         format: "%d-%m-%Y",
-    //                         date: "$createdAt"
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $sort: {
-    //                 createdAt: -1
-    //             }
-    //         },
-
-    //     ])
-
-
-    //     const orderStatistics = await Order.aggregate([
-    //         {
-    //             $unwind: "$productDetails"
-    //         },
-    //         {
-    //             $match: {
-    //                 "productDetails.deliveryStatus": {
-    //                     $ne: "Cancelled",
-    //                 },
-    //                 paymentStatus: {
-    //                     $eq: "Pending"
-    //                 }
-
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "products",
-    //                 localField: "productDetails.product",
-    //                 foreignField: "_id",
-    //                 as: "product"
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "categories",
-    //                 localField: "product.category",
-    //                 foreignField: "_id",
-    //                 as: "category"
-    //             }
-    //         },
-    //         {
-    //             $match: {
-    //                 $expr: {
-    //                     $cond: {
-    //                         if: { $ne: [categoryFilterValue, "All Categories"] },
-    //                         then: { $eq: [{ $arrayElemAt: ["$category.name", 0] }, categoryFilterValue] },
-    //                         else: true
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $addFields: {
-    //                 subTotal: {
-    //                     $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: null,
-    //                 totalOrders: {
-    //                     $sum: 1
-    //                 },
-    //                 totalAmount: {
-    //                     $sum: "$subTotal"
-    //                 }
-    //             }
-    //         }
-    //     ])
-
-    //     return res.status(200).json({ orders, orderStatistics })
-
-    // }
 })
 
 export {

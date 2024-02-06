@@ -24,8 +24,7 @@ const productSchema = new Schema({
         ref: "Category",
         required: true,
     },
-
-
+    
     price: {
         type: Number,
         default: 0,

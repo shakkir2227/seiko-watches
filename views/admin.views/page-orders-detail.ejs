@@ -20,6 +20,8 @@
                                 <p>Details for Order ID: 3453012</p>
                             </div>
                         </div>
+                        <%if(typeof(order) !=="undefined" ) {%>
+                        <%if(order.length > 0 ) {%>
                         <div class="card">
                             <header class="card-header">
                                 <div class="row align-items-center">
@@ -34,7 +36,7 @@
 
 
 
-                                   
+
 
 
                                 </div>
@@ -86,97 +88,103 @@
                                                         <th width="10%">Unit Price</th>
                                                         <th width="10%">Quantity</th>
                                                         <th width="20%">Status</th>
-                                                        <th width="10%" >Total</th>
+                                                        <th width="10%">Total</th>
                                                         <th width="20%" class="text-end">Status</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <% let totalAmount = 0; %>
-                                                    <%if(typeof(order) !=="undefined" ) {%>
-                                                        <%order.forEach((order)=> { %>
+                                                    <% let totalAmount=0; %>
+                                                        <%if(typeof(order) !=="undefined" ) {%>
+                                                            <%order.forEach((order)=> { %>
 
-                                                            <%totalAmount += order.subTotal %>
+                                                                <%totalAmount +=order.subTotal %>
 
-                                                            <tr>
-                                                                <td>
-                                                                    <a class="itemside" href="#">
-                                                                        <div class="left">
-                                                                            <img src="<%=order.product[0].images[0].url %>"
-                                                                                width="40" height="40" class="img-xs"
-                                                                                alt="Item">
-                                                                        </div>
-
-                                                                        <%let
-                                                                            productName=(order.product[0].name).substring(0,8)
-                                                                            %>
-
-
-                                                                            <div class="info">
-                                                                                <%=order.product[0].name%>
-                                                                            </div>
-                                                                    </a>
-                                                                </td>
-                                                                <td>
-                                                                ₹ <%=order.product[0].price %>
-                                                                </td>
-                                                                <td >
-                                                                    <%=order.productDetails.quantity %>
-                                                                </td>
-                                                                <td>
-                                                                    <%=order.productDetails.deliveryStatus %>
-                                                                </td>
-                                                                <td >   
-                                                                ₹  <%=order.subTotal %>
-                                                                </td>
-                                                                <td>
-                                                                <a href="/order/admin-view-one?orderId=<%=order._id %>&productId=<%=order.product[0]._id%>">View order</a>
-                                                                </td>
-                                                            </tr>
-
-                                                            <% }) %>
-
-                                                                <% }%>
                                                                     <tr>
-                                                                        <td colspan="4">
-                                                                            <article class="float-end">
-                                                                                <dl class="dlist">
-                                                                                    <dt>Subtotal:</dt>
-                                                                                    <dd>
-                                                                                    ₹ <%=totalAmount %>
-                                                                                    </dd>
-                                                                                </dl>
-                                                                                <dl class="dlist">
-                                                                                    <dt>Shipping cost:</dt>
-                                                                                    <dd></dd>
-                                                                                </dl>
-                                                                                <dl class="dlist">
-                                                                                    <dt>Grand total:</dt>
-                                                                                    <dd> <b class="h5">
-                                                                                        ₹ <%=totalAmount %>
-                                                                                        </b> </dd>
-                                                                                </dl>
-                                                                                <dl class="dlist">
-                                                                                    <dt class="text-muted">Status:</dt>
-                                                                                    <%if(order[0].paymentMethod === "Cash on delivery") {%>
-                                                                                        
-                                                                                        <dd>
-                                                                                            <span
-                                                                                                class="badge rounded-pill alert-success text-info">
-                                                                                                <%=order[0].paymentMethod %>
-                                                                                            </span>
-                                                                                        </dd>
-                                                                                        <% } else {%>
-                                                                                            <dd>
-                                                                                                <span class="badge rounded-pill alert-success text-success">
-                                                                                                   Paid online
-                                                                                                </span>
-                                                                                            </dd>
+                                                                        <td>
+                                                                            <a class="itemside" href="#">
+                                                                                <div class="left">
+                                                                                    <img src="<%=order.product[0].images[0].url %>"
+                                                                                        width="40" height="40"
+                                                                                        class="img-xs" alt="Item">
+                                                                                </div>
 
-                                                                                            <%} %>
-                                                                                </dl>
-                                                                            </article>
+                                                                                <%let
+                                                                                    productName=(order.product[0].name).substring(0,8)
+                                                                                    %>
+
+
+                                                                                    <div class="info">
+                                                                                        <%=order.product[0].name%>
+                                                                                    </div>
+                                                                            </a>
+                                                                        </td>
+                                                                        <td>
+                                                                            ₹ <%=order.productDetails.price %>
+                                                                        </td>
+                                                                        <td>
+                                                                            <%=order.productDetails.quantity %>
+                                                                        </td>
+                                                                        <td>
+                                                                            <%=order.productDetails.deliveryStatus %>
+                                                                        </td>
+                                                                        <td>
+                                                                            ₹ <%=order.subTotal %>
+                                                                        </td>
+                                                                        <td>
+                                                                            <a
+                                                                                href="/order/admin-view-one?orderId=<%=order._id %>&productId=<%=order.product[0]._id%>">View
+                                                                                order</a>
                                                                         </td>
                                                                     </tr>
+
+                                                                    <% }) %>
+
+                                                                        <% }%>
+                                                                            <tr>
+                                                                                <td colspan="4">
+                                                                                    <article class="float-end">
+                                                                                        <dl class="dlist">
+                                                                                            <dt>Subtotal:</dt>
+                                                                                            <dd>
+                                                                                                ₹ <%=totalAmount %>
+                                                                                            </dd>
+                                                                                        </dl>
+                                                                                        <dl class="dlist">
+                                                                                            <dt>Shipping cost:</dt>
+                                                                                            <dd></dd>
+                                                                                        </dl>
+                                                                                        <dl class="dlist">
+                                                                                            <dt>Grand total:</dt>
+                                                                                            <dd> <b class="h5">
+                                                                                                    ₹ <%=totalAmount %>
+                                                                                                </b> </dd>
+                                                                                        </dl>
+                                                                                        <dl class="dlist">
+                                                                                            <dt class="text-muted">
+                                                                                                Status:</dt>
+                                                                                            <%if(order[0].paymentMethod==="Cash on delivery"
+                                                                                                ) {%>
+
+                                                                                                <dd>
+                                                                                                    <span
+                                                                                                        class="badge rounded-pill alert-success text-info">
+                                                                                                        <%=order[0].paymentMethod
+                                                                                                            %>
+                                                                                                    </span>
+                                                                                                </dd>
+                                                                                                <% } else {%>
+                                                                                                    <dd>
+                                                                                                        <span
+                                                                                                            class="badge rounded-pill alert-success text-success">
+                                                                                                            Paid online
+                                                                                                        </span>
+                                                                                                    </dd>
+
+                                                                                                    <%} %>
+                                                                                        </dl>
+                                                                                    </article>
+                                                                                </td>
+                                                                            </tr>
                                                 </tbody>
                                             </table>
                                         </div> <!-- table-responsive// -->
@@ -204,6 +212,8 @@
                                 </div>
                             </div> <!-- card-body end// -->
                         </div> <!-- card end// -->
+                        <%} %>
+                        <%} %>
                     </section> <!-- content-main end// -->
 
             </main>

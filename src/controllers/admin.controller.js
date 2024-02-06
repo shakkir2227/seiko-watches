@@ -55,21 +55,6 @@ const adminHomeController = asyncHandler(async (req, res) => {
     // Finding out total orders
     const totalOrders = await Order.aggregate([
         {
-            $unwind: "$productDetails"
-        },
-        {
-            $match: {
-                "productDetails.deliveryStatus": {
-                    $ne: "Cancelled"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id"
-            }
-        },
-        {
             $group: {
                 _id: null,
                 totalOrders: {
@@ -81,18 +66,15 @@ const adminHomeController = asyncHandler(async (req, res) => {
 
 
     // Finding out total pages
-    const totalPages = Math.ceil((totalOrders[0].totalOrders) / limit)
+    let totalPages;
+    if (totalOrders.length > 0) {
+        totalPages = Math.ceil((totalOrders[0].totalOrders) / limit)
+    }
 
     const orders = await Order.aggregate([
+
         {
             $unwind: "$productDetails"
-        },
-        {
-            $match: {
-                "productDetails.deliveryStatus": {
-                    $ne: "Cancelled"
-                }
-            }
         },
         {
             $lookup: {
@@ -114,8 +96,8 @@ const adminHomeController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
-                }
+                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                },
             }
         },
         {
@@ -135,6 +117,9 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 },
                 createdAt: {
                     $first: "$createdAt"
+                },
+                statuses: {
+                    $push: "$productDetails.deliveryStatus"
                 }
             }
         },
@@ -161,45 +146,112 @@ const adminHomeController = asyncHandler(async (req, res) => {
                         format: "%d-%m-%Y",
                         date: "$createdAt"
                     }
-                }
+                },
+                status: {
+                    $cond: {
+                        if: {
+                            $allElementsTrue: { // If all products got cancelled, then order status is cancelled
+                                $map: {
+                                    input: "$statuses",
+                                    as: "status",
+                                    in: {
+                                        $eq: ["$$status", "Cancelled"]
+                                    }
+                                }
+                            }
+                        },
+                        then: "Cancelled",
+                        else: {
+                            $cond: {
+                                if: {
+                                    $allElementsTrue: { // If all the orders are delivered, status is delivered, else processing
+                                        $map: {
+                                            input: "$statuses",
+                                            as: "status",
+                                            in: {
+                                                $cond: {
+                                                    if: { $eq: ["$$status", "Cancelled"] },
+                                                    then: true,
+                                                    else: { $eq: ["$$status", "Delivered"] }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                then: "Delivered",
+                                else: "Processing"
+                            }
+                        }
+
+                    }
+                },
             }
         },
     ])
 
-    // If all the products in an order got cancelled, the order is also
-    // cancelled, else, change the totalamount accordingly
+    console.log(orders);
     const orderStatistics = await Order.aggregate([
+        {
+            $match: {
+                paymentStatus: "Successful"
+            }
+        },
         {
             $unwind: "$productDetails"
         },
-        {
-            $match: {
-                "productDetails.deliveryStatus": {
-                    $ne: "Cancelled"
-                }
-            }
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "productDetails.product",
-                foreignField: "_id",
-                as: "product"
-            }
-        },
+        // If it is online payment, taking the orders which are not cancelled, 
+        // if it is COD, taking the orders which are delivered
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                    $cond: {
+                        if: {
+                            $eq: ["$paymentMethod", "Pay online"]
+                        },
+                        then: {
+                            $cond: {
+                                if: {
+                                    $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        },
+                        else: {
+                            $cond: {
+                                if: {
+                                    $eq: ["$productDetails.deliveryStatus", "Delivered"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        }
+                    }
                 }
             }
         },
+        // {
+        //     $addFields: {
+        //         subTotal: {
+        //             $cond: {
+        //                 if: {
+        //                     $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+        //                 },
+        //                 then: {
+        //                     $multiply: ["$productDetails.quantity", "$productDetails.price"]
+        //                 },
+        //                 else: 0
+        //             }
+        //         }
+        //     }
+        // },
         {
             $group: {
                 _id: null,
-                totalOrders: {
-                    $sum: 1
-                },
                 totalAmount: {
                     $sum: "$subTotal"
                 }
@@ -248,7 +300,9 @@ const adminHomeController = asyncHandler(async (req, res) => {
     ])
 
 
-    return res.render("page-admin-home.ejs", { orders, page, totalPages, orderStatistics, productStatistics, userStatistics, categoryStatistics, categories: res.locals.categories })
+
+
+    return res.render("page-admin-home.ejs", { orders, page, totalPages, totalOrders, orderStatistics, productStatistics, userStatistics, categoryStatistics, categories: res.locals.categories })
 })
 
 const blockUserController = asyncHandler(async (req, res) => {
@@ -319,7 +373,7 @@ const adminUserDetailsController = asyncHandler(async (req, res) => {
 const adminUserFilterController = asyncHandler(async (req, res) => {
 
     const { status, search } = req.query
-    
+
     // For searching
     const regex = new RegExp(search, 'i');
 
@@ -412,13 +466,6 @@ const adminReportController = asyncHandler(async (req, res) => {
                 $unwind: "$productDetails"
             },
             {
-                $match: {
-                    "productDetails.deliveryStatus": {
-                        $ne: "Cancelled"
-                    }
-                }
-            },
-            {
                 $lookup: {
                     from: "products",
                     localField: "productDetails.product",
@@ -430,7 +477,15 @@ const adminReportController = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     subTotal: {
-                        $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                        $cond: {
+                            if: {
+                                $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                            },
+                            then: {
+                                $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                            },
+                            else: 0
+                        }
                     }
                 }
             },
@@ -476,10 +531,38 @@ const adminReportController = asyncHandler(async (req, res) => {
                     as: "product"
                 }
             },
+            // If it is online payment, taking the orders which are not cancelled, 
+            // if it is COD, taking the orders which are delivered
             {
                 $addFields: {
                     subTotal: {
-                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                        $cond: {
+                            if: {
+                                $eq: ["$paymentMethod", "Pay online"]
+                            },
+                            then: {
+                                $cond: {
+                                    if: {
+                                        $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                    },
+                                    then: {
+                                        $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                    },
+                                    else: 0
+                                }
+                            },
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $eq: ["$productDetails.deliveryStatus", "Delivered"]
+                                    },
+                                    then: {
+                                        $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                    },
+                                    else: 0
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -574,13 +657,6 @@ const adminReportController = asyncHandler(async (req, res) => {
                 $unwind: "$productDetails"
             },
             {
-                $match: {
-                    "productDetails.deliveryStatus": {
-                        $ne: "Cancelled"
-                    }
-                }
-            },
-            {
                 $lookup: {
                     from: "products",
                     localField: "productDetails.product",
@@ -592,7 +668,15 @@ const adminReportController = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     subTotal: {
-                        $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                        $cond: {
+                            if: {
+                                $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                            },
+                            then: {
+                                $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                            },
+                            else: 0
+                        }
                     }
                 }
             },
@@ -638,10 +722,38 @@ const adminReportController = asyncHandler(async (req, res) => {
                     as: "product"
                 }
             },
+            // If it is online payment, taking the orders which are not cancelled, 
+            // if it is COD, taking the orders which are delivered
             {
                 $addFields: {
                     subTotal: {
-                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                        $cond: {
+                            if: {
+                                $eq: ["$paymentMethod", "Pay online"]
+                            },
+                            then: {
+                                $cond: {
+                                    if: {
+                                        $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                    },
+                                    then: {
+                                        $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                    },
+                                    else: 0
+                                }
+                            },
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $eq: ["$productDetails.deliveryStatus", "Delivered"]
+                                    },
+                                    then: {
+                                        $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                    },
+                                    else: 0
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -726,13 +838,6 @@ const adminReportController = asyncHandler(async (req, res) => {
                 $unwind: "$productDetails"
             },
             {
-                $match: {
-                    "productDetails.deliveryStatus": {
-                        $ne: "Cancelled"
-                    }
-                }
-            },
-            {
                 $lookup: {
                     from: "products",
                     localField: "productDetails.product",
@@ -744,7 +849,15 @@ const adminReportController = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     subTotal: {
-                        $multiply: ['$productDetails.quantity', { $arrayElemAt: ["$product.price", 0] }]
+                        $cond: {
+                            if: {
+                                $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                            },
+                            then: {
+                                $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                            },
+                            else: 0
+                        }
                     }
                 }
             },
@@ -793,7 +906,33 @@ const adminReportController = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     subTotal: {
-                        $multiply: ["$productDetails.quantity", { $arrayElemAt: ["$product.price", 0] }]
+                        $cond: {
+                            if: {
+                                $eq: ["$paymentMethod", "Pay online"]
+                            },
+                            then: {
+                                $cond: {
+                                    if: {
+                                        $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                    },
+                                    then: {
+                                        $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                    },
+                                    else: 0
+                                }
+                            },
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $eq: ["$productDetails.deliveryStatus", "Delivered"]
+                                    },
+                                    then: {
+                                        $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                    },
+                                    else: 0
+                                }
+                            }
+                        }
                     }
                 }
             },

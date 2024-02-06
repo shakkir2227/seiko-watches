@@ -13,18 +13,18 @@
 
                     <section class="content-main">
                         <div class="content-header">
-                            <%if(period === "daily") {%>
-                                
+                            <%if(period==="daily" ) {%>
+
                                 <div>
                                     <h2 class="content-title card-title">Daily sales overview </h2>
                                     <p>Whole data about your business here</p>
                                 </div>
-                                <% } else if (period === "monthly") {%>
+                                <% } else if (period==="monthly" ) {%>
                                     <div>
                                         <h2 class="content-title card-title">Monthly sales overview </h2>
                                         <p>Whole data about your business here</p>
                                     </div>
-                                    <%} else  {%>
+                                    <%} else {%>
                                         <div>
                                             <h2 class="content-title card-title">Yearly sales overview </h2>
                                             <p>Whole data about your business here</p>
@@ -43,12 +43,12 @@
 
                                             <%if(orderStatistics.length>0) { %>
                                                 <span>&#8377 <%=orderStatistics[0].totalAmount %> </span>
-                                           <% } else { %>
-                                            <span>&#8377 0 </span>
-                                            <% }%>
-                                            <span class="text-sm">
-                                                Shipping fees are included
-                                            </span>
+                                                <% } else { %>
+                                                    <span>&#8377 0 </span>
+                                                    <% }%>
+                                                        <span class="text-sm">
+                                                            Shipping fees are included
+                                                        </span>
                                         </div>
                                     </article>
                                 </div>
@@ -63,11 +63,11 @@
 
                                                 <%if(orderStatistics.length>0) { %>
 
-                                                <%=orderStatistics[0].totalOrders %>
+                                                    <%=orderStatistics[0].totalOrders %>
 
-                                                <% } else { %>
-                                                    0
-                                                    <%} %>
+                                                        <% } else { %>
+                                                            0
+                                                            <%} %>
                                             </span>
                                             <span class="text-sm">
                                                 Excluding orders cancelled </span>
@@ -86,7 +86,7 @@
                                                     <%=productStatistics[0].totalProduct%>
                                                 </span>
                                                 <span class="text-sm">
-                                                     Fresh Arrivals
+                                                    Fresh Arrivals
                                                 </span>
                                             </div>
 
@@ -96,7 +96,7 @@
                                                         0
                                                     </span>
                                                     <span class="text-sm">
-                                                    Fresh Arrivals
+                                                        Fresh Arrivals
                                                     </span>
                                                 </div>
 
@@ -212,7 +212,7 @@
                                                                     <%=order.product[0].name %>
                                                                 </td>
                                                                 <td>
-                                                                    <%=order.product[0].price%>
+                                                                    <%=order.productDetails.price %>
 
 
                                                                 </td>
@@ -224,8 +224,7 @@
                                                                 </td>
 
                                                                 <!-- Incrementing total amount on each iteration-->
-                                                                <% totalAmount +=(order.product[0].price *
-                                                                    order.productDetails.quantity); %>
+                                                                <% totalAmount +=order.subTotal; %>
 
                                                                     <% }) %>
                                                                         <%} %>
