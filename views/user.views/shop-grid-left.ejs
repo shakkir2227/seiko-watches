@@ -212,6 +212,8 @@
 
             <%- include ('./partials/user.footer.ejs') %>
 
+
+
                 <% if ( !parentCategory ){ %>
                     <script>
                         // Ticking the selected category, that does not have parent!
@@ -444,6 +446,7 @@
                                                 unCheckedElements.push(checkbox)
                                             }
                                         });
+
 
                                         checkedElements.forEach((element) => {
 
@@ -945,6 +948,23 @@
                                     // Fetching the products by applying the filter
                                     function applyFilter(page) {
 
+                                        // Removing the localstorage filters
+                                        for (let i = 0; i < 2; i++) {
+                                            localStorage.removeItem("parentCategoryFilter" + i)
+                                        }
+                                        for (let i = 0; i < 4; i++) {
+                                            localStorage.removeItem("subCategoryFilter" + i)
+                                        }
+                                        for (let i = 0; i < 5; i++) {
+                                            localStorage.removeItem("priceRangeFilter" + i)
+                                        }
+                                        for (let i = 0; i < 3; i++) {
+                                            localStorage.removeItem("bandMaterialFilter" + i)
+                                        }
+                                        for (let i = 0; i < 3; i++) {
+                                            localStorage.removeItem("dialColorFilter" + i)
+                                        }
+
                                         let params = new URLSearchParams()
 
                                         params.append("page", page)
@@ -953,8 +973,9 @@
                                         let elements = document.getElementsByClassName("main-category-filter");
                                         elements = Array.from(elements);
 
-                                        elements.forEach((element) => {
-
+                                        elements.forEach((element, index) => {
+                                            // Storing that on local storage
+                                            localStorage.setItem("parentCategoryFilter" + index, element.id)
                                             params.append('parentCategoryFilters', element.id);
                                         })
 
@@ -962,7 +983,8 @@
                                         let subCategoryElements = document.getElementsByClassName("sub-category-filter")
                                         subCategoryElements = Array.from(subCategoryElements)
 
-                                        subCategoryElements.forEach((element) => {
+                                        subCategoryElements.forEach((element, index) => {
+                                            localStorage.setItem("subCategoryFilter" + index, element.id)
                                             params.append('subCategoryFilters', element.id);
                                         })
 
@@ -970,7 +992,8 @@
                                         let priceRangeElements = document.getElementsByClassName("price-filter")
                                         priceRangeElements = Array.from(priceRangeElements)
 
-                                        priceRangeElements.forEach((element) => {
+                                        priceRangeElements.forEach((element, index) => {
+                                            localStorage.setItem("priceRangeFilter" + index, element.id)
                                             params.append('priceRangeFilters', element.id);
                                         })
 
@@ -980,7 +1003,9 @@
                                         let bandMaterial = document.getElementsByClassName("band-material-filter")
                                         bandMaterial = Array.from(bandMaterial)
 
-                                        bandMaterial.forEach((element) => {
+                                        bandMaterial.forEach((element, index) => {
+                                            localStorage.setItem("bandMaterialFilter" + index, element.id)
+
                                             params.append('bandMaterialFilters', element.id);
                                         })
 
@@ -988,7 +1013,8 @@
                                         let dialColor = document.getElementsByClassName("dial-color-filter")
                                         dialColor = Array.from(dialColor)
 
-                                        dialColor.forEach((element) => {
+                                        dialColor.forEach((element, index) => {
+                                            localStorage.setItem("dialColorFilter" + index, element.id)
                                             params.append('dialColorFilters', element.id);
                                         })
 
@@ -1159,7 +1185,7 @@
                                             .then((res) => {
                                                 console.log(res);
                                                 if (res.ok) {
-                                                
+
                                                     const Toast = Swal.mixin({
                                                         toast: true,
                                                         position: "top-end",
@@ -1180,6 +1206,40 @@
 
 
                                     }
+
+
+
+                                    // if after filtering, user select a product, then coming back
+                                    // to filter area, the older filters should be there
+
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        // for (let i = 0; i < 2; i++) {
+
+                                        //     let element = localStorage.getItem("parentCategoryFilter" + i)
+                                        //     element = element.replace("li", "")
+                                        //     const checkbox = document.getElementById(element)
+                                        //     checkbox.checked= true;
+                                        // }
+                                        let mainCategorycheckboxes = document.querySelectorAll("input[type='checkbox'].main-category");
+                                        mainCategorycheckboxes = Array.from(mainCategorycheckboxes)
+
+                                        let checkedElements = [];
+                                        let unCheckedElements = []
+
+
+                                        mainCategorycheckboxes.forEach(function (checkbox) {
+                                            if (checkbox.checked) {
+                                                checkedElements.push(checkbox);
+                                            } else {
+                                                unCheckedElements.push(checkbox)
+                                            }
+                                        });
+
+                                        console.log(checkedElements);
+
+
+
+                                    })
 
 
 
