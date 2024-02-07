@@ -673,9 +673,17 @@
                 function createOrder() {
 
                     let appliedCoupon = document.getElementById("appliedCoupon")
+
                     if (appliedCoupon) {
                         appliedCoupon = appliedCoupon.textContent
                     }
+
+                    let discountAmount = document.getElementById("discountAmount")
+
+                    if (discountAmount) {
+                        discountAmount = discountAmount.textContent
+                    }
+
                     console.log(appliedCoupon);
 
                     // For getting the input address  
@@ -697,7 +705,8 @@
                         totalAmount,
                         paymentMethod,
                         paymentId,
-                        appliedCoupon
+                        appliedCoupon,
+                        discountAmount
                     }
 
                     data = JSON.stringify(data)

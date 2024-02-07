@@ -180,7 +180,7 @@ const userCheckoutController = {
 
         const user = res.locals.user;
 
-        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod, paymentId, appliedCoupon } = req.body;
+        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod, paymentId, discountAmount, appliedCoupon } = req.body;
 
         // Before creating the order, reducing the stock of each of the products
         // Checking if the stock becomes negative, if it is, return an error. 
@@ -212,12 +212,11 @@ const userCheckoutController = {
             }
         ])
 
-        // if no coupon applied at checkout, then making discount percent zero;
-        if (coupon.length === 0) {
-            coupon[0] = {
-                discountPercent: 0
-            }
-        }
+        // Converting discountAmount to integer
+        discountAmount = discountAmount.replace(" - ₹", "")
+        discountAmount = parseInt(discountAmount)
+
+        console.log();
 
         const order = await Order.create({
             user: user._id,
@@ -227,7 +226,7 @@ const userCheckoutController = {
             paymentMethod,
             paymentStatus,
             paymentId,
-            discountPercent: coupon[0].discountPercent // Saving the discount percentage
+            discountAmount, // Saving the coupon
         })
 
         // Now adding this coupon to the user model
@@ -377,6 +376,52 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
 
 
     ])
+
+    const orderStatistics = await Order.aggregate([
+        {
+            $unwind: "$productDetails"
+        },
+        {
+            $addFields: {
+                subTotal: {
+                    $cond: {
+                        if: {
+                            $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                        },
+                        then: {
+                            $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                        },
+                        else: 0
+                    }
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "coupons",
+                localField: "appliedCoupon",
+                foreignField: "_id",
+                as: appliedCoupon
+            }
+        },
+        {
+            $project: {
+                subTotal: 1,
+                appliedCoupon:1
+            }
+        }
+    ])
+
+
+    if (orderStatistics[0].subTotal > orderStatistics[0].appliedCoupon.minimumOrderAmount ) {
+        let discountAmount = (orderStatistics[0].subTotal * (orderStatistics[0].appliedCoupon.discountPercent) / 100)
+        if (discountAmount > coupon[0].maxDiscountAmount) {
+            discountAmount = coupon[0].maxDiscountAmount;
+            if (discountAmount > coupon[0].maxDiscountAmount) {
+                discountAmount = coupon[0].maxDiscountAmount;
+            }
+}
+    }
 
     return res.render("page-orders-tracking.ejs", { order })
 

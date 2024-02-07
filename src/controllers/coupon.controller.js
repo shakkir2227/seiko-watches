@@ -137,9 +137,14 @@ const applyCouponController = asyncHandler(async (req, res) => {
         })
     }
 
-    
-    const discountAmount = (totalAmountBeforeDiscount * (coupon[0].discountPercent) / 100)
-    const totalAmountAfterDiscount = totalAmountBeforeDiscount - (totalAmountBeforeDiscount * (coupon[0].discountPercent) / 100)
+
+    let discountAmount = (totalAmountBeforeDiscount * (coupon[0].discountPercent) / 100)
+
+    if (discountAmount > coupon[0].maxDiscountAmount) {
+        discountAmount = coupon[0].maxDiscountAmount;
+    }
+
+    const totalAmountAfterDiscount = totalAmountBeforeDiscount - discountAmount
 
     console.log(coupon);
 

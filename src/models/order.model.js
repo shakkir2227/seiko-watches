@@ -35,7 +35,7 @@ const orderSchema = new Schema({
         type: String,
         default: "nil"
     },
-    discountPercent: {
+    discountAmount: {
         type: Number,
     }
 }, {
