@@ -22,6 +22,8 @@ const couponSchema = new Schema({
         required: true
     }
 
+}, {
+    timestamps: true
 })
 
 export const Coupon = mongoose.model("Coupon", couponSchema)

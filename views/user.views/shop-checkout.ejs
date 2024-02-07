@@ -308,12 +308,18 @@
                                                     <p class="mb-30 font-sm">If you have a coupon code, please apply it
                                                         below.
                                                     </p>
-                                                    <form method="post">
+
+                                                    <ul style="margin-bottom: 20px;" id="appliedCouponLi">
+
+                                                    </ul>
+                                                    <form>
                                                         <div class="form-group">
-                                                            <input type="text" placeholder="Enter Coupon Code...">
+                                                            <input id="couponInput" type="text"
+                                                                placeholder="Enter Coupon Code...">
                                                         </div>
                                                         <div class="form-group">
-                                                            <button class="btn  btn-md" name="login">Apply
+                                                            <button class="btn  btn-md" name="login"
+                                                                onclick="applyCoupon()">Apply
                                                                 Coupon</button>
                                                         </div>
                                                     </form>
@@ -402,19 +408,20 @@
                                                                                     <td class="product-subtotal"
                                                                                         colspan="2"
                                                                                         id="totalAmountBeforeShipping">
-                                                                                        $280.00</td>
+                                                                                    </td>
                                                                                 </tr>
                                                                                 <tr>
-                                                                                    <th>Shipping</th>
-                                                                                    <td colspan="2"><em>Free
-                                                                                            Shipping</em></td>
+                                                                                    <th>Discount</th>
+                                                                                    <td colspan="2" id="discountAmount">
+                                                                                        <em>0</em>
+                                                                                    </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <th>Total</th>
                                                                                     <td colspan="2"
                                                                                         class="product-subtotal"
                                                                                         id="totalAmount"><span
-                                                                                            class="font-xl text-brand fw-900">$280.00</span>
+                                                                                            class="font-xl text-brand fw-900"></span>
                                                                                     </td>
                                                                                 </tr>
                                             </tbody>
@@ -468,6 +475,7 @@
 
 
 
+
             <script>
 
 
@@ -515,7 +523,7 @@
                     productIdElements.forEach((element) => {
                         productId.push(element.value)
                     })
-                    productQuantityElements.forEach((element) => { 
+                    productQuantityElements.forEach((element) => {
                         quantity.push(element.value)
                     })
 
@@ -664,6 +672,12 @@
 
                 function createOrder() {
 
+                    let appliedCoupon = document.getElementById("appliedCoupon")
+                    if (appliedCoupon) {
+                        appliedCoupon = appliedCoupon.textContent
+                    }
+                    console.log(appliedCoupon);
+
                     // For getting the input address  
                     let selectedAddressIndex = null;
 
@@ -682,7 +696,8 @@
                         productDetails,
                         totalAmount,
                         paymentMethod,
-                        paymentId
+                        paymentId,
+                        appliedCoupon
                     }
 
                     data = JSON.stringify(data)
@@ -892,6 +907,139 @@
                         })
                 }
             </script>
+
+
+            <script>
+                //When user apply a coupon
+                function applyCoupon() {
+                    event.preventDefault()
+
+                    // If there is already a coupon applied, response by showing only one coupon is allowed
+                    const appliedCoupon = document.getElementById("appliedCoupon")
+                    if (appliedCoupon) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Only one coupon is allowed per order. Please choose the coupon that provides the best discount for your order.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'btn btn-danger', // Add custom class for styling
+                            },
+                        });
+
+                        return;
+                    }
+
+                    let couponInput = document.getElementById("couponInput").value
+                    let totalAmountBeforeDiscount = document.getElementById("totalAmountBeforeShipping").innerText
+                    totalAmountBeforeDiscount = totalAmountBeforeDiscount.replace("")
+                    console.log(totalAmountBeforeDiscount);
+
+                    let couponApplyData = {
+                        couponInput,
+                        totalAmountBeforeDiscount,
+                    }
+
+                    couponApplyData = JSON.stringify(couponApplyData);
+
+
+                    fetch("/coupon/apply", {
+                        method: "PUT",
+                        headers: {
+                            'Content-Type'
+                                : 'application/json'
+                        },
+                        body: couponApplyData,
+                    })
+                        .then((res) => {
+
+                            return res.json()
+                        })
+                        .then((data) => {
+                            if (data.message) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: data.message,
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-danger', // Add custom class for styling
+                                    },
+                                });
+                            } else if (data.totalAmountAfterDiscount && data.discountAmount) {
+
+                                document.getElementById("totalAmount").textContent = "₹" + data.totalAmountAfterDiscount
+                                totalAmount = data.totalAmountAfterDiscount
+                                document.getElementById("discountAmount").textContent = " - ₹" + data.discountAmount;
+
+
+                                // Showing the applied coupon.
+
+                                const listItem = document.createElement("li")
+
+                                // Step 2: Set attributes and styles for the li element
+                                listItem.style.margin = "10px";
+                                listItem.style.fontWeight = "bolder";
+                                listItem.style.fontSize = "small";
+                                listItem.id = "appliedCoupon";
+
+                                // Step 3: Add text content to the li element
+                                listItem.textContent = data.coupon[0].code;
+
+
+                                // Step 3: Create the span element
+                                var spanElement = document.createElement("span");
+
+                                // Step 4: Set attributes and styles for the span element
+                                spanElement.style.cursor = "pointer";
+                                spanElement.style.color = "#e74c3c";
+                                spanElement.style.margin = "7px";
+                                spanElement.className = "remove-icon"; // Add the "remove-icon" class
+
+                                spanElement.addEventListener("click", function () {
+                                    // Call a function to remove the parent li element
+                                    removeParentLi(listItem);
+                                });
+
+                                function removeParentLi(element) {
+                                    if (element && element.parentNode) {
+                                        element.parentNode.removeChild(element);
+                                    }
+
+                                    window.location.reload()
+                                }
+
+                                // Step 5: Create the i element (Font Awesome icon)
+                                var iconElement = document.createElement("i");
+                                iconElement.className = "fas fa-times";
+
+                                // Step 6: Append the icon element to the span element
+                                spanElement.appendChild(iconElement);
+
+                                // Step 7: Append the span element to the li element
+                                listItem.appendChild(spanElement)
+
+
+                                // For how much money saved information
+                                const infolistItem = document.createElement("li")
+                                infolistItem.textContent = `You saved ₹  ${data.discountAmount} by applying this coupon. `
+
+                                document.getElementById("appliedCouponLi").appendChild(listItem)
+                                document.getElementById("appliedCouponLi").appendChild(infolistItem)
+
+
+
+
+                            }
+                        })
+                }
+
+
+            </script>
+
+
 
             <%- include ('./partials/user.footer.ejs') %>
 

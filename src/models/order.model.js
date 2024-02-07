@@ -34,6 +34,9 @@ const orderSchema = new Schema({
     paymentId: {
         type: String,
         default: "nil"
+    },
+    discountPercent: {
+        type: Number,
     }
 }, {
     timestamps: true,

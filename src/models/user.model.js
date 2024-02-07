@@ -1,4 +1,4 @@
-import mongoose, { Mongoose, Schema } from "mongoose";
+import mongoose, { Mongoose, Schema, mongo } from "mongoose";
 import mongooseAggregatePaginate from
     "mongoose-aggregate-paginate-v2";
 import bcrypt from "bcrypt";
@@ -44,7 +44,11 @@ const userSchema = new Schema({
     wishlist: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-    }]
+    }],
+
+    coupons: [
+        { type: mongoose.Schema.Types.ObjectId, ref: "Coupon", },
+    ]
 
 }, {
     timestamps: true

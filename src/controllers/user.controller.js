@@ -10,6 +10,7 @@ import userValidationSchema from "../utils/validation/user.validation.js";
 import userLoginValidationSchema from "../utils/validation/user.login.validation.js";
 import addressValidationSchema from "../utils/validation/address.validation.js"
 import { tranporter, Mailgenerator } from "../utils/nodemailer.js";
+import { Coupon } from "../models/coupon.model.js";
 
 
 
@@ -376,9 +377,37 @@ const userAccountController = {
             }
         ])
 
+        // Finding coupons that are valid
+        // Display not expired coupons
+        const allCoupons = await Coupon.aggregate([
+            {
+                $match: {
+                    expiryDate: {
+                        $gte: new Date()
+                    }
+                }
+            },
+            {
+                $project: {
+                    code: 1,
+                    discountPercent: 1,
+                    minimumOrderAmount: 1,
+                    maxDiscountAmount: 1,
+                    expiryDate: {
+                        $dateToString: {
+                            format: "%d-%m-%Y",
+                            date: "$expiryDate"
+                        }
+                    }
+                }
+            }
+        ])
+
+        console.log(allCoupons);
+
         const errorMessage = req.flash("error")[0]
         const successMessage = req.flash('success')[0];
-        return res.render("page-account.ejs", { user: res.locals.user, userDefaultAddress, userAddresses, errorMessage, successMessage })
+        return res.render("page-account.ejs", { user: res.locals.user, userDefaultAddress, userAddresses, allCoupons, errorMessage, successMessage })
     }),
 
     updateAccount: asyncHandler(async (req, res) => {

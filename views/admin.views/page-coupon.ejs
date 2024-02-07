@@ -1,143 +1,334 @@
 <%- include('./layouts/head.ejs', { pageTitle: 'Coupons' }) %>
 
-<body>
-    <div class="screen-overlay"></div>
-    
-            <%- include ('./partials/admin.aside.ejs') %>
+    <body>
+        <div class="screen-overlay"></div>
+
+        <%- include ('./partials/admin.aside.ejs') %>
 
 
-    <main class="main-wrap">
-        
-                        <%- include ('./partials/admin.home.header.ejs') %>
+            <main class="main-wrap">
+
+                <%- include ('./partials/admin.home.header.ejs') %>
 
 
-        <section class="content-main">
-            <div class="content-header">
-                <div>
-                    <h2 class="content-title card-title">Coupon </h2>
-                    <!-- <p>Add, edit or unlist a category</p> -->
-                </div>
-                <!-- <div>
+                    <% if (typeof(errorMessage) !=="undefined" ) { %>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: '<%= errorMessage %>',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-danger', // Add custom class for styling
+                                    },
+                                });
+                            });
+                        </script>
+                        <% } %>
+
+                            <% if (typeof(successMessage) !=="undefined" ) { %>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success!',
+                                            text: '<%= successMessage %>',
+                                            showConfirmButton: true,
+                                            confirmButtonText: 'OK',
+                                            customClass: {
+                                                confirmButton: 'btn btn-success', // Add custom class for styling
+                                            },
+                                        });
+                                    });
+                                </script>
+                                <% } %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    <section class="content-main">
+                                        <div class="content-header">
+                                            <div>
+                                                <h2 class="content-title card-title">Coupon </h2>
+                                                <!-- <p>Add, edit or unlist a category</p> -->
+                                            </div>
+                                            <!-- <div>
                     <input type="text" placeholder="Search Categories" class="form-control bg-white">
                 </div> -->
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <form>
-                                <!-- <div class="mb-4">
-                                    <label for="product_name" class="form-label">Coupon Name</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_name" />
-                                </div> -->
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Coupon Code</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_name" />
-                                </div>
-                                <!-- <div class="mb-4">
-                                    <label for="product_slug" class="form-label">Slug</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
-                                </div> -->
-                                <div class="mb-4">
-                                    <label class="form-label">Discount %</label>
-                                    <select class="form-select">
-                                        <option selected>0 %</option>
-                                        <option>5 %</option>
-                                        <option>10 %</option>
-                                        <option>15 %</option>
-                                        <option>20 %</option>
-                                        <option>25 %</option>
-                                    </select>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Min. Order Amount</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_name" />
-                                </div>
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Max Discount Amount</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_name" />
-                                </div>
-                                <div class="mb-4">
-                                    <label for="product_name" class="form-label">Expiry Date</label>
-                                    <input type="date" placeholder="Type here" class="form-control" id="product_name" />
-                                </div>
-                                <!-- <div class="mb-4">
-                                    <label class="form-label">Description</label>
-                                    <textarea placeholder="Type here" class="form-control"></textarea>
-                                </div> -->
-                                <div class="d-grid">
-                                    <button class="btn btn-primary">Create Coupon</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="" />
-                                                </div>
-                                            </th>
-                                            <th>Code</th>
-                                            <th>Discount %</th>
-                                            <th>Min.Order</th>
-                                            <th>Max.Discount</th>
-                                            <th>Expiry </th>
-                                            <!-- <th>Description</th> -->
-                                            <!-- <th>Slug</th> -->
-                                            <th>Status</th>
-                                            <th class="text-end">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-center">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="" />
-                                                </div>
-                                            </td>
-                                            <!-- <td>21</td> -->
-                                            <td>1</td>
-                                            <td><b>Men clothes</b></td>
-                                            <!-- <td>Men clothes</td> -->
-                                            <!-- <td>/men</td> -->
-                                            <td><b>Active</b></td>
-                                            <td class="text-end">
-                                                <div class="dropdown">
-                                                    <a href="#" data-bs-toggle="dropdown"
-                                                        class="btn btn-light rounded btn-sm font-sm"> <i
-                                                            class="material-icons md-more_horiz"></i> </a>
-                                                    <div class="dropdown-menu">
-                                                        <!-- <a class="dropdown-item" href="#">View detail</a>
-                                                        <a class="dropdown-item" href="#">Edit info</a> -->
-                                                        <a class="dropdown-item text" href="#">Activate</a>
-                                                        <a class="dropdown-item text-danger" href="#">Block</a>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <form id="couponForm" action="/coupon/add" , method="post">
+
+                                                            <div class="mb-4">
+                                                                <label for="coupon_code" class="form-label">Coupon
+                                                                    Code</label>
+                                                                <input type="text" placeholder="Type here"
+                                                                    class="form-control" name="code" id="coupon_code"
+                                                                    oninput="validateCouponCode()" />
+                                                                <span class="text-danger" id="couponCodeError"></span>
+                                                            </div>
+
+                                                            <div class="mb-4">
+                                                                <label class="form-label">Discount %</label>
+                                                                <select class="form-select" id="discount_percentage"
+                                                                    name="discountPercent" oninput="validateDiscount()">
+                                                                    <option selected disabled>Discount %</option>
+                                                                    <option>5 %</option>
+                                                                    <option>10 %</option>
+                                                                    <option>15 %</option>
+                                                                    <option>20 %</option>
+                                                                    <option>25 %</option>
+                                                                </select>
+                                                                <span class="text-danger" id="discountError"></span>
+                                                            </div>
+
+                                                            <div class="mb-4">
+                                                                <label for="min_order_amount" class="form-label">Min.
+                                                                    Order
+                                                                    Amount</label>
+                                                                <input type="text" placeholder="Type here"
+                                                                    class="form-control" name="minimumOrderAmount"
+                                                                    id="min_order_amount"
+                                                                    oninput="validateMinOrder()" />
+                                                                <span class="text-danger" id="minOrderError"></span>
+                                                            </div>
+
+                                                            <div class="mb-4">
+                                                                <label for="max_discount_amount" class="form-label">Max
+                                                                    Discount
+                                                                    Amount</label>
+                                                                <input type="text" placeholder="Type here"
+                                                                    class="form-control" name="maxDiscountAmount"
+                                                                    id="max_discount_amount"
+                                                                    oninput="validateMaxDiscount()" />
+                                                                <span class="text-danger" id="maxDiscountError"></span>
+                                                            </div>
+
+                                                            <div class="mb-4">
+                                                                <label for="expiry_date" class="form-label">Expiry
+                                                                    Date</label>
+                                                                <input type="date" class="form-control" id="expiry_date"
+                                                                    name="expiryDate" oninput="validateExpiryDate()" />
+                                                                <span class="text-danger" id="expiryDateError"></span>
+                                                            </div>
+
+                                                            <div class="d-grid">
+                                                                <button class="btn btn-primary" id="submitBtn"
+                                                                    onclick="validateForm()">Create Coupon</button>
+                                                            </div>
+
+                                                        </form>
                                                     </div>
-                                                </div> <!-- dropdown //end -->
-                                            </td>
-                                        </tr>
+                                                    <div class="col-md-9">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="text-center">
+                                                                            <div class="form-check">
+                                                                                <input class="form-check-input"
+                                                                                    type="checkbox" value="" />
+                                                                            </div>
+                                                                        </th>
+                                                                        <th>Code</th>
+                                                                        <th>Discount %</th>
+                                                                        <th>Min.Order</th>
+                                                                        <th>Max.Discount</th>
+                                                                        <th>Expiry </th>
 
 
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div> <!-- .col// -->
-                    </div> <!-- .row // -->
-                </div> <!-- card body .// -->
-            </div> <!-- card .// -->
-        </section> <!-- content-main end// -->
-                                            <%- include ('./partials/admin.footer.ejs') %>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <%if(allCoupons.length> 0) {%>
 
-    </main>
-    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/vendors/select2.min.js"></script>
-    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="assets/js/main.js" type="text/javascript"></script>
-</body>
+                                                                        <%allCoupons.forEach((coupon)=> { %>
 
-</html>
+                                                                            <tr>
+                                                                                <td class="text-center">
+                                                                                    <div class="form-check">
+                                                                                        <input class="form-check-input"
+                                                                                            type="checkbox" value="" />
+                                                                                    </div>
+                                                                                </td>
+
+                                                                                <td style="font-weight: bolder;">
+                                                                                    <%=coupon.code %>
+                                                                                </td>
+                                                                                <td><b>
+                                                                                        <%=coupon.discountPercent %> %
+                                                                                    </b></td>
+
+                                                                                <td><b>
+                                                                                        ₹ <%=coupon.minimumOrderAmount
+                                                                                            %>
+                                                                                    </b></td>
+                                                                                <td><b>₹ <%=coupon.maxDiscountAmount %>
+                                                                                            </b></td>
+                                                                                <td><b>
+                                                                                        <%=coupon.expiryDate %>
+
+                                                                                    </b></td>
+
+                                                                            </tr>
+
+
+                                                                            <% }) %>
+
+
+                                                                                <% }%>
+
+
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div> <!-- .col// -->
+                                                </div> <!-- .row // -->
+                                            </div> <!-- card body .// -->
+                                        </div> <!-- card .// -->
+                                    </section> <!-- content-main end// -->
+                                    <%- include ('./partials/admin.footer.ejs') %>
+
+            </main>
+
+            <script>
+                // Validation logic here
+
+
+                function validateForm() {
+
+                    validateCouponCode();
+                    validateDiscount();
+                    validateMinOrder();
+                    validateMaxDiscount();
+                    validateExpiryDate();
+
+                    if (
+                        document.getElementById("couponCodeError").innerText ||
+                        document.getElementById("discountError").innerText ||
+                        document.getElementById("minOrderError").innerText ||
+                        document.getElementById("maxDiscountError").innerText ||
+                        document.getElementById("expiryDateError").innerText
+                    ) {
+                        event.preventDefault();
+                    }
+                }
+
+                function validateCouponCode() {
+                    var couponCode = document.getElementById("coupon_code").value;
+                    var errorSpan = document.getElementById("couponCodeError");
+                    if (couponCode.trim() === "") {
+                        errorSpan.innerText = "Coupon code is required.";
+                        return false;
+                    } else {
+                        errorSpan.innerText = "";
+                        return true;
+                    }
+                }
+
+                function validateDiscount() {
+                    var discount = document.getElementById("discount_percentage").value;
+                    var errorSpan = document.getElementById("discountError");
+                    if (discount === "Discount %") {
+                        errorSpan.innerText = "Please select a valid discount percentage.";
+                        return false;
+                    } else {
+                        errorSpan.innerText = "";
+                        return true;
+                    }
+                }
+
+                function validateMinOrder() {
+                    var minOrderAmount = document.getElementById("min_order_amount").value;
+                    var errorSpan = document.getElementById("minOrderError");
+                    if (minOrderAmount.trim() === "") {
+                        errorSpan.innerText = "Min. order amount is required.";
+                        return false;
+                    } else if (isNaN(minOrderAmount) || !/^\d+(\.\d{1,2})?$/.test(minOrderAmount)) {
+                        errorSpan.innerHTML = "Amount must be a valid number";
+                    } else if (parseFloat(minOrderAmount) < 0) {
+                        errorSpan.innerHTML = "Amount cannot be negative";
+                    }
+                    else {
+                        errorSpan.innerText = "";
+                        return true;
+                    }
+                }
+
+                function validateMaxDiscount() {
+                    var maxDiscountAmount = document.getElementById("max_discount_amount").value;
+                    var errorSpan = document.getElementById("maxDiscountError");
+                    if (maxDiscountAmount.trim() === "") {
+                        errorSpan.innerText = "Max discount amount is required.";
+                        return false;
+                    } else if (isNaN(maxDiscountAmount) || !/^\d+(\.\d{1,2})?$/.test(maxDiscountAmount)) {
+                        errorSpan.innerHTML = "Amount must be a valid number";
+                    } else if (parseFloat(maxDiscountAmount) < 0) {
+                        errorSpan.innerHTML = "Amount cannot be negative";
+                    }
+                    else {
+                        errorSpan.innerText = "";
+                        return true;
+                    }
+                }
+
+                function validateExpiryDate() {
+                    var expiryDate = document.getElementById("expiry_date").value;
+                    var errorSpan = document.getElementById("expiryDateError");
+                    if (expiryDate.trim() === "") {
+                        errorSpan.innerText = "Expiry date is required.";
+                        return false;
+                    } else {
+                        var currentDate = new Date();
+                        currentDate.setHours(23, 59, 59, 999);  // Set time to 11:59:59.999
+
+                        var selectedDate = new Date(expiryDate);
+                        selectedDate.setHours(23, 59, 59, 999); 
+                        
+                        // Compare selected date with current date
+                        if (selectedDate < currentDate) {
+                            errorSpan.innerText = "Expiry date must be today or a future date.";
+                            return false;
+                        } else {
+                            errorSpan.innerText = "";
+                            return true;
+                        }
+                    }
+                }
+            </script>
+
+            <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+            <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+            <script src="assets/js/vendors/select2.min.js"></script>
+            <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+            <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+            <!-- Main Script -->
+            <script src="assets/js/main.js" type="text/javascript"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+    </body>
+
+    </html>

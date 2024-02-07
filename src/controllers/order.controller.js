@@ -6,6 +6,7 @@ import { Product } from "../models/product.model.js";
 import addressValidationSchema from "../utils/validation/address.validation.js"
 import mongoose from "mongoose";
 import Razorpay from "razorpay";
+import { Coupon } from "../models/coupon.model.js";
 
 const userCheckoutController = {
 
@@ -179,7 +180,7 @@ const userCheckoutController = {
 
         const user = res.locals.user;
 
-        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod, paymentId } = req.body;
+        let { selectedAddressIndex, productDetails, totalAmount, paymentMethod, paymentId, appliedCoupon } = req.body;
 
         // Before creating the order, reducing the stock of each of the products
         // Checking if the stock becomes negative, if it is, return an error. 
@@ -202,6 +203,22 @@ const userCheckoutController = {
         }
         const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
 
+        // Finding the coupon to findout the discount percent, and include that in the order
+        const coupon = await Coupon.aggregate([
+            {
+                $match: {
+                    code: appliedCoupon
+                }
+            }
+        ])
+
+        // if no coupon applied at checkout, then making discount percent zero;
+        if (coupon.length === 0) {
+            coupon[0] = {
+                discountPercent: 0
+            }
+        }
+
         const order = await Order.create({
             user: user._id,
             address: selectedAddressIndexIdObject,
@@ -210,7 +227,22 @@ const userCheckoutController = {
             paymentMethod,
             paymentStatus,
             paymentId,
+            discountPercent: coupon[0].discountPercent // Saving the discount percentage
         })
+
+        // Now adding this coupon to the user model
+        if (coupon.length > 0) {
+            await User.updateOne(
+                {
+                    _id: user._id
+                },
+                {
+                    $push: {
+                        coupons: coupon[0]._id
+                    }
+                }
+            )
+        }
 
         // Removing the specific number of products from the cart, if the user 
         // buy that in the current order, if the quantity in the cart becomes zero in 
