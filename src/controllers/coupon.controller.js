@@ -40,7 +40,7 @@ const couponViewController = {
 }
 
 const addCouponController = asyncHandler(async (req, res) => {
-    console.log(req.body);
+   
     let { code, discountPercent, minimumOrderAmount, maxDiscountAmount, expiryDate } = req.body;
 
     discountPercent = parseInt(discountPercent);

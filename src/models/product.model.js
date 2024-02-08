@@ -50,6 +50,10 @@ const productSchema = new Schema({
     isBlocked: {
         type: Boolean,
         default: false,
+    },
+    offer: {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
     }
 
 }, {

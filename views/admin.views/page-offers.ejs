@@ -70,7 +70,7 @@
                                     <section class="content-main">
                                         <div class="content-header">
                                             <div>
-                                                <h2 class="content-title card-title">Coupon </h2>
+                                                <h2 class="content-title card-title">Offers </h2>
                                                 <!-- <p>Add, edit or unlist a category</p> -->
                                             </div>
                                             <!-- <div>
@@ -81,41 +81,74 @@
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-md-3">
-                                                        <form id="couponForm" action="/coupon/add" , method="post">
+                                                        <form id="couponForm" action="/offer/add" , method="post">
 
                                                             <div class="mb-4">
-                                                                <label for="coupon_code" class="form-label">Coupon
-                                                                    Code</label>
-                                                                <input type="text" placeholder="Type here"
-                                                                    class="form-control" name="code" id="coupon_code"
-                                                                    oninput="validateCouponCode()" />
-                                                                <span class="text-danger" id="couponCodeError"></span>
+                                                                <label class="form-label">Product / Category</label>
+                                                                <select class="form-select" id="product_category"
+                                                                    name="productCategory" onchange="updateOptions()">
+                                                                    <option selected disabled>Select Type</option>
+                                                                    <option value="category">Category</option>
+                                                                    <option value="product">Product</option>
+                                                                </select>
+                                                                <span class="text-danger"
+                                                                    id="categoryProductError"></span>
                                                             </div>
 
+                                                            <div class="mb-4" id="categorySection"
+                                                                style="display: none;">
+                                                                <label class=" form-label">Select</label>
+                                                                <select class="form-select" id="category"
+                                                                    onchange="validateItem()" name="category">
+                                                                    <option selected disabled>Select</option>
+
+                                                                    <%categories.forEach((category)=> { %>
+                                                                        <option value="<%=category._id%>">
+                                                                            <%=category.name%>
+                                                                        </option>
+                                                                        <% }) %>
+
+                                                                </select>
+                                                                <span class="text-danger" id="categoryError"></span>
+                                                            </div>
+
+                                                            <div class="mb-4" id="productsSection"
+                                                                style="display: none;">
+                                                                <label class="form-label">Select</label>
+                                                                <select class="form-select" id="product"
+                                                                    onchange="validateItem()" name="product">
+                                                                    <option selected disabled>Select</option>
+
+                                                                    <%products.forEach((product)=> { %>
+                                                                        <option value="<%=product._id %>">
+                                                                            <%=product.name%>
+                                                                        </option>
+                                                                        <% }) %>
+
+                                                                </select>
+                                                                <span class="text-danger" id="productError"></span>
+                                                            </div>
+
+
                                                             <div class="mb-4">
-                                                                <label class="form-label">Discount %</label>
-                                                                <select class="form-select" id="discount_percentage"
-                                                                    name="discountPercent" oninput="validateDiscount()">
-                                                                    <option selected disabled>Discount %</option>
+                                                                <label class="form-label">Select</label>
+                                                                <select class="form-select" name="discountPercent"
+                                                                    onchange="validateDiscount()"
+                                                                    id="discount_percentage">
+
+                                                                    <option selected disabled>Offer percentage</option>
                                                                     <option>5 %</option>
                                                                     <option>10 %</option>
                                                                     <option>15 %</option>
                                                                     <option>20 %</option>
                                                                     <option>25 %</option>
+
+
                                                                 </select>
                                                                 <span class="text-danger" id="discountError"></span>
                                                             </div>
 
-                                                            <div class="mb-4">
-                                                                <label for="min_order_amount" class="form-label">Min.
-                                                                    Order
-                                                                    Amount</label>
-                                                                <input type="text" placeholder="Type here"
-                                                                    class="form-control" name="minimumOrderAmount"
-                                                                    id="min_order_amount"
-                                                                    oninput="validateMinOrder()" />
-                                                                <span class="text-danger" id="minOrderError"></span>
-                                                            </div>
+
 
                                                             <div class="mb-4">
                                                                 <label for="max_discount_amount" class="form-label">Max
@@ -128,17 +161,11 @@
                                                                 <span class="text-danger" id="maxDiscountError"></span>
                                                             </div>
 
-                                                            <div class="mb-4">
-                                                                <label for="expiry_date" class="form-label">Expiry
-                                                                    Date</label>
-                                                                <input type="date" class="form-control" id="expiry_date"
-                                                                    name="expiryDate" oninput="validateExpiryDate()" />
-                                                                <span class="text-danger" id="expiryDateError"></span>
-                                                            </div>
+
 
                                                             <div class="d-grid">
                                                                 <button class="btn btn-primary" id="submitBtn"
-                                                                    onclick="validateForm()">Create Coupon</button>
+                                                                    onclick="validateForm()">Create Offer</button>
                                                             </div>
 
                                                         </form>
@@ -154,17 +181,23 @@
                                                                                     type="checkbox" value="" />
                                                                             </div>
                                                                         </th>
-                                                                        <th>Code</th>
+                                                                        <th>Product / Category Name</th>
                                                                         <th>Discount %</th>
-                                                                        <th>Min.Order</th>
+
                                                                         <th>Max.Discount</th>
-                                                                        <th>Expiry </th>
+                                                                        <th>Delete</th>
+
 
 
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    
+
+                                                                    <% if(offers.length> 0) { %>
+
+                                                                        <% offers.forEach((offer)=> { %>
+
+
 
                                                                             <tr>
                                                                                 <td class="text-center">
@@ -174,31 +207,43 @@
                                                                                     </div>
                                                                                 </td>
 
-                                                                                <td style="font-weight: bolder;">
-                                                                                    <%=coupon.code %>
-                                                                                </td>
-                                                                                <td><b>
-                                                                                        <%=coupon.discountPercent %> %
-                                                                                    </b></td>
+                                                                                <%if(offer.product.length> 0) {%>
+                                                                                    <td style="font-weight: bolder;">
+                                                                                        <%=offer.product[0].name %>
+                                                                                    </td>
 
-                                                                                <td><b>
-                                                                                        ₹ <%=coupon.minimumOrderAmount
-                                                                                            %>
-                                                                                    </b></td>
-                                                                                <td><b>₹ <%=coupon.maxDiscountAmount %>
-                                                                                    </b></td>
-                                                                                <td><b>
-                                                                                        <%=coupon.expiryDate %>
+                                                                                    <% } else{%>
+                                                                                        <td
+                                                                                            style="font-weight: bolder;">
+                                                                                            <%=offer.category[0].name%>
+                                                                                        </td>
 
-                                                                                    </b></td>
+                                                                                        <% }%>
+
+
+                                                                                            <td><b>
+                                                                                                    <%=offer.discountPercent
+                                                                                                        %> %
+                                                                                                </b></td>
+
+                                                                                            <td><b>
+                                                                                                    ₹
+                                                                                                    <%=offer.maxDiscountAmount
+                                                                                                        %>
+
+                                                                                                </b></td>
+
+                                                                                            <td>
+
+                                                                                            </td>
+
+
 
                                                                             </tr>
 
-
-                                                                            <% }) %>
-
-
+                                                                            <%}) %>
                                                                                 <% }%>
+
 
 
                                                                 </tbody>
@@ -214,44 +259,103 @@
             </main>
 
             <script>
-                // Validation logic here
+
+                function updateOptions() {
+
+                    const selectedItem = document.getElementById("product_category").value
+
+                    if (selectedItem === "category") {
+
+                        // if it is category, hiding products
+                        const productsSection = document.getElementById("productsSection")
+                        productsSection.style.display = "none"
+
+                        const categorySection = document.getElementById("categorySection")
+                        console.log(categorySection);
+                        categorySection.style.display = ""
+                    }
+
+
+                    if (selectedItem === "product") {
+
+                        // if it is category, hiding products
+                        const category = document.getElementById("category")
+                        category.style.display = "none"
+
+                        const productsSection = document.getElementById("productsSection")
+                        console.log(productsSection);
+                        productsSection.style.display = ""
+                    }
+                }
+
 
 
                 function validateForm() {
 
-                    validateCouponCode();
+                    validateItem()
                     validateDiscount();
-                    validateMinOrder();
                     validateMaxDiscount();
-                    validateExpiryDate();
 
                     if (
-                        document.getElementById("couponCodeError").innerText ||
-                        document.getElementById("discountError").innerText ||
-                        document.getElementById("minOrderError").innerText ||
-                        document.getElementById("maxDiscountError").innerText ||
-                        document.getElementById("expiryDateError").innerText
+                        document.getElementById("categoryError").innerText
+                        &&
+                        document.getElementById("productError").innerText
+                        ||
+                        document.getElementById("discountError").innerText
+                        ||
+                        document.getElementById("maxDiscountError").innerText
+
+
                     ) {
                         event.preventDefault();
                     }
                 }
 
-                function validateCouponCode() {
-                    var couponCode = document.getElementById("coupon_code").value;
-                    var errorSpan = document.getElementById("couponCodeError");
-                    if (couponCode.trim() === "") {
-                        errorSpan.innerText = "Coupon code is required.";
-                        return false;
+
+
+                function validateItem() {
+                    // Get the values and error elements
+                    var product = document.getElementById("product").value;
+                    var category = document.getElementById("category").value;
+
+                    var productError = document.getElementById("productError");
+                    var categoryError = document.getElementById("categoryError")
+
+
+
+                    // Validate product
+                    if (product.trim() === "" || product.trim() === "Select") {
+                        productError.innerText = "Product is required.";
                     } else {
-                        errorSpan.innerText = "";
-                        return true;
+                        productError.innerText = "";
+                    }
+
+
+                    // Validate category
+                    if (category.trim() === "" || category.trim() === "Select") {
+                        categoryError.innerText = "category is required.";
+                    } else {
+                        categoryError.innerText = "";
+                    }
+
+                    // Check for errors in category or product
+                    if (categoryError.innerText && productError.innerText) {
+                        console.log(categoryError);
+                        console.log(productError);
+                        document.getElementById("categoryProductError").innerText = "Category or Product is required";
+                    } else {
+                        document.getElementById("categoryProductError").innerText = "";
                     }
                 }
+
+
+
 
                 function validateDiscount() {
                     var discount = document.getElementById("discount_percentage").value;
                     var errorSpan = document.getElementById("discountError");
-                    if (discount === "Discount %") {
+
+                    if (discount === "Offer percentage") {
                         errorSpan.innerText = "Please select a valid discount percentage.";
                         return false;
                     } else {
@@ -260,63 +364,29 @@
                     }
                 }
 
-                function validateMinOrder() {
-                    var minOrderAmount = document.getElementById("min_order_amount").value;
-                    var errorSpan = document.getElementById("minOrderError");
-                    if (minOrderAmount.trim() === "") {
-                        errorSpan.innerText = "Min. order amount is required.";
-                        return false;
-                    } else if (isNaN(minOrderAmount) || !/^\d+(\.\d{1,2})?$/.test(minOrderAmount)) {
-                        errorSpan.innerHTML = "Amount must be a valid number";
-                    } else if (parseFloat(minOrderAmount) < 0) {
-                        errorSpan.innerHTML = "Amount cannot be negative";
-                    }
-                    else {
-                        errorSpan.innerText = "";
-                        return true;
-                    }
-                }
 
                 function validateMaxDiscount() {
                     var maxDiscountAmount = document.getElementById("max_discount_amount").value;
                     var errorSpan = document.getElementById("maxDiscountError");
+
                     if (maxDiscountAmount.trim() === "") {
                         errorSpan.innerText = "Max discount amount is required.";
                         return false;
                     } else if (isNaN(maxDiscountAmount) || !/^\d+(\.\d{1,2})?$/.test(maxDiscountAmount)) {
-                        errorSpan.innerHTML = "Amount must be a valid number";
+                        errorSpan.innerHTML = "Amount must be a valid number.";
                     } else if (parseFloat(maxDiscountAmount) < 0) {
-                        errorSpan.innerHTML = "Amount cannot be negative";
-                    }
-                    else {
+                        errorSpan.innerHTML = "Amount cannot be negative.";
+                    } else {
                         errorSpan.innerText = "";
                         return true;
                     }
+
+                    return false; // Return false in case none of the conditions match
                 }
 
-                function validateExpiryDate() {
-                    var expiryDate = document.getElementById("expiry_date").value;
-                    var errorSpan = document.getElementById("expiryDateError");
-                    if (expiryDate.trim() === "") {
-                        errorSpan.innerText = "Expiry date is required.";
-                        return false;
-                    } else {
-                        var currentDate = new Date();
-                        currentDate.setHours(23, 59, 59, 999);  // Set time to 11:59:59.999
 
-                        var selectedDate = new Date(expiryDate);
-                        selectedDate.setHours(23, 59, 59, 999);
 
-                        // Compare selected date with current date
-                        if (selectedDate < currentDate) {
-                            errorSpan.innerText = "Expiry date must be today or a future date.";
-                            return false;
-                        } else {
-                            errorSpan.innerText = "";
-                            return true;
-                        }
-                    }
-                }
+
             </script>
 
             <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>

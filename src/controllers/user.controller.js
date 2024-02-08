@@ -488,6 +488,8 @@ const userHomeController = asyncHandler(async (req, res) => {
         { $limit: 8 },
         { $lookup: { from: "categories", foreignField: "_id", localField: "category", as: "category" } }])
 
+    console.log(newProducts);
+
     const categories = res.locals.categories;
 
     for (const category of categories) {
