@@ -37,15 +37,12 @@ const offerViewController = asyncHandler(async (req, res) => {
     ])
 
     console.log(offers);
-
     const products = await Product.find()
-
-    const categories = await Category.find()
 
     const errorMessage = req.flash("error")[0]
     const successMessage = req.flash('success')[0];
 
-    return res.render("page-offers.ejs", { products, categories, offers, errorMessage, successMessage })
+    return res.render("page-offers.ejs", { products, categories: res.locals.categories, offers, errorMessage, successMessage })
 })
 
 const addOfferController = asyncHandler(async (req, res) => {
@@ -84,8 +81,8 @@ const addOfferController = asyncHandler(async (req, res) => {
         ])
 
         if (product[0].offer[0]) {
-            console.log("offer already exist for this product");
-            return
+            req.flash("error", "Offer already exist for this product")
+            return res.redirect("/offer/view")
         }
 
 
@@ -96,9 +93,22 @@ const addOfferController = asyncHandler(async (req, res) => {
             maxDiscountAmount: parseInt(maxDiscountAmount),
         })
 
+        // This offer is updated in product
+        await Product.updateOne(
+            {
+                _id: productIdObject
+            },
+            {
+                $push: {
+                    offer: offer._id
+                }
+            }
+        )
+
+
     } else {
 
-        // If an offer exist for the product, throw an error
+        // If an offer exist for the category, throw an error
         const category = await Category.aggregate([
             {
                 $match: {
@@ -115,10 +125,10 @@ const addOfferController = asyncHandler(async (req, res) => {
                 }
             }
         ])
-
+        console.log(category);
         if (category[0].offer[0]) {
-            console.log("offer already exist for this category");
-            return
+            req.flash("error", "Offer already exist for this category")
+            return res.redirect("/offer/view")
         }
 
         // Creating a new offer for the category
@@ -128,10 +138,38 @@ const addOfferController = asyncHandler(async (req, res) => {
             maxDiscountAmount: parseInt(maxDiscountAmount),
         })
 
+
+        // This offer is updated in all categories with same name
+        const sameNamedSubCategories = await Category.aggregate([
+            {
+                $match: {
+                    name: category[0].name,
+                }
+            }
+        ])
+
+        for (const category of sameNamedSubCategories) {
+            await Category.updateOne(
+                {
+                    _id: category._id
+                },
+                {
+                    $push: {
+                        offer: offer._id
+                    }
+                }
+            )
+        }
+
+       
     }
 
     req.flash("success", `Offer created successfully`)
     return res.redirect("/offer/view",)
+
+})
+
+const offerDeleteController = asyncHandler(async(req, res) => {
 
 })
 

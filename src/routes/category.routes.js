@@ -2,7 +2,8 @@
 import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware.js";
 import { isAdmin } from "../middlewares/auth.middleware.js";
-const router = Router();
+
+
 
 import {
     addCategory,
@@ -12,6 +13,9 @@ import {
     updateCategoryController
 }
     from "../controllers/category.controller.js"
+
+
+const router = Router();
 
 // For admin verification
 router.use(isAdmin)

@@ -21,6 +21,11 @@ const categorySchema = new Schema({
         type: Boolean,
         requried: true,
         default: false,
+    },
+    
+    offer: {
+        type: Schema.Types.ObjectId,
+        ref: "Offer",
     }
 
 }, {

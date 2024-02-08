@@ -53,7 +53,7 @@ const productSchema = new Schema({
     },
     offer: {
         type: Schema.Types.ObjectId,
-        ref: "Category",
+        ref: "Offer",
     }
 
 }, {

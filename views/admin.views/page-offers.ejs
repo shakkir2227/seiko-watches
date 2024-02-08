@@ -260,33 +260,25 @@
 
             <script>
 
-                function updateOptions() {
+               function updateOptions() {
+                    const selectedItem = document.getElementById("product_category").value;
 
-                    const selectedItem = document.getElementById("product_category").value
+                    const categorySection = document.getElementById("categorySection");
+                    const productsSection = document.getElementById("productsSection");
 
                     if (selectedItem === "category") {
-
-                        // if it is category, hiding products
-                        const productsSection = document.getElementById("productsSection")
-                        productsSection.style.display = "none"
-
-                        const categorySection = document.getElementById("categorySection")
-                        console.log(categorySection);
-                        categorySection.style.display = ""
+                        // If it is category, hide products and show the category section
+                        productsSection.style.display = "none";
+                        categorySection.style.display = "";
                     }
-
 
                     if (selectedItem === "product") {
-
-                        // if it is category, hiding products
-                        const category = document.getElementById("category")
-                        category.style.display = "none"
-
-                        const productsSection = document.getElementById("productsSection")
-                        console.log(productsSection);
-                        productsSection.style.display = ""
+                        // If it is product, hide category and show the products section
+                        categorySection.style.display = "none";
+                        productsSection.style.display = "";
                     }
                 }
+
 
 
 
