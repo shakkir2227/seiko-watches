@@ -96,8 +96,26 @@ const adminHomeController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
-                },
+                    $cond: {
+                        if: {
+                            $eq: ["$paymentMethod", "Pay online"]
+                        },
+                        then: {
+                            $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                        },
+                        else: {
+                            $cond: {
+                                if: {
+                                    $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        }
+                    }
+                }
             }
         },
         {
@@ -112,6 +130,9 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 paymentStatus: {
                     $first: "$paymentStatus"
                 },
+                discountAmount: {
+                    $first: "$discountAmount"
+                },
                 totalAmount: {
                     $sum: "$subTotal"
                 },
@@ -120,6 +141,13 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 },
                 statuses: {
                     $push: "$productDetails.deliveryStatus"
+                }
+            }
+        },
+        {
+            $addFields: {
+                totalAmount: {
+                    $subtract: ["$totalAmount", "$discountAmount"]
                 }
             }
         },
@@ -234,31 +262,36 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 }
             }
         },
-        // {
-        //     $addFields: {
-        //         subTotal: {
-        //             $cond: {
-        //                 if: {
-        //                     $ne: ["$productDetails.deliveryStatus", "Cancelled"]
-        //                 },
-        //                 then: {
-        //                     $multiply: ["$productDetails.quantity", "$productDetails.price"]
-        //                 },
-        //                 else: 0
-        //             }
-        //         }
-        //     }
-        // },
+        {
+            $group: {
+                _id: "$_id",
+                totalAmount: {
+                    $sum: "$subTotal",
+
+                },
+                discountAmount: {
+                    $first: "$discountAmount"
+                },
+            }
+        },
+        {
+            $addFields: {
+                totalAmount: {
+                    $subtract: ["$totalAmount", "$discountAmount"]
+                }
+            }
+        },
         {
             $group: {
                 _id: null,
                 totalAmount: {
-                    $sum: "$subTotal"
+                    $sum: "$totalAmount"
                 }
             }
-        }
-    ])
+        },
 
+    ])
+    console.log(orderStatistics);
 
     const productStatistics = await Product.aggregate([
         {
@@ -504,6 +537,29 @@ const adminReportController = asyncHandler(async (req, res) => {
             }
         ])
 
+        // Finding out total discount in a day
+
+        const totalDiscount = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(date + 'T00:00:00.000Z'),
+                        $lt: new Date(date + 'T23:59:59.999Z'),
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalDiscount: {
+                        $sum: "$discountAmount"
+                    }
+                }
+            }
+
+        ])
+
+        console.log(orders);
         const orderStatistics = await Order.aggregate([
             {
                 $match: {
@@ -515,13 +571,6 @@ const adminReportController = asyncHandler(async (req, res) => {
             },
             {
                 $unwind: "$productDetails"
-            },
-            {
-                $match: {
-                    "productDetails.deliveryStatus": {
-                        $ne: "Cancelled"
-                    }
-                }
             },
             {
                 $lookup: {
@@ -568,15 +617,43 @@ const adminReportController = asyncHandler(async (req, res) => {
             },
             {
                 $group: {
-                    _id: null,
-                    totalOrders: {
-                        $sum: 1
-                    },
+                    _id: "$_id",
                     totalAmount: {
-                        $sum: "$subTotal"
+                        $sum: "$subTotal",
+
+                    },
+                    discountAmount: {
+                        $first: "$discountAmount"
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    totalAmount: {
+                        $cond: {
+                            if: {
+                                $ne: ["$totalAmount", 0]
+                            },
+                            then: {
+                                $subtract: ["$totalAmount", "$discountAmount"]
+                            },
+                            else: "$totalAmount"
+                        }
+
                     }
                 }
-            }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: {
+                        $sum: "$totalAmount"
+                    },
+                    totalOrders: {
+                        $sum: 1
+                    }
+                }
+            },
         ])
 
 
@@ -623,7 +700,7 @@ const adminReportController = asyncHandler(async (req, res) => {
             }
         ])
 
-        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics })
+        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics, totalDiscount })
     }
 
     // For weekly reports
@@ -695,6 +772,29 @@ const adminReportController = asyncHandler(async (req, res) => {
             }
         ])
 
+
+        // Finding out total discount in a day
+
+        const totalDiscount = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalDiscount: {
+                        $sum: "$discountAmount"
+                    }
+                }
+            }
+
+        ])
+
         const orderStatistics = await Order.aggregate([
             {
                 $match: {
@@ -706,13 +806,6 @@ const adminReportController = asyncHandler(async (req, res) => {
             },
             {
                 $unwind: "$productDetails"
-            },
-            {
-                $match: {
-                    "productDetails.deliveryStatus": {
-                        $ne: "Cancelled"
-                    }
-                }
             },
             {
                 $lookup: {
@@ -759,15 +852,43 @@ const adminReportController = asyncHandler(async (req, res) => {
             },
             {
                 $group: {
-                    _id: null,
-                    totalOrders: {
-                        $sum: 1
-                    },
+                    _id: "$_id",
                     totalAmount: {
-                        $sum: "$subTotal"
+                        $sum: "$subTotal",
+
+                    },
+                    discountAmount: {
+                        $first: "$discountAmount"
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    totalAmount: {
+                        $cond: {
+                            if: {
+                                $ne: ["$totalAmount", 0]
+                            },
+                            then: {
+                                $subtract: ["$totalAmount", "$discountAmount"]
+                            },
+                            else: "$totalAmount"
+                        }
+
                     }
                 }
-            }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: {
+                        $sum: "$totalAmount"
+                    },
+                    totalOrders: {
+                        $sum: 1
+                    }
+                }
+            },
         ])
 
         const productStatistics = await Product.aggregate([
@@ -814,7 +935,7 @@ const adminReportController = asyncHandler(async (req, res) => {
         ])
 
 
-        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics })
+        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics, totalDiscount })
     }
 
     if (period === "yearly") {
@@ -876,6 +997,28 @@ const adminReportController = asyncHandler(async (req, res) => {
             }
         ])
 
+        // Finding out total discount in a day
+
+        const totalDiscount = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lt: endDate,
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalDiscount: {
+                        $sum: "$discountAmount"
+                    }
+                }
+            }
+
+        ])
+
         const orderStatistics = await Order.aggregate([
             {
                 $match: {
@@ -887,13 +1030,6 @@ const adminReportController = asyncHandler(async (req, res) => {
             },
             {
                 $unwind: "$productDetails"
-            },
-            {
-                $match: {
-                    "productDetails.deliveryStatus": {
-                        $ne: "Cancelled"
-                    }
-                }
             },
             {
                 $lookup: {
@@ -938,15 +1074,43 @@ const adminReportController = asyncHandler(async (req, res) => {
             },
             {
                 $group: {
-                    _id: null,
-                    totalOrders: {
-                        $sum: 1
-                    },
+                    _id: "$_id",
                     totalAmount: {
-                        $sum: "$subTotal"
+                        $sum: "$subTotal",
+
+                    },
+                    discountAmount: {
+                        $first: "$discountAmount"
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    totalAmount: {
+                        $cond: {
+                            if: {
+                                $ne: ["$totalAmount", 0]
+                            },
+                            then: {
+                                $subtract: ["$totalAmount", "$discountAmount"]
+                            },
+                            else: "$totalAmount"
+                        }
+
                     }
                 }
-            }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: {
+                        $sum: "$totalAmount"
+                    },
+                    totalOrders: {
+                        $sum: 1
+                    }
+                }
+            },
         ])
 
         const productStatistics = await Product.aggregate([
@@ -993,7 +1157,7 @@ const adminReportController = asyncHandler(async (req, res) => {
         ])
 
 
-        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics })
+        return res.render("admin.reports.ejs", { period, orders, orderStatistics, productStatistics, userStatistics, totalDiscount })
 
     }
 

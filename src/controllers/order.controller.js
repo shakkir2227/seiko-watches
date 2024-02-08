@@ -397,31 +397,12 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
             }
         },
         {
-            $lookup: {
-                from: "coupons",
-                localField: "appliedCoupon",
-                foreignField: "_id",
-                as: appliedCoupon
-            }
-        },
-        {
             $project: {
                 subTotal: 1,
-                appliedCoupon:1
             }
         }
     ])
 
-
-    if (orderStatistics[0].subTotal > orderStatistics[0].appliedCoupon.minimumOrderAmount ) {
-        let discountAmount = (orderStatistics[0].subTotal * (orderStatistics[0].appliedCoupon.discountPercent) / 100)
-        if (discountAmount > coupon[0].maxDiscountAmount) {
-            discountAmount = coupon[0].maxDiscountAmount;
-            if (discountAmount > coupon[0].maxDiscountAmount) {
-                discountAmount = coupon[0].maxDiscountAmount;
-            }
-}
-    }
 
     return res.render("page-orders-tracking.ejs", { order })
 
@@ -516,20 +497,29 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
                 as: "product",
             }
         },
+        // If it is cash on delivery and product is cancelled, then subtotal set to zero
+        // if it is online payment, then no changes
         {
             $addFields: {
                 subTotal: {
                     $cond: {
                         if: {
-                            $and: [
-                                // If it is cash on delivery, and a particular product of the order
-                                // is cancelled, then subtotal is set to zero
-                                { $eq: ["$productDetails.deliveryStatus", "Cancelled"] }, //
-                                { $eq: ["$paymentStatus", "Pending"] }
-                            ]
+                            $eq: ["$paymentMethod", "Pay online"]
                         },
-                        then: 0,
-                        else: { $multiply: ["$productDetails.quantity", "$productDetails.price"] }
+                        then: {
+                            $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                        },
+                        else: {
+                            $cond: {
+                                if: {
+                                    $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        }
                     }
                 }
             }
@@ -541,6 +531,7 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
                 productDetails: 1,
                 product: 1,
                 totalAmount: 1,
+                discountAmount: 1,
                 paymentMethod: 1,
                 paymentStatus: 1,
                 paymentId: 1,
@@ -553,14 +544,80 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
                 }
 
             }
-        }
+        },
+        // {
+        //     $addFields: {
+        //         totalAmount: {
+        //             $subtract: ["$totalAmount", "$discountAmount"]
+        //         }
+        //     }
+
+        // }
 
     ])
 
-    console.log(order);
+
+    const orderStatistics = await Order.aggregate([
+        {
+            $match: {
+                _id: orderIdObject
+            },
+
+        },
+        {
+            $unwind: "$productDetails"
+        },
+        // If it is cash on delivery and product is cancelled, then subtotal set to zero
+        // if it is online payment, then no changes
+        {
+            $addFields: {
+                subTotal: {
+                    $cond: {
+                        if: {
+                            $eq: ["$paymentMethod", "Pay online"]
+                        },
+                        then: {
+                            $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                        },
+                        else: {
+                            $cond: {
+                                if: {
+                                    $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalAmount: {
+                    $sum: "$subTotal"
+                },
+                discountAmount: {
+                    $first: "$discountAmount"
+                },
+            }
+        },
+        {
+            $addFields: {
+                totalAmount: {
+                    $subtract: ["$totalAmount", "$discountAmount"]
+                }
+            }
+        },
 
 
-    return res.render("page-orders-detail.ejs", { order })
+
+    ])
+    console.log(orderStatistics);
+    return res.render("page-orders-detail.ejs", { order, orderStatistics })
 })
 
 const adminOrderDetailedViewController = asyncHandler(async (req, res) => {
@@ -636,6 +693,7 @@ const adminOrderDetailedViewController = asyncHandler(async (req, res) => {
 
     ])
 
+    console.log(order);
 
     return res.render("page-admin-orders-tracking.ejs", { order })
 
@@ -826,10 +884,30 @@ const orderFilterController = asyncHandler(async (req, res) => {
                 }
             }
         },
+        // If it is cash on delivery and product is cancelled, then subtotal set to zero
+        // if it is online payment, then no changes
         {
             $addFields: {
                 subTotal: {
-                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                    $cond: {
+                        if: {
+                            $eq: ["$paymentMethod", "Pay online"]
+                        },
+                        then: {
+                            $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                        },
+                        else: {
+                            $cond: {
+                                if: {
+                                    $ne: ["$productDetails.deliveryStatus", "Cancelled"]
+                                },
+                                then: {
+                                    $multiply: ["$productDetails.quantity", "$productDetails.price"]
+                                },
+                                else: 0
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -845,6 +923,9 @@ const orderFilterController = asyncHandler(async (req, res) => {
                 paymentStatus: {
                     $first: "$paymentStatus"
                 },
+                discountAmount: {
+                    $first: "$discountAmount"
+                },
                 totalAmount: {
                     $sum: "$subTotal"
                 },
@@ -853,6 +934,22 @@ const orderFilterController = asyncHandler(async (req, res) => {
                 },
                 statuses: {
                     $push: "$productDetails.deliveryStatus"
+                }
+            }
+        },
+        {
+            $addFields: {
+                totalAmount: {
+                    $cond: {
+                        if: {
+                            $ne: ["$totalAmount", 0]
+                        },
+                        then: {
+                            $subtract: ["$totalAmount", "$discountAmount"]
+                        },
+                        else: "$totalAmount"
+                    }
+
                 }
             }
         },
@@ -997,12 +1094,40 @@ const orderFilterController = asyncHandler(async (req, res) => {
         },
         {
             $group: {
-                _id: null,
+                _id: "$_id",
                 totalAmount: {
-                    $sum: "$subTotal"
+                    $sum: "$subTotal",
+
+                },
+                discountAmount: {
+                    $first: "$discountAmount"
+                },
+            }
+        },
+        {
+            $addFields: {
+                totalAmount: {
+                    $cond: {
+                        if: {
+                            $ne: ["$totalAmount", 0]
+                        },
+                        then: {
+                            $subtract: ["$totalAmount", "$discountAmount"]
+                        },
+                        else: "$totalAmount"
+                    }
+
                 }
             }
-        }
+        },
+        {
+            $group: {
+                _id: null,
+                totalAmount: {
+                    $sum: "$totalAmount"
+                }
+            }
+        },
     ])
 
     return res.status(200).json({ page, totalPages, totalOrders, orders, orderStatistics })

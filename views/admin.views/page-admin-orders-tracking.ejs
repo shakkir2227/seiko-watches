@@ -90,7 +90,7 @@
                                 </div>
 
                                 <!--if already cancelled product disableing the cancle order dropdown-->
-                                <% if(order[0].productDetails.deliveryStatus !=="Cancelled" ) { %>
+                                <% if(order[0].productDetails.deliveryStatus !=="Cancelled" && order[0].productDetails.deliveryStatus !=="Delivered" ) { %>
                                     <div class="col-lg-6 col-md-6 ms-auto text-md-end">
                                         <select id="optionsDropdown"
                                             class="form-select d-inline-block mb-lg-0 mb-15 mw-200 mr-15">

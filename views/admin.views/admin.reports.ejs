@@ -70,7 +70,7 @@
                                                             <%} %>
                                             </span>
                                             <span class="text-sm">
-                                                Excluding orders cancelled </span>
+                                                Including orders cancelled </span>
                                         </div>
                                     </article>
                                 </div>
@@ -237,6 +237,14 @@
                                                                 <td
                                                                     style="width: 80px; font-weight: bolder; background-color: rgb(173, 234, 156);">
                                                                     ₹ <%=totalAmount %>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="5"></td>
+                                                                <td>Total Discount<br> Given:</td>
+                                                                <td
+                                                                    style="width: 50px ; margin-top: 10px; font-weight: bolder; background-color: rgb(235, 111, 49);">
+                                                                    ₹ <%=totalDiscount[0].totalDiscount %>
                                                                 </td>
                                                             </tr>
 
