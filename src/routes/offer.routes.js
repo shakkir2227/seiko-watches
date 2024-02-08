@@ -1,4 +1,7 @@
 import { Router } from "express";
+import {
+    offerViewController
+} from "../controllers/offer.controller.js"
 
 const router = Router();
 
