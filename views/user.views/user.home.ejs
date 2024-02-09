@@ -77,9 +77,9 @@
 
                                                             </span>
                                                         </div>
-                                                        <%if(product.discountAmount> 0) {%>
+                                                        <%if(product.discountedPrice) {%>
                                                             <div class="product-price">
-                                                                <span>&#8377 <%=product.newPrice%></span>
+                                                                <span>&#8377 <%=product.discountedPrice%></span>
                                                                 <span class="old-price">
                                                                     <%=product.price%>
                                                                 </span>

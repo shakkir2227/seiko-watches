@@ -45,6 +45,125 @@ const offerViewController = asyncHandler(async (req, res) => {
     return res.render("page-offers.ejs", { products, categories: res.locals.categories, offers, errorMessage, successMessage })
 })
 
+
+// This is for updating the discounted price, when adding or deleting an offer
+
+const updateDiscountedPrice = asyncHandler(async (product) => {
+
+    // Adding a new field by the name discountedPrice
+    const discountedPrice = await Product.aggregate([
+        {
+            $match: {
+                _id: product
+            },
+
+        },
+        {
+            $lookup: {
+                from: "categories",
+                foreignField: "_id",
+                localField: "category",
+                as: "category"
+            }
+        },
+        {
+            $lookup: {
+                from: "offers",
+                localField: "offer",
+                foreignField: "_id",
+                as: "productOffer"
+            }
+        },
+        {
+            $lookup: {
+                from: "offers",
+                localField: "category.0.offer",
+                foreignField: "_id",
+                as: "categoryOffer"
+            }
+        },
+        // Adding discount percent from both product and category
+        {
+            $addFields: {
+                productOfferDiscountPercent: { $ifNull: [{ $arrayElemAt: ["$productOffer.discountPercent", 0] }, null] },
+                categoryOfferDiscountPercent: { $ifNull: [{ $arrayElemAt: ["$categoryOffer.discountPercent", 0] }, null] }
+            }
+        },
+        // Making a new field offerpercent, whichever offer is bigger, that will be the offerpercent
+        {
+            $addFields: {
+                offerPercent: {
+                    $cond: {
+                        if: {
+                            $gt: ["$productOfferDiscountPercent", "$categoryOfferDiscountPercent"]
+                        },
+                        then: "$productOfferDiscountPercent",
+                        else: "$categoryOfferDiscountPercent"
+                    }
+
+                }
+            }
+        },
+        // That bigger offer's max discount amount is added here
+        {
+            $addFields: {
+                maxDiscountAmount: {
+                    $cond: {
+                        if: {
+                            $gt: ["$productOfferDiscountPercent", "$categoryOfferDiscountPercent"]
+                        },
+                        then: { $ifNull: [{ $arrayElemAt: ["$productOffer.maxDiscountAmount", 0] }, null] },
+                        else: { $ifNull: [{ $arrayElemAt: ["$categoryOffer.maxDiscountAmount", 0] }, null] }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                discountAmount: {
+                    $divide: [
+                        { $multiply: ["$price", "$offerPercent"] },
+                        100
+                    ]
+                }
+            }
+        },
+        {
+            $addFields: {
+                discountAmount: {
+                    $cond: {
+                        if: {
+                            $gt: ["$discountAmount", "$maxDiscountAmount"]
+                        },
+                        then: "$maxDiscountAmount",
+                        else: "$discountAmount"
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                discountedPrice: {
+                    $subtract: ["$price", "$discountAmount"]
+                }
+            }
+        }
+    ])
+    console.log(discountedPrice);
+    await Product.updateOne(
+        {
+            _id: product
+        },
+        {
+            $set: {
+                discountedPrice: discountedPrice[0].discountedPrice
+            }
+        }
+
+    )
+})
+
+
 const addOfferController = asyncHandler(async (req, res) => {
 
     let { productCategory, product, category, discountPercent, maxDiscountAmount, } = req.body;
@@ -105,6 +224,8 @@ const addOfferController = asyncHandler(async (req, res) => {
             }
         )
 
+        // Updating the discounted price in the product
+        await updateDiscountedPrice(productIdObject)
 
     } else {
 
@@ -161,6 +282,29 @@ const addOfferController = asyncHandler(async (req, res) => {
             )
         }
 
+        // Finding the products belong to this category
+        const products = []
+
+        for (const category of sameNamedSubCategories) {
+            const arr = await Product.aggregate([
+                {
+                    $match: {
+                        category: category._id
+                    }
+                }
+            ])
+
+            products.push(...arr)
+
+        }
+
+        // Now update the diconted price
+        for (const product of products) {
+
+            // Updating the discounted price in the product
+            await updateDiscountedPrice(product._id)
+
+        }
 
     }
 
@@ -201,13 +345,17 @@ const deleteOfferController = asyncHandler(async (req, res) => {
     ])
 
     console.log(offer);
-    // If it is a product offer, remove it from product 
+    // If it is a product offer, remove it from product, and also remove the new price 
     if (offer[0].product.length > 0) {
         await Product.updateOne({ _id: offer[0].product[0]._id }, { $set: { offer: null } })
+
+        // Updating the discounted price in the product
+        await updateDiscountedPrice(offer[0].product[0]._id)
     }
 
     // If it is a category offer, remove it from all categories with the same names
     let categories = []
+
     if (offer[0].category.length > 0) {
         categories = await Category.aggregate([
             {
@@ -219,6 +367,30 @@ const deleteOfferController = asyncHandler(async (req, res) => {
 
         for (const category of categories) {
             await Category.updateOne({ _id: category._id }, { $set: { offer: null } })
+        }
+
+        // Finding the products belong to this category
+        const products = []
+
+        for (const category of categories) {
+            const arr = await Product.aggregate([
+                {
+                    $match: {
+                        category: category._id
+                    }
+                }
+            ])
+
+            products.push(...arr)
+
+        }
+
+        // Now update the diconted price
+        for (const product of products) {
+
+            // Updating the discounted price in the product
+            await updateDiscountedPrice(product._id)
+
         }
 
     }
