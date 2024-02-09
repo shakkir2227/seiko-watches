@@ -403,7 +403,7 @@ const userAccountController = {
             }
         ])
 
-        console.log(allCoupons);
+        console.log(res.locals.user);
 
         const errorMessage = req.flash("error")[0]
         const successMessage = req.flash('success')[0];

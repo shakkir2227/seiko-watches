@@ -147,7 +147,16 @@ const adminHomeController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 totalAmount: {
-                    $subtract: ["$totalAmount", "$discountAmount"]
+                    $cond: {
+                        if: {
+                            $ne: ["$totalAmount", 0]
+                        },
+                        then: {
+                            $subtract: ["$totalAmount", "$discountAmount"]
+                        },
+                        else: "$totalAmount"
+                    }
+
                 }
             }
         },
@@ -168,6 +177,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 totalAmount: 1,
                 paymentMethod: 1,
                 paymentStatus: 1,
+                discountAmount:1,
                 totalOrders: 1,
                 createdAt: {
                     $dateToString: {
@@ -217,6 +227,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
         },
     ])
 
+    console.log("total orders are");
     console.log(orders);
     const orderStatistics = await Order.aggregate([
         {
@@ -277,7 +288,16 @@ const adminHomeController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 totalAmount: {
-                    $subtract: ["$totalAmount", "$discountAmount"]
+                    $cond: {
+                        if: {
+                            $ne: ["$totalAmount", 0]
+                        },
+                        then: {
+                            $subtract: ["$totalAmount", "$discountAmount"]
+                        },
+                        else: "$totalAmount"
+                    }
+
                 }
             }
         },

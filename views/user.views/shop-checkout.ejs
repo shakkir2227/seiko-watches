@@ -354,18 +354,28 @@
                                                                 value="<%=user.product[0]._id %>">
                                                             <input type="hidden" class="productQuantity"
                                                                 value="<%=user.cart.quantity %>">
-                                                            <input type="hidden" class="productPrice"
-                                                                value="<%=user.product[0].price%>">
-                                                            <td>
-                                                                <h5><a href="shop-product-full.html">
-                                                                        <%=user.product[0].name %>
-                                                                    </a>
-                                                                </h5> <span class="product-qty">x <%=user.cart.quantity
-                                                                        %></span>
-                                                            </td>
-                                                            <td class="sub-total-individual-products">
-                                                                <%=user.subTotal %>
-                                                            </td>
+
+                                                            <%if(user.product[0].discountedPrice) {%>
+                                                                <input type="hidden" class="productPrice"
+                                                                    value="<%=user.product[0].discountedPrice%>">
+                                                                <% } else {%>
+                                                                    <input type="hidden" class="productPrice"
+                                                                        value="<%=user.product[0].price%>">
+
+                                                                    <% }%>
+
+
+                                                                        <td>
+                                                                            <h5><a href="shop-product-full.html">
+                                                                                    <%=user.product[0].name %>
+                                                                                </a>
+                                                                            </h5> <span class="product-qty">x
+                                                                                <%=user.cart.quantity %>
+                                                                            </span>
+                                                                        </td>
+                                                                        <td class="sub-total-individual-products">
+                                                                            <%=user.subTotal %>
+                                                                        </td>
                                                         </tr>
 
                                                         <%}) %>
@@ -384,19 +394,32 @@
                                                                                 value="<%=product._id %>">
                                                                             <input type="hidden" class="productQuantity"
                                                                                 value="<%=productQuantity %>">
-                                                                            <input type="hidden" class="productPrice"
-                                                                                value="<%=product.price%>">
-                                                                            <td>
-                                                                                <h5><a href="shop-product-full.html">
-                                                                                        <%=product.name %>
-                                                                                    </a>
-                                                                                </h5> <span class="product-qty">x
-                                                                                    <%=productQuantity %>
-                                                                                </span>
-                                                                            </td>
-                                                                            <td class="sub-total-individual-products">
-                                                                                <%=subTotal %>
-                                                                            </td>
+
+                                                                            <%if(product.discountedPrice) {%>
+                                                                                <input type="hidden"
+                                                                                    class="productPrice"
+                                                                                    value="<%=product.discountedPrice%>">
+                                                                                <% } else {%>
+                                                                                    <input type="hidden"
+                                                                                        class="productPrice"
+                                                                                        value="<%=product.price%>">
+
+                                                                                    <% }%>
+
+                                                                                        <td>
+                                                                                            <h5><a
+                                                                                                    href="shop-product-full.html">
+                                                                                                    <%=product.name %>
+                                                                                                </a>
+                                                                                            </h5> <span
+                                                                                                class="product-qty">x
+                                                                                                <%=productQuantity %>
+                                                                                            </span>
+                                                                                        </td>
+                                                                                        <td
+                                                                                            class="sub-total-individual-products">
+                                                                                            <%=subTotal %>
+                                                                                        </td>
                                                                         </tr>
 
                                                                         <%}) %>
@@ -582,6 +605,34 @@
 
                     if (paymentMethod === "Pay online") {
 
+
+                        // For getting the input address  
+                        let selectedAddressIndex = null;
+
+                        const radioButtons = document.querySelectorAll('input[name="addressSelection"]');
+
+                        for (const radioButton of radioButtons) {
+                            if (radioButton.checked) {
+                                selectedAddressIndex = radioButton.value;
+                                break;
+                            }
+                        }
+
+                        if (selectedAddressIndex === null) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Please select your preferred address for a seamless experience on our platform.",
+                            })
+                                .then(() => {
+
+
+                                })
+
+                            return;
+
+                        }
+
                         // if the user selected online payment, a fetch request for generating..
                         // razor pay order is sent. 
                         let onlinePaymentData = {
@@ -604,10 +655,6 @@
                                 console.log(data);
                                 if (data.message === "Sorry, the requested quantity is currently unavailable.!") {
 
-                                    console.log("HELLO");
-
-
-
                                     Swal.fire({
                                         icon: "error",
                                         title: "Oops...",
@@ -620,7 +667,24 @@
 
                                     return
 
+                                } else if (data.message === "Please select your preferred address for a seamless experience on our platform.") {
+
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Oops...",
+                                        text: "Please select your preferred address for a seamless experience on our platform.",
+                                    })
+                                        .then(() => {
+                                            window.location.href = "/cart/view"
+
+                                        })
+
+                                    return
+
+
                                 }
+
+
                                 let options = {
                                     "key": data.key_id,
                                     "amount": data.amount,
@@ -735,7 +799,7 @@
                                     })
                             }
 
-                            else {
+                            else if (data.message === "We're sorry, but your order couldn't be completed due to insufficient stock.Please review your order and try again, or contact customer support for assistance.") {
 
                                 Swal.fire({
                                     icon: "error",
@@ -744,6 +808,16 @@
                                 })
                                     .then(() => {
                                         window.location.href = "/cart/view"
+                                    })
+                                    ;
+                            } else if (data.message === "Please select your preferred address for a seamless experience on our platform.") {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: "Please select your preferred address for a seamless experience on our platform.!",
+                                })
+                                    .then(() => {
+
                                     })
                                     ;
                             }

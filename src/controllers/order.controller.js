@@ -55,16 +55,18 @@ const userCheckoutController = {
                 },
             ])
 
-
-            const subTotal = product[0].price * productQuantity;
-
+            let subTotal;
+            if (product[0].discountedPrice) {
+                subTotal = product[0].discountedPrice * productQuantity
+            } else {
+                subTotal = product[0].price * productQuantity;
+            }
 
             return res.render("shop-checkout.ejs", { categories: res.locals.categories, product, productQuantity, subTotal, userDefaultAddress, userAddresses })
         }
 
 
-
-
+        // When user buy from cart, listing all cart items
         const userCart = await User.aggregate(
             [
                 { $match: { _id: userIdObject } },
@@ -82,8 +84,18 @@ const userCheckoutController = {
                 {
                     $addFields: {
                         subTotal: {
-                            $multiply: ['$cart.quantity', { $arrayElemAt: ["$product.price", 0] }]
-                        },
+                            $cond: {
+                                if: {
+                                    $eq: [{ $arrayElemAt: ["$product.discountedPrice", 0] }, null],
+                                },
+                                then: {
+                                    $multiply: ['$cart.quantity', { $arrayElemAt: ["$product.price", 0] }],
+                                },
+                                else: {
+                                    $multiply: ['$cart.quantity', { $arrayElemAt: ["$product.discountedPrice", 0] }],
+                                }
+                            }
+                        }
                     },
                 },
             ]
@@ -203,6 +215,14 @@ const userCheckoutController = {
         }
         const selectedAddressIndexIdObject = new mongoose.Types.ObjectId(selectedAddressIndex)
 
+        // If no address selected by user throw error
+        if (!selectedAddressIndex) {
+            console.log("HERE");
+            return res.status(400).json({ message: "Please select your preferred address for a seamless experience on our platform." })
+        }
+
+
+
         // Finding the coupon to findout the discount percent, and include that in the order
         const coupon = await Coupon.aggregate([
             {
@@ -216,7 +236,7 @@ const userCheckoutController = {
         discountAmount = discountAmount.replace(" - ₹", "")
         discountAmount = parseInt(discountAmount)
 
-        console.log();
+        console.log(productDetails);
 
         const order = await Order.create({
             user: user._id,
@@ -299,7 +319,7 @@ const userOrderViewController = asyncHandler(async (req, res) => {
         }
 
     ])
-
+    console.log(userOrders);
     return res.render("page-orders.ejs", { userOrders })
 })
 
@@ -409,6 +429,7 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
 })
 
 const userOrderUpdateControler = {
+
     cancelOrder: asyncHandler(async (req, res) => {
         const { orderId, productId } = req.body;
 
@@ -420,8 +441,6 @@ const userOrderUpdateControler = {
             { _id: orderIdObject, "productDetails.product": productIdObject },
             { $set: { "productDetails.$.deliveryStatus": "Cancelled" } }
         )
-
-
 
         // When user cancel the order, increase the corresponding product's stock
         const cancelledProduct = await Order.aggregate([
@@ -441,10 +460,16 @@ const userOrderUpdateControler = {
             },
             {
                 $project: {
-                    productDetails: 1
+                    productDetails: 1,
+                    paymentMethod: 1,
+                    discountAmount: 1,
+                    totalAmount: 1,
                 }
             }
         ])
+
+        console.log("Cancelled product is ");
+        console.log(cancelledProduct);
 
         const cancelledOrderProductCount = cancelledProduct[0].productDetails.quantity;
 
@@ -452,6 +477,65 @@ const userOrderUpdateControler = {
         product.stock += cancelledOrderProductCount;
 
         await product.save()
+
+
+
+        // First findingout the subtotal
+        let subTotal = cancelledProduct[0].productDetails.quantity * cancelledProduct[0].productDetails.price
+
+        let totalAmount = cancelledProduct[0].totalAmount + cancelledProduct[0].discountAmount
+        let discountOfThisProduct = Math.ceil((subTotal / totalAmount) * cancelledProduct[0].discountAmount)
+
+        subTotal = subTotal - discountOfThisProduct;
+
+        // Updating the order with new discount amount in cash on delivery
+        if (cancelledProduct[0].paymentMethod === "Cash on delivery") {
+            await Order.updateOne(
+                {
+                    _id: orderIdObject
+                },
+                {
+                    $inc: {
+                        discountAmount: - discountOfThisProduct
+                    }
+                }
+            )
+        }
+
+
+        // If it is online payment
+        if (cancelledProduct[0].paymentMethod === "Pay online") {
+
+            // If no coupon is applied by user, refunding the subtotal
+            if (cancelledProduct[0].discountAmount === 0) {
+                await User.updateOne(
+                    {
+                        _id: res.locals.user._id
+                    },
+                    {
+                        $inc: {
+                            wallet: subTotal
+                        }
+                    }
+                )
+            } else {
+
+                // If user had used coupon, finding out this subtotal is how much percent
+                // of the total order, then subtract that amount from subtotal and refund
+                // Also update the order doc with new discount amount
+                await User.updateOne(
+                    {
+                        _id: res.locals.user._id
+                    },
+                    {
+                        $inc: {
+                            wallet: subTotal
+                        }
+                    }
+                )
+            }
+
+        }
 
         return res.status(200).json({ message: "Your order has been successfully cancelled. If you have any further questions or concerns, please feel free to contact our customer support" })
 
@@ -545,14 +629,22 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
 
             }
         },
-        // {
-        //     $addFields: {
-        //         totalAmount: {
-        //             $subtract: ["$totalAmount", "$discountAmount"]
-        //         }
-        //     }
+        {
+            $addFields: {
+                totalAmount: {
+                    $cond: {
+                        if: {
+                            $ne: ["$totalAmount", 0]
+                        },
+                        then: {
+                            $subtract: ["$totalAmount", "$discountAmount"]
+                        },
+                        else: "$totalAmount"
+                    }
 
-        // }
+                }
+            }
+        },
 
     ])
 
@@ -608,7 +700,16 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 totalAmount: {
-                    $subtract: ["$totalAmount", "$discountAmount"]
+                    $cond: {
+                        if: {
+                            $ne: ["$totalAmount", 0]
+                        },
+                        then: {
+                            $subtract: ["$totalAmount", "$discountAmount"]
+                        },
+                        else: "$totalAmount"
+                    }
+
                 }
             }
         },

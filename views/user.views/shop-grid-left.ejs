@@ -1077,9 +1077,11 @@
                                 <span></span>
                             </span>
                         </div>
-                        <div class="product-price">
-                            <span>&#8377 ${product.price}</span>
-                            
+                       <div class="product-price">
+                             ${product.discountedPrice ?
+                            `<span>&#8377 ${product.discountedPrice}</span>
+                             <span class="old-price">${product.price}</span>` :
+                             `<span>&#8377 ${product.price}</span>`}
                         </div>
                         <div class="product-action-1 show">
                             <a aria-label="Add To Cart" class="action-btn hover-up"  onclick=addToCart('${product._id}')>

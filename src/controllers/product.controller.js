@@ -597,7 +597,7 @@ const productViewController = {
                 $replaceRoot: { newRoot: "$uniqueProduct" }
             }])
 
-
+            console.log(product);
 
             return res.render("shop-product-full.ejs", { product, relatedProducts, availableincart, productWithVariations, categories: res.locals.categories, user: res.locals.user })
 
@@ -844,6 +844,7 @@ const productViewController = {
                         images: 1,
                         category: 1,
                         price: 1,
+                        discountedPrice: 1
                     }
                 },
 
@@ -919,11 +920,13 @@ const productViewController = {
                     }
 
                 }
-                
+
                 const totalPages = Math.ceil(filteredProducts.length / limit)
 
                 // Pagination using js
                 filteredProducts = filteredProducts.splice(skip, limit)
+
+                console.log(filteredProducts);
 
                 return res.status(200).json({ filteredProducts, page, totalPages })
 
@@ -1062,7 +1065,7 @@ const productViewController = {
             }
 
             const totalPages = Math.ceil(filteredProducts.length / limit)
-            console.log("Filtered products are --- "+filteredProducts.length);
+            console.log("Filtered products are --- " + filteredProducts.length);
 
             // Pagination using js
             filteredProducts = filteredProducts.splice(skip, limit)

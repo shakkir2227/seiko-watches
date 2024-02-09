@@ -48,7 +48,12 @@ const userSchema = new Schema({
 
     coupons: [
         { type: mongoose.Schema.Types.ObjectId, ref: "Coupon", },
-    ]
+    ],
+
+    wallet: {
+        type: Number,
+        default: 0
+    }
 
 }, {
     timestamps: true

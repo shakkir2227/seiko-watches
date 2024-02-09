@@ -40,8 +40,18 @@ const viewCartController = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     subTotal: {
-                        $multiply: ['$cart.quantity', { $arrayElemAt: ["$product.price", 0] }]
-                    },
+                        $cond: {
+                            if: {
+                                $eq: [{ $arrayElemAt: ["$product.discountedPrice", 0] }, null],
+                            },
+                            then: {
+                                $multiply: ['$cart.quantity', { $arrayElemAt: ["$product.price", 0] }],
+                            },
+                            else: {
+                                $multiply: ['$cart.quantity', { $arrayElemAt: ["$product.discountedPrice", 0] }],
+                            }
+                        }
+                    }
                 },
             },
             {
@@ -56,14 +66,14 @@ const viewCartController = asyncHandler(async (req, res) => {
                     cart: 1,
                     product: 1,
                     subTotal: 1,
-                    inStock:1,
+                    inStock: 1,
                 }
             }
 
         ]
     );
 
-
+    console.log(userCart);
     return res.render("shop-cart.ejs", { categories: res.locals.categories, userCart })
 })
 

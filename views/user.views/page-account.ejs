@@ -69,10 +69,9 @@
                                                                         Wishlist</a>
                                                                 </li>
                                                                 <li class="nav-item">
-                                                                    <a class="nav-link " id="dashboard-tab"
-                                                                        data-bs-toggle="tab" href="#dashboard"
-                                                                        role="tab" aria-controls="dashboard"
-                                                                        aria-selected="false"><i
+                                                                    <a class="nav-link " id="wallet-tab"
+                                                                        data-bs-toggle="tab" href="#wallet" role="tab"
+                                                                        aria-controls="wallet" aria-selected="false"><i
                                                                             class="fi-rs-settings-sliders mr-10"></i>Wallet</a>
                                                                 </li>
                                                                 <li class="nav-item">
@@ -118,7 +117,7 @@
                                                                 role="tabpanel" aria-labelledby="dashboard-tab">
                                                                 <div class="card">
                                                                     <div class="card-header">
-                                                                        <h5 class="mb-0">Hello Rosie! </h5>
+                                                                        <h5 class="mb-0">Hello <%=user.name %>! </h5>
                                                                     </div>
                                                                     <div class="card-body">
                                                                         <p>From your account dashboard. you can easily
@@ -221,6 +220,51 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
+
+                                                            <div class="tab-pane fade " id="wallet" role="tabpanel"
+                                                                aria-labelledby="wallet-tab">
+                                                                <div class="card">
+                                                                    <div class="card-header">
+                                                                        <h5 class="mb-0">Hello <%=user.name %>! </h5>
+                                                                    </div>
+                                                                    <div class="card-body"
+                                                                        style="display: flex; justify-content: space-around;">
+                                                                        <h4>Your Balance:</h4>
+                                                                        <h4>₹ <%=user.wallet %>
+                                                                        </h4>
+
+                                                                    </div>
+
+                                                                </div>
+                                                                <!-- <form method="post" name="enq"
+                                                                    style="margin-top: 70px;">
+                                                                    <div class="row">
+
+
+                                                                        <h3 style="color:cornflowerblue">Add money to
+                                                                            Balance</h3>
+                                                                        <br><br>
+                                                                        <p>You can add upto $10000</p>
+                                                                        <div class="form-group col-md-6"
+                                                                            style="margin-top: 15px;">
+                                                                            <label> <span
+                                                                                    class="required">*</span></label>
+                                                                            <input required=""
+                                                                                class="form-control square" name="name"
+                                                                                type="text" placeholder="Enter amount">
+                                                                        </div>
+
+
+                                                                        <div class="col-md-6" style="margin-top: 40px;">
+                                                                            <button type="submit"
+                                                                                class="btn btn-fill-out submit"
+                                                                                name="submit" value="Submit">Add to
+                                                                                Wallet</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form> -->
+
                                                             </div>
 
 

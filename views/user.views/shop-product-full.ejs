@@ -69,12 +69,32 @@
                                                 </div>
                                                 <div class="clearfix product-price-cover">
                                                     <div class="product-price primary-color float-left">
-                                                        <ins><span class="text-brand">&#8377 <%=product.price %>
-                                                            </span></ins>
-                                                        <ins><span class="old-price font-md ml-15">&#8377
-                                                                <%=product.price * 1.25 %>
-                                                            </span></ins>
-                                                        <span class="save-price  font-md color3 ml-15">20% Off</span>
+
+                                                        <%if(product.discountedPrice) {%>
+
+                                                            <ins><span class="text-brand">&#8377
+                                                                    <%=product.discountedPrice %>
+                                                                </span></ins>
+
+                                                            <ins><span class="old-price font-md ml-15">&#8377
+                                                                    <%=product.price %>
+                                                                </span></ins>
+
+
+                                                            <span class="save-price font-md color3 ml-15">
+                                                                <% var discountPercentage=((product.price -
+                                                                    product.discountedPrice) / product.price) * 100; %>
+                                                                    <%= discountPercentage.toFixed(2) %>%
+                                                                        Off
+                                                            </span>
+
+                                                            <% } else {%>
+
+                                                                <ins><span class="text-brand">&#8377
+                                                                        <%=product.price %>
+                                                                    </span></ins>
+                                                                <% }%>
+
                                                     </div>
                                                 </div>
                                                 <div class="bt-1 border-color-1 mt-15 mb-15"></div>
@@ -282,39 +302,39 @@
 
                         console.log(productId);
                         let data = {
-                            product:productId
+                            product: productId
                         };
                         data = JSON.stringify(data);
 
 
                         console.log(data);
-                         fetch("/wishlist/add", {
+                        fetch("/wishlist/add", {
                             method: "PUT",
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: data,
                         })
-                        .then((res) => {
-                            if(res.ok) {
-                                const Toast = Swal.mixin({
-                                    toast: true,
-                                    position: "top-end",
-                                    showConfirmButton: false,
-                                    timer: 1500,
-                                    timerProgressBar: true,
-                                    didOpen: (toast) => {
-                                        toast.onmouseenter = Swal.stopTimer;
-                                        toast.onmouseleave = Swal.resumeTimer;
-                                    }
-                                });
-                                Toast.fire({
-                                    icon: "success",
-                                    title: "Success! The item has been saved to your wishlist."
-                                });
-                            }
-                        })
-                        
+                            .then((res) => {
+                                if (res.ok) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: "top-end",
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.onmouseenter = Swal.stopTimer;
+                                            toast.onmouseleave = Swal.resumeTimer;
+                                        }
+                                    });
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: "Success! The item has been saved to your wishlist."
+                                    });
+                                }
+                            })
+
 
                     }
 
@@ -345,7 +365,7 @@
 
 
                     function buyProduct(productId) {
-                       
+
                         const productQuantity = document.getElementById("product-quantity").innerText;
 
 
