@@ -36,7 +36,7 @@ const offerViewController = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log(offers);
+
     const products = await Product.find()
 
     const errorMessage = req.flash("error")[0]
@@ -99,7 +99,7 @@ const addOfferController = asyncHandler(async (req, res) => {
                 _id: productIdObject
             },
             {
-                $push: {
+                $set: {
                     offer: offer._id
                 }
             }
@@ -125,7 +125,7 @@ const addOfferController = asyncHandler(async (req, res) => {
                 }
             }
         ])
-        console.log(category);
+
         if (category[0].offer[0]) {
             req.flash("error", "Offer already exist for this category")
             return res.redirect("/offer/view")
@@ -154,14 +154,14 @@ const addOfferController = asyncHandler(async (req, res) => {
                     _id: category._id
                 },
                 {
-                    $push: {
+                    $set: {
                         offer: offer._id
                     }
                 }
             )
         }
 
-       
+
     }
 
     req.flash("success", `Offer created successfully`)
@@ -169,12 +169,70 @@ const addOfferController = asyncHandler(async (req, res) => {
 
 })
 
-const offerDeleteController = asyncHandler(async(req, res) => {
+const deleteOfferController = asyncHandler(async (req, res) => {
 
+    console.log(req.body);
+
+    const { offerId } = req.body
+    const offerIdObject = new mongoose.Types.ObjectId(offerId)
+
+    const offer = await Offer.aggregate([
+        {
+            $match: {
+                _id: offerIdObject
+            }
+        },
+        {
+            $lookup: {
+                from: "categories",
+                localField: "category",
+                foreignField: "_id",
+                as: "category"
+            }
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "product"
+            }
+        }
+    ])
+
+    console.log(offer);
+    // If it is a product offer, remove it from product 
+    if (offer[0].product.length > 0) {
+        await Product.updateOne({ _id: offer[0].product[0]._id }, { $set: { offer: null } })
+    }
+
+    // If it is a category offer, remove it from all categories with the same names
+    let categories = []
+    if (offer[0].category.length > 0) {
+        categories = await Category.aggregate([
+            {
+                $match: {
+                    name: offer[0].category[0].name
+                }
+            }
+        ])
+
+        for (const category of categories) {
+            await Category.updateOne({ _id: category._id }, { $set: { offer: null } })
+        }
+
+    }
+
+
+    // Deleting the offer which get from body of the request
+    await Offer.deleteOne({ _id: offer[0]._id })
+
+    return res.status(200).json({ message: "Offer deleted successfully" })
 })
 
 
 export {
     offerViewController,
-    addOfferController
+    addOfferController,
+    deleteOfferController
 } 

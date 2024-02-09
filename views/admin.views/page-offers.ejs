@@ -234,7 +234,8 @@
                                                                                                 </b></td>
 
                                                                                             <td>
-
+                                                                                                <a
+                                                                                                    onclick="deleteOffer('<%=offer._id %>')">Delete</a>
                                                                                             </td>
 
 
@@ -260,7 +261,47 @@
 
             <script>
 
-               function updateOptions() {
+                // For deleting a particular offer
+                function deleteOffer(id) {
+
+                    let data = {
+                        offerId: id
+                    };
+
+                    data = JSON.stringify(data);
+
+                    fetch("/offer/delete", {
+                        method: "DELETE",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: data,
+                    })
+                        .then((res) => {
+                            if (res.ok) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Offer deleted successfully',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-success', // Add custom class for styling
+                                    },
+                                }).then(() => {
+
+                                    window.location.reload()
+                                })
+                            }
+                        })
+
+
+
+                }
+
+
+
+                function updateOptions() {
                     const selectedItem = document.getElementById("product_category").value;
 
                     const categorySection = document.getElementById("categorySection");

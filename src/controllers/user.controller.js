@@ -473,9 +473,17 @@ const userHomeController = asyncHandler(async (req, res) => {
         return res.redirect("/user/login")
     }
 
-    const newProducts =
-        await Product.aggregate([{ $match: { isBlocked: false } },
-        { $sort: { "createdAt": -1 } },
+    const newProducts = await Product.aggregate([
+        {
+            $match: {
+                isBlocked: false
+            }
+        },
+        {
+            $sort: {
+                "createdAt": -1
+            }
+        },
         {
             $group: {
                 _id: "$name",
@@ -485,10 +493,105 @@ const userHomeController = asyncHandler(async (req, res) => {
         {
             $replaceRoot: { newRoot: "$uniqueProduct" }
         },
-        { $limit: 8 },
-        { $lookup: { from: "categories", foreignField: "_id", localField: "category", as: "category" } }])
+        {
+            $limit: 8
+        },
+        {
+            $lookup: {
+                from: "categories",
+                foreignField: "_id",
+                localField: "category",
+                as: "category"
+            }
+        },
+        {
+            $lookup: {
+                from: "offers",
+                localField: "offer",
+                foreignField: "_id",
+                as: "productOffer"
+            }
+        },
+        {
+            $lookup: {
+                from: "offers",
+                localField: "category.0.offer",
+                foreignField: "_id",
+                as: "categoryOffer"
+            }
+        },
+        // Adding discount percent from both product and category
+        {
+            $addFields: {
+                productOfferDiscountPercent: { $ifNull: [{ $arrayElemAt: ["$productOffer.discountPercent", 0] }, null] },
+                categoryOfferDiscountPercent: { $ifNull: [{ $arrayElemAt: ["$categoryOffer.discountPercent", 0] }, null] }
+            }
+        },
+        // Making a new field offerpercent, which ever offer is bigger, that will be the offerpercent
+        {
+            $addFields: {
+                offerPercent: {
+                    $cond: {
+                        if: {
+                            $gt: ["$productOfferDiscountPercent", "$categoryOfferDiscountPercent"]
+                        },
+                        then: "$productOfferDiscountPercent",
+                        else: "$categoryOfferDiscountPercent"
+                    }
 
-    console.log(newProducts);
+                }
+            }
+        },
+        // That bigger offer's max discount amount is added here
+        {
+            $addFields: {
+                maxDiscountAmount: {
+                    $cond: {
+                        if: {
+                            $gt: ["$productOfferDiscountPercent", "$categoryOfferDiscountPercent"]
+                        },
+                        then: { $ifNull: [{ $arrayElemAt: ["$productOffer.maxDiscountAmount", 0] }, null] },
+                        else: { $ifNull: [{ $arrayElemAt: ["$categoryOffer.maxDiscountAmount", 0] }, null] }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                discountAmount: {
+                    $divide: [
+                        { $multiply: ["$price", "$offerPercent"] },
+                        100
+                    ]
+                }
+            }
+        },
+        {
+            $addFields: {
+                discountAmount: {
+                    $cond: {
+                        if: {
+                            $gt: ["$discountAmount", "$maxDiscountAmount"]
+                        },
+                        then: "$maxDiscountAmount",
+                        else: "$discountAmount"
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                newPrice: {
+                    $subtract: ["$price", "$discountAmount"]
+                }
+            }
+        }
+
+
+    ])
+
+
+
 
     const categories = res.locals.categories;
 
