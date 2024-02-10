@@ -148,6 +148,8 @@ const userCheckoutController = {
         const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
         const { productDetails, totalAmount } = req.body;
 
+        console.log(req.body);
+
         // Before initiating the payment, reducing the stock of each of the products
         // Checking if the stock becomes negative, if it is, return an error. 
         for (const productDetail of productDetails) {

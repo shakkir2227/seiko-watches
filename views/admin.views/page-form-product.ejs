@@ -213,7 +213,8 @@
                                                             <div class="col-sm-12 mb-3">
                                                                 <label class="form-label"></label>
 
-                                                                <select class="form-select" name="categoryId" id="category">
+                                                                <select class="form-select" name="categoryId"
+                                                                    id="category">
                                                                     <option value="" selected disabled>Category</option>
                                                                     <% if(typeof(categoryPathArr)!=="undefined" ) %>
                                                                         <% for(let i=0; i<categoryPathArr.length; i++) {
@@ -338,7 +339,7 @@
 
                     let value = dialColorInput.value;
                     if (!value) {
-                       
+
                         dialColorError.innerHTML = "Select one Dial Color"
                     }
                     else {
@@ -358,7 +359,15 @@
                         // Clear previous images
                         imgContainer.innerHTML = "";
 
-                        for (const file of event.target.files) {
+
+                        // For renaming cropped images
+                        let fileCounter = 1;
+
+                        for (let file of event.target.files) {
+
+
+                            console.log("File is ");
+                            console.log(file)
 
                             const liElement = document.createElement("li")
 
@@ -368,20 +377,93 @@
                             // Set the object URL for the file
                             imgElement.src = URL.createObjectURL(file);
 
+
+
+                            let originalImageSrc;
+
+                            // Event listener for image click
+                            imgElement.addEventListener("click", () => {
+                                originalImageSrc = originalImageSrc || URL.createObjectURL(file);
+
+                                Swal.fire({
+                                    title: "Crop Image",
+                                    imageUrl: originalImageSrc,
+                                    imageWidth: 400,
+                                    imageHeight: 100,
+                                    imageAlt: "Original Image",
+                                    showConfirmButton: true,
+                                    confirmButtonText: "Crop",
+                                    allowOutsideClick: true,
+                                    customClass: {
+                                        container: 'custom-modal-container'
+                                    },
+                                    preConfirm: () => {
+                                        // Get the cropped canvas
+                                        let croppedCanvas = cropper.getCroppedCanvas();
+
+                                        // Changing the file
+                                        // Convert the canvas to a Blob
+                                        croppedCanvas.toBlob((blob) => {
+                                            // Generate a unique filename
+                                            const croppedFilename = `cropped-image-${fileCounter}.png`;
+
+                                            // Create a new File object from the Blob with the unique filename
+                                            const croppedFile = new File([blob], croppedFilename, { type: 'image/png' });
+
+                                            // Increment the file counter for the next iteration
+                                            fileCounter++;
+
+                                            console.log("Cropped file is");
+                                            console.log(croppedFile);
+
+                                            // Changing the file
+                                            file = croppedFile;
+
+                                            console.log("Old file is");
+                                            console.log(file);
+
+                                            // You can use 'croppedFile' as needed, for example, upload it to a server
+                                        });
+
+                                        // Convert the canvas to a data URL
+                                        const croppedImageSrc = croppedCanvas.toDataURL();
+
+                                        // Update the original image src with the cropped image
+                                        imgElement.src = croppedImageSrc;
+
+                                        // Update the image src of original imgsrc
+                                        originalImageSrc = croppedImageSrc;
+
+                                        // Destroy the Cropper instance 
+                                        cropper.destroy();
+                                    }
+                                });
+
+                                // Create a Cropper instance after the modal is shown
+                                const cropper = new Cropper(document.querySelector('.custom-modal-container img'), {
+                                    aspectRatio: 0,
+                                    viewMode: 0
+                                });
+                            });
+
                             // Append the image element and remove button to the container
                             imgContainer.appendChild(liElement);
                             liElement.appendChild(imgElement);
                             // liElement.appendChild(removeButton);
                         }
 
+
+
                     }
+
+
                     // Loop through all selected files
 
                     const imagesElement = document.getElementById("images");
                     const imagesErrorElement = document.getElementById("imagesError");
 
                     const numFiles = imagesElement.files?.length;
-                  
+
                     if (numFiles < 3 || numFiles > 5) {
                         imagesErrorElement.innerHTML = "Please select 3 to 5 images";
                     } else {
@@ -392,32 +474,35 @@
                 }
 
                 function validateCategory() {
-                        const categoryInput = document.getElementById("category")
-                        const categoryError = document.getElementById("categoryError")
+                    const categoryInput = document.getElementById("category")
+                    const categoryError = document.getElementById("categoryError")
 
 
-                        let value = categoryInput.value;
-                        console.log(value);
-                        console.log(categoryInput);
-                        console.log(categoryError);
-                        if (!value) {
-                            categoryError.innerHTML = "Select category of your product"
-                        }
-                        else {
-                            categoryError.innerHTML = ""
-                        }
-
+                    let value = categoryInput.value;
+                    console.log(value);
+                    console.log(categoryInput);
+                    console.log(categoryError);
+                    if (!value) {
+                        categoryError.innerHTML = "Select category of your product"
                     }
+                    else {
+                        categoryError.innerHTML = ""
+                    }
+
+                }
 
                 function validateForm() {
 
+                    const images = document.getElementById("images")
+                    console.log(images.files);
+
                     // Call individual validation functions
-                    validateFieldName();    
+                    validateFieldName();
                     validateProductDescription();
                     validatePrice();
-                    validateStock();  
+                    validateStock();
                     validateBandMaterial();
-                    validateDialColor(); 
+                    validateDialColor();
                     validateImageUpload();
                     validateCategory()
 
@@ -436,11 +521,11 @@
 
                     }
 
-                 
+
                     // All fields are valid, continue with form submission
                     return true;
                 }
- 
+
 
 
             </script>
@@ -455,6 +540,8 @@
 
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 
+            // cropperjs script
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     </body>
 
     </html>

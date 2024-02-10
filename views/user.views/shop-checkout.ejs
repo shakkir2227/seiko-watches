@@ -639,6 +639,8 @@
                             totalAmount,
                             productDetails,
                         }
+                        console.log("Product details are");
+                        console.log(productDetails);
 
                         onlinePaymentData = JSON.stringify(onlinePaymentData);
 
@@ -652,8 +654,17 @@
                                 return res.json()
                             })
                             .then((data) => {
+
+                               
+
                                 console.log(data);
                                 if (data.message === "Sorry, the requested quantity is currently unavailable.!") {
+
+                                     // Clear the already available product details
+                                    productId.length = 0;
+                                    quantity.length = 0;
+                                    productPrice.length = 0;
+                                    productDetails.length = 0
 
                                     Swal.fire({
                                         icon: "error",
@@ -661,7 +672,7 @@
                                         text: "Sorry, the requested quantity is currently unavailable.!",
                                     })
                                         .then(() => {
-                                            window.location.href = "/cart/view"
+
 
                                         })
 
@@ -669,13 +680,19 @@
 
                                 } else if (data.message === "Please select your preferred address for a seamless experience on our platform.") {
 
+                                     // Clear the already available product details
+                                    productId.length = 0;
+                                    quantity.length = 0;
+                                    productPrice.length = 0;
+                                    productDetails.length = 0
+
                                     Swal.fire({
                                         icon: "error",
                                         title: "Oops...",
                                         text: "Please select your preferred address for a seamless experience on our platform.",
                                     })
                                         .then(() => {
-                                            window.location.href = "/cart/view"
+
 
                                         })
 
@@ -788,6 +805,15 @@
                         })
 
                         .then((data) => {
+
+                            // Clear the already available product details
+                            productId.length = 0;
+                            quantity.length = 0;
+                            productPrice.length = 0;
+                            productDetails.length = 0
+
+
+                            console.log(data);
                             if (data.message === "Order placed") {
                                 Swal.fire({
                                     icon: 'success',
@@ -799,7 +825,7 @@
                                     })
                             }
 
-                            else if (data.message === "We're sorry, but your order couldn't be completed due to insufficient stock.Please review your order and try again, or contact customer support for assistance.") {
+                            else if (data.message === "We're sorry, but your order couldn't be completed due to insufficient stock. Please review your order and try again, or contact customer support for assistance.") {
 
                                 Swal.fire({
                                     icon: "error",
@@ -807,7 +833,7 @@
                                     text: "Sorry, the requested quantity is currently unavailable.!",
                                 })
                                     .then(() => {
-                                        window.location.href = "/cart/view"
+
                                     })
                                     ;
                             } else if (data.message === "Please select your preferred address for a seamless experience on our platform.") {

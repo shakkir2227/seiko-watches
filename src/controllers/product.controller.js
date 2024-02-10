@@ -50,6 +50,8 @@ const addProductController = {
 
     handleAddProductForm: asyncHandler(async (req, res) => {
 
+        return
+
         //----This is the note for view-category----
         //Only one category drop down should be there
         //and pressing that creates another HTML element
