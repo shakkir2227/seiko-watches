@@ -36,11 +36,11 @@
                                 </ul>
                             </li>
 
-                            <%if (typeof(user) !=="undefined" && user  ) {%>
+                            <%if (typeof(user) !=="undefined" && user ) {%>
                                 <li><i class="fi-rs-user"></i><a href="/user/account"><span>Hello <%=user.name %>
-                                                </span></a>
-                                
-                                            </li>
+                                        </span></a>
+
+                                </li>
 
                                 <%}else{%>
 
@@ -61,62 +61,270 @@
                     <a href="/user/home"><img src="/user.assets/imgs/theme/seiko-logo.png" alt="logo"></a>
                 </div>
                 <div class="header-right">
-                    <div class="search-style-2">
-                        <form action="#">
+
+
+
+
+
+                    <!-- <div class="search-style-2">
+                        <form action="#" class="searchform" onsubmit="searchProductsAndCategories()">
 
                             <input type="text" placeholder="Search for items...">
+
+                        </form>
+
+                        <ul style="width: 500px; background-color:white; margin-left: 60px; margin-top: 10px;">
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+                            <li style=" padding: 5px; margin-left: 10px; font-size: small; ">jsfksjdfkjs</li>
+
+                        </ul>
+
+
+                    </div> -->
+
+
+
+
+
+
+
+                    <div class=" col-search" style="width:700px;">
+                        <form class="searchform">
+                            <div class="input-group">
+                                <input id="searchTerm" list="search_terms" type="text" class="form-control"
+                                    placeholder="Search term">
+                                <button class="btn btn-light bg" type="button" onclick="searchProductsAndCategories()">
+                                    Search</button>
+                            </div>
+                            <datalist id="search_terms" style="width: 500px;">
+                                <option value="Products">
+                                <option
+                                    value="New orderssjfksjfkjsdfkjsdkfjsdkfjsdkfjksdjf skdjfkdsjfkdsjkfjd skfjdskfj">
+                                <option value="Apple iphone">
+                                <option value="Ahmed Hassan">
+                            </datalist>
                         </form>
                     </div>
+
                     <div class="header-action-right">
                         <div class="header-action-2">
                             <div class="header-action-icon-2">
                                 <a href="/wishlist/view">
                                     <img class="svgInject" alt="Evara"
                                         src="/user.assets/imgs/theme/icons/icon-heart.svg">
-                                    <span class="pro-count blue">4</span>
+
+                                    <%if (typeof(user) !=="undefined" && user ) {%>
+
+                                        <span class="pro-count blue">
+                                            <%=user.wishlist.length %>
+                                        </span>
+
+                                        <%}else{%>
+
+
+                                            <span class="pro-count blue">0</span>
+
+                                            <%}%>
+
                                 </a>
                             </div>
                             <div class="header-action-icon-2">
                                 <a class="mini-cart-icon" href="/cart/view">
                                     <img alt="Evara" src="/user.assets/imgs/theme/icons/icon-cart.svg">
-                                    <span class="pro-count blue">2</span>
+
+                                    <%if (typeof(user) !=="undefined" && user ) {%>
+
+                                        <span class="pro-count blue">
+                                            <%=user.cart.length %>
+                                        </span>
+
+                                        <%}else{%>
+
+                                            <span class="pro-count blue">0</span>
+
+                                            <%}%>
+
                                 </a>
                                 <div class="cart-dropdown-wrap cart-dropdown-hm2">
                                     <ul>
-                                        <li>
-                                            <div class="shopping-cart-img">
-                                                <a href="shop-product-right.html"><img alt="Evara"
-                                                        src="/user.assets/imgs/shop/thumbnail-3.jpg"></a>
-                                            </div>
-                                            <div class="shopping-cart-title">
-                                                <h4><a href="shop-product-right.html">Daisy Casual Bag</a></h4>
-                                                <h4><span>1 × </span>$800.00</h4>
-                                            </div>
-                                            <div class="shopping-cart-delete">
-                                                <a href="#"><i class="fi-rs-cross-small"></i></a>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="shopping-cart-img">
-                                                <a href="shop-product-right.html"><img alt="Evara"
-                                                        src="/user.assets/imgs/shop/thumbnail-2.jpg"></a>
-                                            </div>
-                                            <div class="shopping-cart-title">
-                                                <h4><a href="shop-product-right.html">Corduroy Shirts</a></h4>
-                                                <h4><span>1 × </span>$3200.00</h4>
-                                            </div>
-                                            <div class="shopping-cart-delete">
-                                                <a href="#"><i class="fi-rs-cross-small"></i></a>
-                                            </div>
-                                        </li>
+                                        <% let totalAmount=0 ;%>
+
+                                            <%if (typeof(user) !=="undefined" && user ) {%>
+
+                                                <%if(user.cart.length> 0) {%>
+
+                                                    <!-- Displaying first 2 items of the cart if cart has 2 or more than 2 items-->
+
+
+                                                    <%if(user.cart.length>= 2) {%>
+
+                                                        <%for(let i=0; i<2; i++) {%>
+
+                                                            <%if(user.cart[i].product.discountedPrice) {%>
+
+                                                                <%totalAmount +=(user.cart[i].quantity *
+                                                                    user.cart[i].product.discountedPrice ) %>
+
+
+                                                                    <% } else{%>
+
+                                                                        <%totalAmount +=(user.cart[i].quantity *
+                                                                            user.cart[i].product.price ) %>
+
+
+                                                                            <% }%>
+
+
+                                                                                <li>
+                                                                                    <div class="shopping-cart-img">
+                                                                                        <a
+                                                                                            href="shop-product-right.html"><img
+                                                                                                alt="Evara"
+                                                                                                src="<%=user.cart[i].product.images[0].url %>"></a>
+                                                                                    </div>
+                                                                                    <div class="shopping-cart-title">
+                                                                                        <h4><a
+                                                                                                href="shop-product-right.html">
+                                                                                                <%=user.cart[i].product.name.slice(0,15)%>
+                                                                                            </a></h4>
+                                                                                        <h4><span>
+                                                                                                <%=user.cart[i].quantity%>
+                                                                                                    ×
+                                                                                            </span>
+
+                                                                                            <%if(user.cart[i].product.discountedPrice)
+                                                                                                {%>
+                                                                                                ₹
+                                                                                                <%=user.cart[i].product.discountedPrice%>
+
+                                                                                                    <%} else { %>
+
+                                                                                                        ₹
+                                                                                                        <%=user.cart[i].product.price%>
+
+
+
+                                                                                                            <%} %>
+                                                                                        </h4>
+                                                                                    </div>
+
+                                                                                </li>
+
+
+                                                                                <%} %>
+
+
+
+                                                                                    <%} else{ %>
+
+                                                                                        <%for(let i=0; i<1; i++) {%>
+
+                                                                                            <%if(user.cart[i].product.discountedPrice)
+                                                                                                {%>
+
+                                                                                                <%totalAmount
+                                                                                                    +=(user.cart[i].quantity
+                                                                                                    *
+                                                                                                    user.cart[i].product.discountedPrice
+                                                                                                    ) %>
+
+
+                                                                                                    <% } else{%>
+
+                                                                                                        <%totalAmount
+                                                                                                            +=(user.cart[i].quantity
+                                                                                                            *
+                                                                                                            user.cart[i].product.price
+                                                                                                            ) %>
+
+
+                                                                                                            <% }%>
+
+                                                                                                                <li>
+                                                                                                                    <div
+                                                                                                                        class="shopping-cart-img">
+                                                                                                                        <a
+                                                                                                                            href="shop-product-right.html"><img
+                                                                                                                                alt="Evara"
+                                                                                                                                src="<%=user.cart[i].product.images[0].url %>"></a>
+                                                                                                                    </div>
+                                                                                                                    <div
+                                                                                                                        class="shopping-cart-title">
+                                                                                                                        <h4><a
+                                                                                                                                href="shop-product-right.html">
+                                                                                                                                <%=user.cart[i].product.name.slice(0,15)%>
+                                                                                                                            </a>
+                                                                                                                        </h4>
+                                                                                                                        <h4><span>
+                                                                                                                                <%=user.cart[i].quantity%>
+                                                                                                                                    ×
+                                                                                                                            </span>
+
+                                                                                                                            <%if(user.cart[i].product.discountedPrice)
+                                                                                                                                {%>
+                                                                                                                                ₹
+                                                                                                                                <%=user.cart[i].product.discountedPrice%>
+
+                                                                                                                                    <%} else
+                                                                                                                                        {
+                                                                                                                                        %>
+
+                                                                                                                                        ₹
+                                                                                                                                        <%=user.cart[i].product.price%>
+
+
+
+                                                                                                                                            <%}
+                                                                                                                                                %>
+                                                                                                                        </h4>
+                                                                                                                    </div>
+
+                                                                                                                </li>
+
+
+                                                                                                                <%} %>
+
+
+
+
+                                                                                                                    <%}%>
+
+
+
+
+
+
+
+                                                                                                                        <%}
+                                                                                                                            %>
+
+
+                                                                                                                            <%}else{%>
+
+
+                                                                                                                                <%}%>
+
+
+
+
                                     </ul>
                                     <div class="shopping-cart-footer">
                                         <div class="shopping-cart-total">
-                                            <h4>Total <span>$4000.00</span></h4>
+                                            <h4>Total <span>
+                                                    ₹ <%=totalAmount%>
+                                                </span></h4>
                                         </div>
                                         <div class="shopping-cart-button">
-                                            <a href="shop-cart.html" class="outline">View cart</a>
-                                            <a href="shop-checkout.html">Checkout</a>
+                                            <a href="/cart/view" class="outline">View cart</a>
+                                            <a href="/order/buy">Checkout</a>
                                         </div>
                                     </div>
                                 </div>
@@ -127,6 +335,10 @@
             </div>
         </div>
     </div>
+
+
+
+
     <div class="header-bottom header-bottom-bg-color sticky-bar">
         <div class="container">
             <div class="header-wrap header-space-between position-relative  main-nav">
@@ -160,10 +372,9 @@
                                 <!-- <li>
                                         <a href="page-about.html">About</a>
                                     </li> -->
-                                <li style="margin-left: 150px;"><a href="shop-grid-right.html">Heritage <i
-                                            class="fi-rs-angle-down"></i></a>
+                                <li style="margin-left: 150px;"><a>Heritage <i class="fi-rs-angle-down"></i></a>
                                     <ul class="sub-menu">
-                                        <li><a href="shop-grid-right.html">Shop Grid – Right Sidebar</a></li>
+
 
                                     </ul>
                                 </li>
@@ -171,14 +382,7 @@
                                 <li style="margin-left: 180px;"><a href="#">Technology <i
                                             class="fi-rs-angle-down"></i></a>
                                     <ul class="sub-menu">
-                                        <li><a href="page-about.html">About Us</a></li>
-                                        <li><a href="page-contact.html">Contact</a></li>
-                                        <li><a href="page-account.html">My Account</a></li>
-                                        <li><a href="/user/register">login/register</a></li>
-                                        <li><a href="page-purchase-guide.html">Purchase Guide</a></li>
-                                        <li><a href="page-privacy-policy.html">Privacy Policy</a></li>
-                                        <li><a href="page-terms.html">Terms of Service</a></li>
-                                        <li><a href="page-404.html">404 Page</a></li>
+
                                     </ul>
                                 </li>
 
@@ -255,3 +459,46 @@
         </div>
     </div>
 </header>
+
+
+<script>
+
+    async function searchProductsAndCategories() {
+
+        // Getting the search input
+        const searchTerm = document.getElementById("searchTerm")
+        const searchTermValue = searchTerm.value;
+
+        let searchQuery = "/user/home/search?search=" + searchTermValue
+        console.log(searchQuery);
+
+        const response = await fetch(searchQuery)
+        const data = await response.json()
+
+        const datalist = document.getElementById('search_terms');
+        datalist.innerHTML = ''; // Clear existing options
+
+        if (data.categories.length > 0) {
+            data.categories.forEach((category) => {
+
+                const option = document.createElement('option');
+                option.value = category.name
+                datalist.appendChild(option);
+
+
+
+            })
+
+            
+            searchTerm.click()
+        }
+        console.log(data);
+
+
+
+
+
+
+    }
+
+</script>

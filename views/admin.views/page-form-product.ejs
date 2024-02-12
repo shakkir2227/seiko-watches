@@ -352,6 +352,19 @@
 
                 function validateImageUpload() {
 
+                    // Saving the input files into an array, when user crop the image
+                    // deleleting that image from array and adding the cropped image
+                    // to this array. 
+
+                    let imgFiles = []
+                    const imagesInput = document.getElementById("images")
+
+                    // Copying the input files in to this array
+                    for (let i = 0; i < imagesInput.files.length; i++) {
+                        imgFiles.push(imagesInput.files[i])
+                    }
+
+
                     if (event.target.id === "images") {
 
                         const imgContainer = document.getElementById("imgContainer");
@@ -359,15 +372,10 @@
                         // Clear previous images
                         imgContainer.innerHTML = "";
 
-
                         // For renaming cropped images
                         let fileCounter = 1;
 
                         for (let file of event.target.files) {
-
-
-                            console.log("File is ");
-                            console.log(file)
 
                             const liElement = document.createElement("li")
 
@@ -383,6 +391,7 @@
 
                             // Event listener for image click
                             imgElement.addEventListener("click", () => {
+
                                 originalImageSrc = originalImageSrc || URL.createObjectURL(file);
 
                                 Swal.fire({
@@ -401,7 +410,7 @@
                                         // Get the cropped canvas
                                         let croppedCanvas = cropper.getCroppedCanvas();
 
-                                        // Changing the file
+
                                         // Convert the canvas to a Blob
                                         croppedCanvas.toBlob((blob) => {
                                             // Generate a unique filename
@@ -413,16 +422,26 @@
                                             // Increment the file counter for the next iteration
                                             fileCounter++;
 
-                                            console.log("Cropped file is");
-                                            console.log(croppedFile);
+                                            // Removing the old file which was cropped
+                                            imgFiles = imgFiles.filter((element) => {
+                                                return element !== file
+                                            })
 
-                                            // Changing the file
-                                            file = croppedFile;
 
-                                            console.log("Old file is");
-                                            console.log(file);
+                                            // Now adding the cropped file to this imgfiles
+                                            imgFiles.push(croppedFile)
 
-                                            // You can use 'croppedFile' as needed, for example, upload it to a server
+
+                                            // Now replacing the input files with with this array
+                                            let newFileList = new DataTransfer();
+                                            for (let i = 0; i < imgFiles.length; i++) {
+                                                newFileList.items.add(imgFiles[i]);
+                                            }
+
+                                            imagesInput.files = newFileList.files;
+
+
+
                                         });
 
                                         // Convert the canvas to a data URL
@@ -439,11 +458,14 @@
                                     }
                                 });
 
+
+
+
                                 // Create a Cropper instance after the modal is shown
                                 const cropper = new Cropper(document.querySelector('.custom-modal-container img'), {
                                     aspectRatio: 0,
                                     viewMode: 0
-                                });
+                                })
                             });
 
                             // Append the image element and remove button to the container
@@ -451,10 +473,10 @@
                             liElement.appendChild(imgElement);
                             // liElement.appendChild(removeButton);
                         }
-
-
-
                     }
+
+
+
 
 
                     // Loop through all selected files
@@ -492,9 +514,6 @@
                 }
 
                 function validateForm() {
-
-                    const images = document.getElementById("images")
-                    console.log(images.files);
 
                     // Call individual validation functions
                     validateFieldName();

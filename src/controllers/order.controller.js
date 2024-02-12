@@ -106,8 +106,9 @@ const userCheckoutController = {
 
 
     addAddress: asyncHandler(async (req, res) => {
+        
         const user = res.locals.user;
-
+        
         const { name, mobileNumber, pincode, houseName, area, landmark, town, state } = req.body
 
         const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
@@ -433,6 +434,7 @@ const userOrderDetailedViewController = asyncHandler(async (req, res) => {
 const userOrderUpdateControler = {
 
     cancelOrder: asyncHandler(async (req, res) => {
+
         const { orderId, productId } = req.body;
 
         // converting to mongodb objectid
@@ -540,6 +542,86 @@ const userOrderUpdateControler = {
         }
 
         return res.status(200).json({ message: "Your order has been successfully cancelled. If you have any further questions or concerns, please feel free to contact our customer support" })
+
+    }),
+
+
+    returnOrder: asyncHandler(async (req, res) => {
+
+        console.log(req.body);
+
+        const { orderId, productId } = req.body;
+
+        // converting to mongodb objectid
+        const orderIdObject = new mongoose.Types.ObjectId(orderId)
+        const productIdObject = new mongoose.Types.ObjectId(productId)
+
+        await Order.updateOne(
+            { _id: orderIdObject, "productDetails.product": productIdObject },
+            { $set: { "productDetails.$.deliveryStatus": "Returned" } }
+        )
+
+
+        // When user return the order, increase the corresponding product's stock
+        const returnedProduct = await Order.aggregate([
+
+            {
+                $match: {
+                    _id: orderIdObject
+                },
+            },
+            {
+                $unwind: "$productDetails"
+            },
+            {
+                $match: {
+                    "productDetails.product": productIdObject
+                }
+            },
+            {
+                $project: {
+                    productDetails: 1,
+                    paymentMethod: 1,
+                    discountAmount: 1,
+                    totalAmount: 1,
+                }
+            }
+        ])
+
+        console.log("Retruned product is ");
+        console.log(returnedProduct);
+
+        const returnedOrderProductCount = returnedProduct[0].productDetails.quantity;
+
+        const product = await Product.findOne({ _id: productIdObject });
+        product.stock += returnedOrderProductCount;
+
+        await product.save()
+
+        // First findingout the subtotal
+        let subTotal = returnedProduct[0].productDetails.quantity * returnedProduct[0].productDetails.price
+
+        let totalAmount = returnedProduct[0].totalAmount + returnedProduct[0].discountAmount
+        let discountOfThisProduct = Math.ceil((subTotal / totalAmount) * returnedProduct[0].discountAmount)
+
+        subTotal = subTotal - discountOfThisProduct;
+
+        // This amount is credited to user's wallet
+        await User.updateOne(
+            {
+                _id: res.locals.user._id
+            },
+            {
+                $inc: {
+                    wallet: subTotal
+                }
+            }
+        )
+
+        console.log("returned");
+
+        return res.status(200).json({ message: "Your request for return has been successfully processed. Amount will be credited to your wallet shortly. If you have any further questions or concerns, please feel free to contact our customer support" })
+
 
     })
 }

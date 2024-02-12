@@ -38,6 +38,8 @@ router.route("/view").get(isAuth, userOrderViewController)
 router.route("/view-one").get(isAuth, userOrderDetailedViewController)
 // For cancelling a particular order
 router.route("/cancel").put(isAuth, userOrderUpdateControler.cancelOrder)
+// For returning a particular order
+router.route("/return").put(isAuth, userOrderUpdateControler.returnOrder)
 
 // ---------ADMIN ORDER ROUTES---------
 

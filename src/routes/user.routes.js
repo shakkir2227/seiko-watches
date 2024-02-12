@@ -9,6 +9,7 @@ import {
     userHomeController,
     userAccountController,
     userAddressController,
+    productAndCategorySearchController,
     userLogoutController,
 } from "../controllers/user.controller.js"
 
@@ -49,6 +50,8 @@ router.route("/address/change-default").put(isAuth, userAddressController.change
 router.route("/address/update/:addressId").get(isAuth, userAddressController.updateAddress.renderUpdateAddressPage)
 router.route("/address/update").post(isAuth, userAddressController.updateAddress.handleUpdateAddressForm)
 router.route("/address/block").put(isAuth, userAddressController.blockAddress)
+
+router.route("/home/search").get(productAndCategorySearchController)
 
 router.route("/logout").get(isAuth, userLogoutController)
 

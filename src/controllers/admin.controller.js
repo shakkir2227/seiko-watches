@@ -177,7 +177,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
                 totalAmount: 1,
                 paymentMethod: 1,
                 paymentStatus: 1,
-                discountAmount:1,
+                discountAmount: 1,
                 totalOrders: 1,
                 createdAt: {
                     $dateToString: {
@@ -207,17 +207,30 @@ const adminHomeController = asyncHandler(async (req, res) => {
                                             input: "$statuses",
                                             as: "status",
                                             in: {
-                                                $cond: {
-                                                    if: { $eq: ["$$status", "Cancelled"] },
-                                                    then: true,
-                                                    else: { $eq: ["$$status", "Delivered"] }
-                                                }
+                                                $eq: ["$$status", "Delivered"]
                                             }
                                         }
                                     }
                                 },
                                 then: "Delivered",
-                                else: "Processing"
+                                else: {
+                                    $cond: {
+                                        if: {
+                                            $allElementsTrue: { // If all the orders are delivered, status is delivered, else processing
+                                                $map: {
+                                                    input: "$statuses",
+                                                    as: "status",
+                                                    in: {
+                                                        $eq: ["$$status", "Returned"]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        then: "Returned",
+                                        else: "Processing"
+
+                                    }
+                                }
                             }
                         }
 

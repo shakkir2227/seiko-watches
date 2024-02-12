@@ -278,19 +278,24 @@
 
                                                                         <%if(allCoupons.length> 0 ) {%>
 
-                                                                            <% allCoupons.forEach((coupon)=>{ %>
+                                                                            <% allCoupons.forEach((coupon, index)=>{ %>
 
                                                                                 <div class="col-lg-6">
                                                                                     <div class="card mb-10">
                                                                                         <div class="card-header">
                                                                                             <div class="mb-0"
+                                                                                                id="couponCode<%=index%>"
                                                                                                 style="text-align: center; font-size: larger; font-weight: bolder;">
-                                                                                                <%=coupon.code%>
-                                                                                                    <span
-                                                                                                        style="font-size: smaller; margin-left: 30px; color: lightblue; cursor: pointer;">copy
+                                                                                                <%=coupon.code%><span
+                                                                                                        style="font-size: smaller; margin-left: 30px; color: lightblue; cursor: pointer; user-select: none;"
+                                                                                                        onclick="copyToClipboard('<%=index %>')">copy
                                                                                                         to
                                                                                                         clipboard</a></span>
                                                                                             </div>
+
+
+
+
 
 
                                                                                         </div>
@@ -583,6 +588,36 @@
                             <%- include ('./partials/user.footer.ejs') %>
 
                                 <script>
+
+                                    function copyToClipboard(index) {
+
+                                        var copyText = document.getElementById("couponCode" + index);
+
+                                        let code = copyText.innerText;
+                                        code = code.replace("copy to clipboard", "")
+
+                                        console.log(code);
+
+                                        // Create a range and select the text inside the element
+                                        var range = document.createRange();
+                                        range.selectNode(copyText);
+                                        window.getSelection().removeAllRanges();
+                                        window.getSelection().addRange(range);
+
+
+                                        try {
+                                            // Execute the copy command
+                                            document.execCommand('copy');
+                                            console.log('Coupon code copied to clipboard:', code);
+                                            alert("Copied the text: " + code);
+                                        } catch (err) {
+                                            console.error('Unable to copy coupon code to clipboard', err);
+                                        }
+                                    }
+
+
+
+
 
                                     function blockAddress(addressId) {
 

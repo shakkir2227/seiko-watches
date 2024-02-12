@@ -258,27 +258,36 @@
                                                                                                     Cancelled
                                                                                                 </span>
                                                                                             </td>
-                                                                                            <%} else {%>
+                                                                                            <%} else if
+                                                                                                (order.status==="Returned"
+                                                                                                ) {%>
                                                                                                 <td>
                                                                                                     <span
-                                                                                                        class="badge badge-pill badge-soft-info">
-                                                                                                        Processing
+                                                                                                        class="badge badge-pill badge-soft-danger">
+                                                                                                        Returned
                                                                                                     </span>
                                                                                                 </td>
-
-                                                                                                <% }%>
-
-
+                                                                                                <%} else {%>
                                                                                                     <td>
-                                                                                                        <a href="/order/view-admin/<%=order._id%>"
-                                                                                                            class="btn btn-xs">
-                                                                                                            View
-                                                                                                            details</a>
+                                                                                                        <span
+                                                                                                            class="badge badge-pill badge-soft-info">
+                                                                                                            Processing
+                                                                                                        </span>
                                                                                                     </td>
 
+                                                                                                    <% }%>
 
-                                                                                                    <% }) %>
-                                                                                                        <%} %>
+
+                                                                                                        <td>
+                                                                                                            <a href="/order/view-admin/<%=order._id%>"
+                                                                                                                class="btn btn-xs">
+                                                                                                                View
+                                                                                                                details</a>
+                                                                                                        </td>
+
+
+                                                                                                        <% }) %>
+                                                                                                            <%} %>
 
                                                         </tr>
 

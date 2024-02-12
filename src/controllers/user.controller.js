@@ -685,6 +685,59 @@ const userAddressController = {
     })
 }
 
+const productAndCategorySearchController = asyncHandler(async (req, res) => {
+
+    console.log("HERE");
+    console.log(req.query);
+
+    const { search } = req.query
+
+    // For searching
+    const regex = new RegExp(search, 'i');
+
+    const categories = await Category.aggregate([
+        {
+            $match: {
+                name: {
+                    $regex: regex
+                },
+            }
+        },
+        {
+            $project: {
+                name:1
+            }
+        }
+    ])
+
+    // For removing duplicate category name present along different main categories
+    for (let i = 0; i < categories.length - 1; i++) {
+        for (let j = i + 1; j < categories.length; j++) {
+            if (categories[i].name === categories[j].name) {
+                categories.splice(j, 1)
+            }
+        }
+    }
+
+    const products = await Product.aggregate([
+        {
+            $match: {
+                name: {
+                    $regex: regex
+                },
+            }
+        },
+        {
+            $project: {
+                name:1
+            }
+        }
+    ])
+
+
+    return res.status(200).json({ categories, products })
+
+})
 
 
 const userLogoutController = asyncHandler(async (req, res) => {
@@ -701,6 +754,7 @@ export {
     userResendOTPController,
     userAccountController,
     userAddressController,
+    productAndCategorySearchController,
     userLogoutController
 
 }
