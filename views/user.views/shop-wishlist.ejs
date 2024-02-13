@@ -133,6 +133,8 @@
                         .then((res) => {
                             if (res.ok) {
 
+
+
                                 const Toast = Swal.mixin({
                                     toast: true,
                                     position: "top-end",
@@ -149,8 +151,18 @@
                                     title: "Success! The item has been saved to your Cart."
                                 });
 
+                                
+                                return res.json()
                             }
                         })
+                        .then((data) => {
+                            console.log(data);
+                            document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
+                            document.getElementById('totalAmountInHeader').textContent = data.totalAmount;
+                        })
+
+
+
                 }
 
 

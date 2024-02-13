@@ -67,8 +67,9 @@
 
                                                 <div class="custome-checkbox">
                                                     <input class="form-check-input main-category" type="checkbox"
-                                                        onchange="updateMainCategoryFilter()" name="checkbox"
-                                                        id="<%=category._id %>" value="<%=category._id %>">
+                                                        autocomplete="off" onchange="updateMainCategoryFilter()"
+                                                        name="checkbox" id="<%=category._id %>"
+                                                        value="<%=category._id %>">
                                                     <label class="form-check-label" for="<%=category._id %>"
                                                         id="label<%=category._id%>">
                                                         <%=category.name %>
@@ -92,7 +93,7 @@
                                                 <%for(const category of subCategoriesofTopCategories) { %>
 
                                                     <input class="form-check-input sub-category" type="checkbox"
-                                                        name="checkbox" id="<%=category._id %>"
+                                                        autocomplete="off" name="checkbox" id="<%=category._id %>"
                                                         onchange="updateSubCategoryFilter()" value="<%=category._id %>">
                                                     <label class="form-check-label" for="<%=category._id %>"
                                                         id="label<%=category._id%>">
@@ -118,31 +119,36 @@
                                             <label class="fw-900">Price</label>
                                             <div class="custome-checkbox">
                                                 <input class="form-check-input price" type="checkbox" name="checkbox"
-                                                    id="under500" value="" onchange="updatePriceRangeFilter()">
+                                                    autocomplete="off" id="under500" value=""
+                                                    onchange="updatePriceRangeFilter()">
                                                 <label class="form-check-label" for="under500" id="labelunder500">Under
                                                     &#8377 500</label>
                                                 <br>
 
                                                 <input class="form-check-input price" type="checkbox" name="checkbox"
-                                                    id="500to1000" value="" onchange="updatePriceRangeFilter()">
+                                                    autocomplete="off" id="500to1000" value=""
+                                                    onchange="updatePriceRangeFilter()">
                                                 <label class="form-check-label" for="500to1000"
                                                     id="label500to1000">&#8377 500 - &#8377 1000</label>
                                                 <br>
 
                                                 <input class="form-check-input price" type="checkbox" name="checkbox"
-                                                    id="1000to2000" value="" onchange="updatePriceRangeFilter()">
+                                                    autocomplete="off" id="1000to2000" value=""
+                                                    onchange="updatePriceRangeFilter()">
                                                 <label class="form-check-label" for="1000to2000"
                                                     id="label1000to2000">&#8377 1000 - &#8377 2000</label>
                                                 <br>
 
                                                 <input class="form-check-input price" type="checkbox" name="checkbox"
-                                                    id="2000to3000" value="" onchange="updatePriceRangeFilter()">
+                                                    autocomplete="off" id="2000to3000" value=""
+                                                    onchange="updatePriceRangeFilter()">
                                                 <label class="form-check-label" for="2000to3000"
                                                     id="label2000to3000">&#8377 2000 - &#8377 3000</label>
                                                 <br>
 
                                                 <input class="form-check-input price" type="checkbox" name="checkbox"
-                                                    id="over3000" value="" onchange="updatePriceRangeFilter()">
+                                                    autocomplete="off" id="over3000" value=""
+                                                    onchange="updatePriceRangeFilter()">
                                                 <label class="form-check-label" for="over3000" id="labelover3000">Over
                                                     &#8377
                                                     3000</label>
@@ -156,19 +162,19 @@
                                             <label class="fw-900 mt-15">Band Material</label>
                                             <div class="custome-checkbox">
                                                 <input class="form-check-input band-material" type="checkbox"
-                                                    name="checkbox" id="Leather" value=""
+                                                    autocomplete="off" name="checkbox" id="Leather" value=""
                                                     onchange="updateBandMaterialFilter()">
                                                 <label class="form-check-label" for="Leather"
                                                     id="labelLeather">Leather</label>
                                                 <br>
                                                 <input class="form-check-input band-material" type="checkbox"
-                                                    name="checkbox" id="Metal" value=""
+                                                    autocomplete="off" name="checkbox" id="Metal" value=""
                                                     onchange="updateBandMaterialFilter()">
                                                 <label class="form-check-label" for="Metal"
                                                     id="labelMetal">Metal</label>
                                                 <br>
                                                 <input class="form-check-input band-material" type="checkbox"
-                                                    name="checkbox" id="Titanium" value=""
+                                                    autocomplete="off" name="checkbox" id="Titanium" value=""
                                                     onchange="updateBandMaterialFilter()">
                                                 <label class="form-check-label" for="Titanium"
                                                     id="labelTitanium">Titanium</label>
@@ -181,18 +187,18 @@
                                             <label class="fw-900 mt-15">Dial Color</label>
                                             <div class="custome-checkbox">
                                                 <input class="form-check-input dial-color" type="checkbox"
-                                                    name="checkbox" id="Black" value=""
+                                                    autocomplete="off" name="checkbox" id="Black" value=""
                                                     onchange="updateDialColorFilter()">
                                                 <label class="form-check-label" for="Black"
                                                     id="labelBlack">Black</label>
                                                 <br>
                                                 <input class="form-check-input dial-color" type="checkbox"
-                                                    name="checkbox" id="Blue" value=""
+                                                    autocomplete="off" name="checkbox" id="Blue" value=""
                                                     onchange="updateDialColorFilter()">
                                                 <label class="form-check-label" for="Blue" id="labelBlue">Blue</label>
                                                 <br>
                                                 <input class="form-check-input dial-color" type="checkbox"
-                                                    name="checkbox" id="Brown" value=""
+                                                    autocomplete="off" name="checkbox" id="Brown" value=""
                                                     onchange="updateDialColorFilter()">
                                                 <label class="form-check-label" for="Brown"
                                                     id="labelBrown">Brown</label>
@@ -1026,17 +1032,17 @@
                                                 return res.json()
                                             })
                                             .then((products) => {
-                                                updatePage(products.filteredProducts, products.totalPages, products.page)
+                                                updatePage(products.filteredProducts, products.totalProducts, products.totalPages, products.page)
                                             })
 
                                     }
 
 
-                                    function updatePage(products, totalPages, page) {
+                                    function updatePage(products, totalProducts, totalPages, page) {
 
                                         // Updating how many products match this filter
                                         const filteredItemsQuantity = document.getElementById("filteredItemsQuantity")
-                                        filteredItemsQuantity.innerText = products.length
+                                        filteredItemsQuantity.innerText = totalProducts
 
 
                                         const productContainer = document.getElementById('productContainer');
@@ -1079,12 +1085,12 @@
                         </div>
                        <div class="product-price">
                              ${product.discountedPrice ?
-                            `<span>&#8377 ${product.discountedPrice}</span>
+                                                    `<span>&#8377 ${product.discountedPrice}</span>
                              <span class="old-price">${product.price}</span>` :
-                             `<span>&#8377 ${product.price}</span>`}
+                                                    `<span>&#8377 ${product.price}</span>`}
                         </div>
                         <div class="product-action-1 show">
-                            <a aria-label="Add To Cart" class="action-btn hover-up"  onclick=addToCart('${product._id}')>
+                            <a aria-label="Add To Cart" class="action-btn hover-up"  onclick="addToCart('${product._id}', this)">
                                 <i class="fi-rs-shopping-bag-add"></i>
                             </a>
                         </div>
@@ -1145,7 +1151,11 @@
                                             body: data,
                                         })
                                             .then((res) => {
-                                                console.log(res);
+
+                                                if (res.redirected) {
+                                                    return
+                                                }
+
                                                 if (res.ok) {
                                                     const Toast = Swal.mixin({
                                                         toast: true,
@@ -1163,13 +1173,19 @@
                                                         title: "Success! The item has been saved to your wishlist."
                                                     });
                                                 }
+                                                return res.json()
+                                            })
+                                            .then((data) => {
+                                                if (data) {
+                                                    document.getElementById('wishlistCount').textContent = data.totalProductsInWishlist;
+                                                }
                                             })
 
 
                                     }
 
                                     // Adding to cart
-                                    function addToCart(productId) {
+                                    function addToCart(productId, element) {
 
                                         const data = {
                                             productId,
@@ -1185,8 +1201,19 @@
                                             body: jsonData,
                                         })
                                             .then((res) => {
+
                                                 console.log(res);
+                                                if (res.redirected) {
+                                                    return
+                                                }
+
                                                 if (res.ok) {
+
+                                                    // Removing the add to cart symbol
+                                                    var parentDiv = element.closest('.product-action-1');
+                                                    if (parentDiv) {
+                                                        parentDiv.remove();
+                                                    }
 
                                                     const Toast = Swal.mixin({
                                                         toast: true,
@@ -1204,7 +1231,19 @@
                                                         title: "Success! The item has been saved to your Cart."
                                                     });
                                                 }
+
+                                                return res.json()
                                             })
+                                            .then((data) => {
+                                                if (data) {
+                                                    document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
+                                                    document.getElementById('totalAmountInHeader').textContent = " ₹" + data.totalAmount;
+
+                                                }
+
+
+                                            })
+
 
 
                                     }
@@ -1236,8 +1275,6 @@
                                                 unCheckedElements.push(checkbox)
                                             }
                                         });
-
-                                        console.log(checkedElements);
 
 
 

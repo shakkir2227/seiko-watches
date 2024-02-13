@@ -403,8 +403,6 @@ const userAccountController = {
             }
         ])
 
-        console.log(res.locals.user);
-
         const errorMessage = req.flash("error")[0]
         const successMessage = req.flash('success')[0];
         return res.render("page-account.ejs", { user: res.locals.user, userDefaultAddress, userAddresses, allCoupons, errorMessage, successMessage })
@@ -496,12 +494,46 @@ const userHomeController = asyncHandler(async (req, res) => {
         {
             $limit: 8
         },
-        { $lookup: { from: "categories", foreignField: "_id", localField: "category", as: "category" } }])
+        {
+            $lookup: {
+                from: "categories",
+                foreignField: "_id",
+                localField: "category",
+                as: "category"
+            }
+        }
+    ])
+
+    // Find user's  cart, add a field, IN-CART in each product
+    if (user) {
+        for (const prodcut of newProducts) {
+            for (const element of user.cart) {
+                if (element.product._id.equals(prodcut._id)) {
+                    prodcut.isInCart = true
+                    break;
+                } else {
+                    prodcut.isInCart = false
+                }
+            }
+        }
+    }
 
 
+    // Find user's  wishlist, add a field, IN-WISHLIST in each product
+    if (user) {
+        for (const prodcut of newProducts) {
+            for (const element of user.wishlist) {
+                if (element.equals(prodcut._id)) {
+                    prodcut.isInWishlist = true
+                    break;
+                } else {
+                    prodcut.isInWishlist = false
+                }
+            }
+        }
+    }
 
-
-
+    console.log(newProducts);
 
     const categories = res.locals.categories;
 
@@ -687,9 +719,6 @@ const userAddressController = {
 
 const productAndCategorySearchController = asyncHandler(async (req, res) => {
 
-    console.log("HERE");
-    console.log(req.query);
-
     const { search } = req.query
 
     // For searching
@@ -705,7 +734,7 @@ const productAndCategorySearchController = asyncHandler(async (req, res) => {
         },
         {
             $project: {
-                name:1
+                name: 1
             }
         }
     ])
@@ -729,7 +758,7 @@ const productAndCategorySearchController = asyncHandler(async (req, res) => {
         },
         {
             $project: {
-                name:1
+                name: 1
             }
         }
     ])

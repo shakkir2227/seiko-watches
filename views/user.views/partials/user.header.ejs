@@ -11,11 +11,10 @@
                     <div class="text-center">
                         <div id="news-flash" class="d-inline-block">
                             <ul>
-                                <li>Get great devices up to 50% off <a href="shop-grid-right.html">View details</a>
+                                <li>Timeless Elegance, Modern Design</a>
                                 </li>
-                                <li>Supper Value Deals - Save more with coupons</li>
-                                <li>Trendy 25silver jewelry, save up 35% off today <a href="shop-grid-right.html">Shop
-                                        now</a></li>
+                                <li>Value Deals - Save more with coupons</li>
+                                <li>Discover the Perfect Watch for Every Occasion.</a></li>
                             </ul>
                         </div>
                     </div>
@@ -24,16 +23,8 @@
                     <div class="header-info header-info-right">
                         <ul>
                             <li>
-                                <a class="language-dropdown-active" href="#"> <i class="fi-rs-world"></i> English <i
-                                        class="fi-rs-angle-small-down"></i></a>
-                                <ul class="language-dropdown">
-                                    <li><a href="#"><img src="/user.assets/imgs/theme/flag-fr.png" alt="">Français</a>
-                                    </li>
-                                    <li><a href="#"><img src="/user.assets/imgs/theme/flag-dt.png" alt="">Deutsch</a>
-                                    </li>
-                                    <li><a href="#"><img src="/user.assets/imgs/theme/flag-ru.png" alt="">Pусский</a>
-                                    </li>
-                                </ul>
+                                <a class="language-dropdown-active" href="#"> <i class="fi-rs-world"></i> English </a>
+
                             </li>
 
                             <%if (typeof(user) !=="undefined" && user ) {%>
@@ -123,7 +114,7 @@
 
                                     <%if (typeof(user) !=="undefined" && user ) {%>
 
-                                        <span class="pro-count blue">
+                                        <span class="pro-count blue" id="wishlistCount">
                                             <%=user.wishlist.length %>
                                         </span>
 
@@ -142,7 +133,7 @@
 
                                     <%if (typeof(user) !=="undefined" && user ) {%>
 
-                                        <span class="pro-count blue">
+                                        <span class="pro-count blue" id="cartCount">
                                             <%=user.cart.length %>
                                         </span>
 
@@ -161,138 +152,148 @@
 
                                                 <%if(user.cart.length> 0) {%>
 
-                                                    <!-- Displaying first 2 items of the cart if cart has 2 or more than 2 items-->
+                                                    <!-- Finding out total amount-->
+                                                    <%user.cart.forEach((element, i)=> { %>
+
+                                                        <%if(user.cart[i].product.discountedPrice) {%>
+
+                                                            <%totalAmount +=(user.cart[i].quantity *
+                                                                user.cart[i].product.discountedPrice ) %>
 
 
-                                                    <%if(user.cart.length>= 2) {%>
+                                                                <% } else{%>
 
-                                                        <%for(let i=0; i<2; i++) {%>
-
-                                                            <%if(user.cart[i].product.discountedPrice) {%>
-
-                                                                <%totalAmount +=(user.cart[i].quantity *
-                                                                    user.cart[i].product.discountedPrice ) %>
+                                                                    <%totalAmount +=(user.cart[i].quantity *
+                                                                        user.cart[i].product.price ) %>
 
 
-                                                                    <% } else{%>
+                                                                        <% }%>
 
-                                                                        <%totalAmount +=(user.cart[i].quantity *
-                                                                            user.cart[i].product.price ) %>
-
-
-                                                                            <% }%>
+                                                                            <%}) %>
 
 
-                                                                                <li>
-                                                                                    <div class="shopping-cart-img">
-                                                                                        <a
-                                                                                            href="shop-product-right.html"><img
-                                                                                                alt="Evara"
-                                                                                                src="<%=user.cart[i].product.images[0].url %>"></a>
-                                                                                    </div>
-                                                                                    <div class="shopping-cart-title">
-                                                                                        <h4><a
-                                                                                                href="shop-product-right.html">
-                                                                                                <%=user.cart[i].product.name.slice(0,15)%>
-                                                                                            </a></h4>
-                                                                                        <h4><span>
-                                                                                                <%=user.cart[i].quantity%>
-                                                                                                    ×
-                                                                                            </span>
 
-                                                                                            <%if(user.cart[i].product.discountedPrice)
-                                                                                                {%>
-                                                                                                ₹
-                                                                                                <%=user.cart[i].product.discountedPrice%>
 
-                                                                                                    <%} else { %>
+                                                                                <!-- Displaying first 2 items of the cart if cart has 2 or more than 2 items-->
 
+
+                                                                                <%if(user.cart.length>= 2) {%>
+
+                                                                                    <%for(let i=0; i<2; i++) {%>
+
+
+
+
+                                                                                        <li>
+                                                                                            <div
+                                                                                                class="shopping-cart-img">
+                                                                                                <a
+                                                                                                    href="shop-product-right.html"><img
+                                                                                                        alt="Evara"
+                                                                                                        src="<%=user.cart[i].product.images[0].url %>"></a>
+                                                                                            </div>
+                                                                                            <div
+                                                                                                class="shopping-cart-title">
+                                                                                                <h4><a
+                                                                                                        href="shop-product-right.html">
+                                                                                                        <%=user.cart[i].product.name.slice(0,15)%>
+                                                                                                    </a></h4>
+                                                                                                <h4><span>
+                                                                                                        <%=user.cart[i].quantity%>
+                                                                                                            ×
+                                                                                                    </span>
+
+                                                                                                    <%if(user.cart[i].product.discountedPrice)
+                                                                                                        {%>
                                                                                                         ₹
-                                                                                                        <%=user.cart[i].product.price%>
+                                                                                                        <%=user.cart[i].product.discountedPrice%>
+
+                                                                                                            <%} else {
+                                                                                                                %>
+
+                                                                                                                ₹
+                                                                                                                <%=user.cart[i].product.price%>
+
+
+
+                                                                                                                    <%}
+                                                                                                                        %>
+                                                                                                </h4>
+                                                                                            </div>
+
+                                                                                        </li>
+
+
+                                                                                        <%} %>
+
+
+
+                                                                                            <%} else{ %>
+
+                                                                                                <%for(let i=0; i<1; i++)
+                                                                                                    {%>
+
+
+
+                                                                                                    <li>
+                                                                                                        <div
+                                                                                                            class="shopping-cart-img">
+                                                                                                            <a
+                                                                                                                href="shop-product-right.html"><img
+                                                                                                                    alt="Evara"
+                                                                                                                    src="<%=user.cart[i].product.images[0].url %>"></a>
+                                                                                                        </div>
+                                                                                                        <div
+                                                                                                            class="shopping-cart-title">
+                                                                                                            <h4><a
+                                                                                                                    href="shop-product-right.html">
+                                                                                                                    <%=user.cart[i].product.name.slice(0,15)%>
+                                                                                                                </a>
+                                                                                                            </h4>
+                                                                                                            <h4><span>
+                                                                                                                    <%=user.cart[i].quantity%>
+                                                                                                                        ×
+                                                                                                                </span>
+
+                                                                                                                <%if(user.cart[i].product.discountedPrice)
+                                                                                                                    {%>
+                                                                                                                    ₹
+                                                                                                                    <%=user.cart[i].product.discountedPrice%>
+
+                                                                                                                        <%} else
+                                                                                                                            {
+                                                                                                                            %>
+
+                                                                                                                            ₹
+                                                                                                                            <%=user.cart[i].product.price%>
+
+
+
+                                                                                                                                <%}
+                                                                                                                                    %>
+                                                                                                            </h4>
+                                                                                                        </div>
+
+                                                                                                    </li>
+
+
+                                                                                                    <%} %>
+
+
+
+
+                                                                                                        <%}%>
+
+
+
+
 
 
 
                                                                                                             <%} %>
-                                                                                        </h4>
-                                                                                    </div>
-
-                                                                                </li>
 
 
-                                                                                <%} %>
-
-
-
-                                                                                    <%} else{ %>
-
-                                                                                        <%for(let i=0; i<1; i++) {%>
-
-                                                                                            <%if(user.cart[i].product.discountedPrice)
-                                                                                                {%>
-
-                                                                                                <%totalAmount
-                                                                                                    +=(user.cart[i].quantity
-                                                                                                    *
-                                                                                                    user.cart[i].product.discountedPrice
-                                                                                                    ) %>
-
-
-                                                                                                    <% } else{%>
-
-                                                                                                        <%totalAmount
-                                                                                                            +=(user.cart[i].quantity
-                                                                                                            *
-                                                                                                            user.cart[i].product.price
-                                                                                                            ) %>
-
-
-                                                                                                            <% }%>
-
-                                                                                                                <li>
-                                                                                                                    <div
-                                                                                                                        class="shopping-cart-img">
-                                                                                                                        <a
-                                                                                                                            href="shop-product-right.html"><img
-                                                                                                                                alt="Evara"
-                                                                                                                                src="<%=user.cart[i].product.images[0].url %>"></a>
-                                                                                                                    </div>
-                                                                                                                    <div
-                                                                                                                        class="shopping-cart-title">
-                                                                                                                        <h4><a
-                                                                                                                                href="shop-product-right.html">
-                                                                                                                                <%=user.cart[i].product.name.slice(0,15)%>
-                                                                                                                            </a>
-                                                                                                                        </h4>
-                                                                                                                        <h4><span>
-                                                                                                                                <%=user.cart[i].quantity%>
-                                                                                                                                    ×
-                                                                                                                            </span>
-
-                                                                                                                            <%if(user.cart[i].product.discountedPrice)
-                                                                                                                                {%>
-                                                                                                                                ₹
-                                                                                                                                <%=user.cart[i].product.discountedPrice%>
-
-                                                                                                                                    <%} else
-                                                                                                                                        {
-                                                                                                                                        %>
-
-                                                                                                                                        ₹
-                                                                                                                                        <%=user.cart[i].product.price%>
-
-
-
-                                                                                                                                            <%}
-                                                                                                                                                %>
-                                                                                                                        </h4>
-                                                                                                                    </div>
-
-                                                                                                                </li>
-
-
-                                                                                                                <%} %>
-
-
+                                                                                                                <%}else{%>
 
 
                                                                                                                     <%}%>
@@ -300,25 +301,10 @@
 
 
 
-
-
-
-                                                                                                                        <%}
-                                                                                                                            %>
-
-
-                                                                                                                            <%}else{%>
-
-
-                                                                                                                                <%}%>
-
-
-
-
                                     </ul>
                                     <div class="shopping-cart-footer">
                                         <div class="shopping-cart-total">
-                                            <h4>Total <span>
+                                            <h4>Total <span id="totalAmountInHeader">
                                                     ₹ <%=totalAmount%>
                                                 </span></h4>
                                         </div>
@@ -354,8 +340,8 @@
                         <nav>
                             <ul>
 
-                                <li style="margin-left: 150px; margin-right: 50px;"><a class="active"
-                                        href="index.html">Collection <i class="fi-rs-angle-down"></i></a>
+                                <li style="margin-left: 150px; margin-right: 50px;"><a class="active">Collection <i
+                                            class="fi-rs-angle-down"></i></a>
                                     <ul class="sub-menu">
                                         <% if (typeof(categories!=="undefined" )) { %>
                                             <% categories.forEach(element=> {%>
@@ -470,7 +456,6 @@
         const searchTermValue = searchTerm.value;
 
         let searchQuery = "/user/home/search?search=" + searchTermValue
-        console.log(searchQuery);
 
         const response = await fetch(searchQuery)
         const data = await response.json()
@@ -489,14 +474,9 @@
 
             })
 
-            
+
             searchTerm.click()
         }
-        console.log(data);
-
-
-
-
 
 
     }

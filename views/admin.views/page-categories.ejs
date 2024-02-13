@@ -277,8 +277,7 @@
                                                     if (response.ok) {
 
                                                         const successResponse = await response.json()
-                                                        console.log(successResponse.status);
-
+                                       
                                                         Swal.fire({
                                                             icon: 'success',
                                                             title: `${successResponse.status} successfully`,

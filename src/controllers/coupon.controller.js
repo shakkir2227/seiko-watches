@@ -48,7 +48,7 @@ const addCouponController = asyncHandler(async (req, res) => {
     maxDiscountAmount = parseInt(maxDiscountAmount)
     expiryDate = new Date(expiryDate)
     expiryDate.setUTCHours(23, 59, 59, 999);
-    console.log(expiryDate);
+  
 
     // Before creating coupon, check any coupon exist with similar code
     const existingCoupons = await Coupon.aggregate([
@@ -60,8 +60,7 @@ const addCouponController = asyncHandler(async (req, res) => {
     ])
 
     if (existingCoupons.length > 0) {
-        console.log("coupon exist");
-
+  
         req.flash("error", `A coupon with this code already exists. Please choose a different code.`)
         return res.redirect("/coupon/view-admin")
     }
@@ -83,8 +82,6 @@ const applyCouponController = asyncHandler(async (req, res) => {
 
     const user = res.locals.user
 
-    console.log(req.body);
-
     let { couponInput, totalAmountBeforeDiscount } = req.body
     totalAmountBeforeDiscount = totalAmountBeforeDiscount.replace("undefined₹", "")
     totalAmountBeforeDiscount = parseInt(totalAmountBeforeDiscount)
@@ -100,7 +97,7 @@ const applyCouponController = asyncHandler(async (req, res) => {
 
     // If no coupon exist with this code, send an error !!
     if (coupon.length === 0) {
-        console.log("The entered coupon does not exist. Please check the coupon code and try again.");
+
         return res.status(404).json({
             "message": "The entered coupon does not exist. Please check the coupon code and try again."
         })
@@ -121,7 +118,7 @@ const applyCouponController = asyncHandler(async (req, res) => {
     ])
 
     if (usedCoupon.length > 0) {
-        console.log("The entered coupon has already been used. Each coupon can only be used once per user.");
+       
         return res.status(409).json({
             "message": "The entered coupon has already been used. Each coupon can only be used once per user."
         })
@@ -131,7 +128,7 @@ const applyCouponController = asyncHandler(async (req, res) => {
     // for applying this coupon using coupon's min order amount
 
     if (totalAmountBeforeDiscount < coupon[0].minimumOrderAmount) {
-        console.log("The total amount in your cart does not meet the minimum requirement for applying this coupon. Please add more items to meet the minimum amount");
+
         return res.status(400).json({
             "message": "The total amount in your cart does not meet the minimum requirement for applying this coupon. Please add more items to meet the minimum amount"
         })
@@ -145,8 +142,6 @@ const applyCouponController = asyncHandler(async (req, res) => {
     }
 
     const totalAmountAfterDiscount = totalAmountBeforeDiscount - discountAmount
-
-    console.log(coupon);
 
     return res.status(200).json({ discountAmount, totalAmountAfterDiscount, coupon })
 

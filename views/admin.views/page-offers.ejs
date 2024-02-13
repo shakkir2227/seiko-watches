@@ -1,4 +1,4 @@
-<%- include('./layouts/head.ejs', { pageTitle: 'Coupons' }) %>
+<%- include('./layouts/head.ejs', { pageTitle: 'Offers' }) %>
 
     <body>
         <div class="screen-overlay"></div>
@@ -98,9 +98,13 @@
                                                             <div class="mb-4" id="categorySection"
                                                                 style="display: none;">
                                                                 <label class=" form-label">Select</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="categorySearch" oninput="filterCategories()"
+                                                                    placeholder="Search categories">
                                                                 <select class="form-select" id="category"
                                                                     onchange="validateItem()" name="category">
                                                                     <option selected disabled>Select</option>
+
 
                                                                     <%categories.forEach((category)=> { %>
                                                                         <option value="<%=category._id%>">
@@ -115,6 +119,9 @@
                                                             <div class="mb-4" id="productsSection"
                                                                 style="display: none;">
                                                                 <label class="form-label">Select</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="productSearch" oninput="filterProducts()"
+                                                                    placeholder="Search products">
                                                                 <select class="form-select" id="product"
                                                                     onchange="validateItem()" name="product">
                                                                     <option selected disabled>Select</option>
@@ -261,6 +268,73 @@
 
             <script>
 
+
+
+
+                // When user types the category, updating the option to select the particular category
+                function filterProducts() {
+
+                    let input = document.getElementById("productSearch");
+                    let filter = input.value.toUpperCase();
+                    let select = document.getElementById("product");
+                    let options = select.getElementsByTagName("option");
+
+                    // Remove the existing selected item
+                    select.selectedIndex = null;
+
+                    for (i = 0; i < options.length; i++) {
+                        option = options[i];
+                        if (option.text.toUpperCase().indexOf(filter) > -1) {
+                            option.style.display = "";
+                        } else {
+                            option.style.display = "none";
+                        }
+                    }
+
+                    // Automatically select the first visible option
+                    for (i = 0; i < options.length; i++) {
+                        if (options[i].style.display !== "none") {
+                            select.selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                }
+
+
+                // Filtering products
+                function filterCategories() {
+
+                    let input = document.getElementById("categorySearch");
+                    let filter = input.value.toUpperCase();
+                    let select = document.getElementById("category");
+                    let options = select.getElementsByTagName("option");
+
+                    // Remove the existing selected item
+                    select.selectedIndex = null;
+
+                    for (i = 0; i < options.length; i++) {
+                        option = options[i];
+                        if (option.text.toUpperCase().indexOf(filter) > -1) {
+                            option.style.display = "";
+                        } else {
+                            option.style.display = "none";
+                        }
+                    }
+
+                    // Automatically select the first visible option
+                    for (i = 0; i < options.length; i++) {
+                        if (options[i].style.display !== "none") {
+                            select.selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                }
+
+
+
+
                 // For deleting a particular offer
                 function deleteOffer(id) {
 
@@ -302,6 +376,14 @@
 
 
                 function updateOptions() {
+
+                    // Removing the category and product search
+                    let productInput = document.getElementById("categorySearch");
+                    let categoryInput = document.getElementById("productSearch");
+                    productInput.value = ""
+                    categoryInput.value = ""
+
+
                     const selectedItem = document.getElementById("product_category").value;
 
                     const categorySection = document.getElementById("categorySection");
@@ -373,8 +455,6 @@
 
                     // Check for errors in category or product
                     if (categoryError.innerText && productError.innerText) {
-                        console.log(categoryError);
-                        console.log(productError);
                         document.getElementById("categoryProductError").innerText = "Category or Product is required";
                     } else {
                         document.getElementById("categoryProductError").innerText = "";
@@ -385,6 +465,14 @@
 
 
                 function validateDiscount() {
+
+                    // Removing the category and product search
+                    let productInput = document.getElementById("categorySearch");
+                    let categoryInput = document.getElementById("productSearch");
+                    productInput.value = ""
+                    categoryInput.value = ""
+
+
                     var discount = document.getElementById("discount_percentage").value;
                     var errorSpan = document.getElementById("discountError");
 
@@ -399,6 +487,15 @@
 
 
                 function validateMaxDiscount() {
+
+                    // Removing the category and product search
+                    let productInput = document.getElementById("categorySearch");
+                    let categoryInput = document.getElementById("productSearch");
+                    productInput.value = ""
+                    categoryInput.value = ""
+
+
+
                     var maxDiscountAmount = document.getElementById("max_discount_amount").value;
                     var errorSpan = document.getElementById("maxDiscountError");
 

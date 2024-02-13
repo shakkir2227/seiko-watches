@@ -13,7 +13,11 @@ const addToWishlistController = asyncHandler(async (req, res) => {
     // Using addToset, no duplicate product will be added
     await User.updateOne({ _id: user._id }, { $addToSet: { wishlist: product } })
 
-    return res.status(200).json({ message: "Added to Wishlist successfully" })
+    // Sending the total count of products in wishlist
+    const updatedUser = await User.findOne({ _id: user._id })
+    const totalProductsInWishlist = updatedUser.wishlist.length
+
+    return res.status(200).json({ totalProductsInWishlist, message: "Added to Wishlist successfully" })
 
 })
 

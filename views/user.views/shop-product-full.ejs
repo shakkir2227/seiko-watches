@@ -180,10 +180,20 @@
                                                                                 id="buyNow">Buy
                                                                                 Now
                                                                             </button>
-                                                                            <a aria-label="Add To Wishlist"
-                                                                                onclick="addToWishlist('<%=product._id%>')"
-                                                                                class="action-btn hover-up ml-15"><i
-                                                                                    class="fi-rs-heart"></i></a>
+
+                                                                            <% if(typeof(availableinWishlist)!=="undefined"
+                                                                                ) {%>
+                                                                                <% if (availableinWishlist.length===0)
+                                                                                    {%>
+
+                                                                                    <a id="wishlistSymbol"
+                                                                                        aria-label="Add To Wishlist"
+                                                                                        onclick="addToWishlist('<%=product._id%>')"
+                                                                                        class="action-btn hover-up ml-15"><i
+                                                                                            class="fi-rs-heart"></i></a>
+
+                                                                                    <%} %>
+                                                                                        <%} %>
 
                                                     </div>
                                                 </div>
@@ -300,14 +310,12 @@
 
                     function addToWishlist(productId) {
 
-                        console.log(productId);
                         let data = {
                             product: productId
                         };
                         data = JSON.stringify(data);
 
 
-                        console.log(data);
                         fetch("/wishlist/add", {
                             method: "PUT",
                             headers: {
@@ -317,6 +325,11 @@
                         })
                             .then((res) => {
                                 if (res.ok) {
+
+                                    // Remove the wishlist sybmol
+                                    document.getElementById("wishlistSymbol").remove()
+
+
                                     const Toast = Swal.mixin({
                                         toast: true,
                                         position: "top-end",
@@ -333,6 +346,11 @@
                                         title: "Success! The item has been saved to your wishlist."
                                     });
                                 }
+
+                                return res.json()
+                            })
+                            .then((data) => {
+                                document.getElementById('wishlistCount').textContent = data.totalProductsInWishlist;
                             })
 
 
@@ -351,7 +369,6 @@
                         const cartAndBuyButtons = document.getElementsByClassName("cartAndBuyButtons")
                         const buyNowButton = document.getElementById("buyNow");
 
-                        console.log(cartAndBuyButtons);
                         changeQuantity.parentNode.removeChild(changeQuantity);
                         buyNowButton.parentNode.removeChild(buyNowButton);
 
@@ -407,7 +424,6 @@
                             productQuantity
                         }
                         const jsonData = JSON.stringify(data)
-                        console.log(jsonData);
 
                         fetch("/cart/add", {
                             method: "POST",
@@ -426,7 +442,16 @@
                                     addToCart.removeAttribute("onclick")
                                     addToCart.setAttribute("onclick", "goToCart()")
                                 }
+
+                                return res.json()
                             })
+                            .then((data) => {
+                                console.log(data);
+                                document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
+                                document.getElementById('totalAmountInHeader').textContent = data.totalAmount;
+                            })
+
+
                     }
 
                     function goToCart() {

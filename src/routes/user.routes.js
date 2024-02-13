@@ -33,7 +33,7 @@ router.route("/resend-OTP").get(userResendOTPController)
 
 router.route("/login")
     .get(userLoginController.getLoginPage)
-    .post(userLoginController.loginUser)
+    .post(userLoginController.loginUser) 
 
 router.route("/account")
     .get(userAccountController.renderAccountDetailsPage)

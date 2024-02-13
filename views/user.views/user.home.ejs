@@ -30,8 +30,19 @@
                                         added</button>
                                 </li>
                             </ul>
-                            <a href="#" class="view-more d-none d-md-flex">View More<i
-                                    class="fi-rs-angle-double-small-right"></i></a>
+
+                            <% if (typeof(categories!=="undefined" )) { %>
+
+                                <%for(let i=0; i<1; i++) {%>
+
+                                    <a href="/product/view-user?category=<%=categories[0]._id %>"
+                                        class="view-more d-none d-md-flex">View More<i
+                                            class="fi-rs-angle-double-small-right"></i></a>
+
+                                    <%} %>
+                                        <% } %>
+
+
                         </div>
                         <!--End nav-tabs-->
                         <div class="tab-content wow fadeIn animated" id="myTabContent">
@@ -52,16 +63,18 @@
                                                                     alt="">
                                                             </a>
                                                         </div>
-                                                        <div class="product-action-1">
+                                                        <%if(!product.isInWishlist) {%>
+                                                            <div class="product-action-1">
 
-                                                            <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                                onclick="addToWishlist('<%=product._id %>')"><i
-                                                                    class="fi-rs-heart"></i></a>
+                                                                <a aria-label="Add To Wishlist"
+                                                                    class="action-btn hover-up"
+                                                                    onclick="addToWishlist('<%=product._id %>', this)"><i
+                                                                        class="fi-rs-heart "></i></a>
 
-                                                        </div>
-                                                        <!-- <div class="product-badges product-badges-position product-badges-mrg">
-                                            <span class="hot">Hot</span>
-                                        </div> -->
+                                                            </div>
+
+                                                            <%} %>
+
                                                     </div>
                                                     <div class="product-content-wrap">
                                                         <div class="product-category">
@@ -92,12 +105,18 @@
                                                                 </div>
 
                                                                 <% }%>
-                                                                    <div class="product-action-1 show">
-                                                                        <a aria-label="Add To Cart"
-                                                                            class="action-btn hover-up"
-                                                                            onclick="addToCart('<%=product._id %>')"><i
-                                                                                class="fi-rs-shopping-bag-add"></i></a>
-                                                                    </div>
+
+                                                                    <%if(!product.isInCart) {%>
+
+                                                                        <div class="product-action-1 show">
+                                                                            <a aria-label="Add To Cart"
+                                                                                class="action-btn hover-up"
+                                                                                onclick="addToCart('<%=product._id %>', this)"><i
+                                                                                    class="fi-rs-shopping-bag-add"></i></a>
+                                                                        </div>
+
+                                                                        <% } %>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -185,16 +204,13 @@
 
                 <script>
                     // For adding to wishlist
-                    function addToWishlist(productId) {
+                    function addToWishlist(productId, element) {
 
-                        console.log(productId);
                         let data = {
                             product: productId
                         };
                         data = JSON.stringify(data);
 
-
-                        console.log(data);
                         fetch("/wishlist/add", {
                             method: "PUT",
                             headers: {
@@ -203,7 +219,19 @@
                             body: data,
                         })
                             .then((res) => {
+                                if (res.redirected) {
+                                    return
+                                }
                                 if (res.ok) {
+
+                                    // Removing the add to wishlist symbol
+                                    var parentDiv = element.closest('.product-action-1');
+                                    if (parentDiv) {
+                                        parentDiv.remove();
+                                    }
+
+
+
                                     const Toast = Swal.mixin({
                                         toast: true,
                                         position: "top-end",
@@ -219,13 +247,21 @@
                                         icon: "success",
                                         title: "Success! The item has been saved to your wishlist."
                                     });
+
+                                    return res.json()
+
+                                }
+                            })
+                            .then((data) => {
+                                if (data) {
+                                    document.getElementById('wishlistCount').textContent = data.totalProductsInWishlist;
                                 }
                             })
 
 
                     }
 
-                    function addToCart(productId) {
+                    function addToCart(productId, element) {
 
                         const data = {
                             productId,
@@ -241,7 +277,19 @@
                             body: jsonData,
                         })
                             .then((res) => {
+
+                                if (res.redirected) {
+                                    return
+                                }
+
                                 if (res.ok) {
+
+                                    // Removing the add to cart symbol
+                                    var parentDiv = element.closest('.product-action-1');
+                                    if (parentDiv) {
+                                        parentDiv.remove();
+                                    }
+
                                     const Toast = Swal.mixin({
                                         toast: true,
                                         position: "top-end",
@@ -257,8 +305,16 @@
                                         icon: "success",
                                         title: "Success! The item has been saved to your Cart."
                                     });
+
+                                    return res.json()
                                 }
                             })
+                            .then((data) => {
+                                document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
+                                document.getElementById('totalAmountInHeader').textContent = "₹" + data.totalAmount;
+
+                            })
+
 
 
                     }

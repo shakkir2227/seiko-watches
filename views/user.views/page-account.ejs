@@ -596,7 +596,6 @@
                                         let code = copyText.innerText;
                                         code = code.replace("copy to clipboard", "")
 
-                                        console.log(code);
 
                                         // Create a range and select the text inside the element
                                         var range = document.createRange();
@@ -608,7 +607,6 @@
                                         try {
                                             // Execute the copy command
                                             document.execCommand('copy');
-                                            console.log('Coupon code copied to clipboard:', code);
                                             alert("Copied the text: " + code);
                                         } catch (err) {
                                             console.error('Unable to copy coupon code to clipboard', err);

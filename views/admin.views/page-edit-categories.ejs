@@ -193,7 +193,7 @@
                                                     if (response.ok) {
 
                                                         const successResponse = await response.json()
-                                                        console.log(successResponse.status);
+                                            
 
                                                         Swal.fire({
                                                             icon: 'success',
@@ -252,7 +252,6 @@
                                                 }).then((result) => {
                                                     if (result.isConfirmed) {
                                                         removedImage = categoryImage;
-                                                        console.log(removedImage);
                                                         document.getElementById(categoryImage).remove()
 
                                                     }

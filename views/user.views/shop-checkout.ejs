@@ -639,9 +639,7 @@
                             totalAmount,
                             productDetails,
                         }
-                        console.log("Product details are");
-                        console.log(productDetails);
-
+                   
                         onlinePaymentData = JSON.stringify(onlinePaymentData);
 
                         fetch("/order/online-payment", {
@@ -655,9 +653,6 @@
                             })
                             .then((data) => {
 
-                               
-
-                                console.log(data);
                                 if (data.message === "Sorry, the requested quantity is currently unavailable.!") {
 
                                      // Clear the already available product details
@@ -765,8 +760,6 @@
                         discountAmount = discountAmount.textContent
                     }
 
-                    console.log(appliedCoupon);
-
                     // For getting the input address  
                     let selectedAddressIndex = null;
 
@@ -813,7 +806,7 @@
                             productDetails.length = 0
 
 
-                            console.log(data);
+               
                             if (data.message === "Order placed") {
                                 Swal.fire({
                                     icon: 'success',
@@ -1043,8 +1036,7 @@
                     let couponInput = document.getElementById("couponInput").value
                     let totalAmountBeforeDiscount = document.getElementById("totalAmountBeforeShipping").innerText
                     totalAmountBeforeDiscount = totalAmountBeforeDiscount.replace("")
-                    console.log(totalAmountBeforeDiscount);
-
+    
                     let couponApplyData = {
                         couponInput,
                         totalAmountBeforeDiscount,

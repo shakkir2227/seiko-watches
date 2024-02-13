@@ -345,11 +345,8 @@
                             params.append("categoryFilterValue", categoryFilterValue)
                             params.append("page", page)
 
-                            console.log("/order/filter?" + params);
-
                             fetch("/order/filter?" + params)
                                 .then((res) => {
-                                    console.log(res);
                                     return res.json()
                                 })
                                 .then(data => {
@@ -364,7 +361,6 @@
                                     ordersCard.innerHTML = ""
 
                                     if (data.orders && data.orders.length > 0) {
-                                        console.log("data .orders");
                                         data.orders.forEach(order => {
                                             // Create a new row
                                             const newRow = document.createElement('tr');

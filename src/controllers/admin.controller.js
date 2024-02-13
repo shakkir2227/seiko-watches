@@ -240,8 +240,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
         },
     ])
 
-    console.log("total orders are");
-    console.log(orders);
+   
     const orderStatistics = await Order.aggregate([
         {
             $match: {
@@ -324,7 +323,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
         },
 
     ])
-    console.log(orderStatistics);
+
 
     const productStatistics = await Product.aggregate([
         {
@@ -592,7 +591,7 @@ const adminReportController = asyncHandler(async (req, res) => {
 
         ])
 
-        console.log(orders);
+     
         const orderStatistics = await Order.aggregate([
             {
                 $match: {

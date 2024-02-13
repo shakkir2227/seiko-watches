@@ -52,53 +52,59 @@
 
                                                         <%if(user.product[0].discountedPrice) {%>
 
-                                                        <td class="price" id="<%=user.product[0]._id %>price"
-                                                            data-title="Price"><span>
-                                                                <%=user.product[0].discountedPrice %>
-                                                            </span>
-                                                        </td>
-
-                                                        <% } else {%>
-
-                                                            <td class="price" id="<%=user.product[0]._id %>price" data-title="Price"><span>
-                                                                    <%=user.product[0].price %>
+                                                            <td class="price" id="<%=user.product[0]._id %>price"
+                                                                data-title="Price"><span>
+                                                                    <%=user.product[0].discountedPrice %>
                                                                 </span>
                                                             </td>
 
-                                                            <%} %>
-                                                        <td class="text-center" data-title="Stock">
-                                                            <div class="detail-qty border radius  m-auto">
-                                                                <a class="qty-down"
-                                                                    onclick="decreaseQuantity('<%=user.product[0]._id%>')"><i
-                                                                        class="fi-rs-angle-small-down"></i></a>
-                                                                <span class="qty-val" id="<%=user.product[0]._id %>">
-                                                                    <%=user.cart.quantity %>
-                                                                </span>
-                                                                <a class="qty-up"
-                                                                    onclick="increaseQuantity('<%=user.product[0]._id%>')"><i
-                                                                        class="fi-rs-angle-small-up"></i></a>
-                                                            </div>
-                                                        </td>
-                                                        <td class="text-right" data-title="Cart">
-                                                            <span class="subTotal"
-                                                                id="<%=user.product[0]._id %>subTotal">
-                                                                <%=user.subTotal %>
-                                                            </span>
-                                                        </td>
-                                                        <td class="action" data-title="Remove"><a
-                                                                onclick="deleteFromCart('<%=user.product[0]._id %>')"
-                                                                class="text-muted"><i class="fi-rs-trash"></i></a>
-                                                        </td>
+                                                            <% } else {%>
 
-                                                        <%if(!user.inStock) {%>
+                                                                <td class="price" id="<%=user.product[0]._id %>price"
+                                                                    data-title="Price"><span>
+                                                                        <%=user.product[0].price %>
+                                                                    </span>
+                                                                </td>
 
-                                                            <td class="text-center" data-title="Stock">
-                                                                <span class="text-danger font-weight-bold">Out of
-                                                                    stock <br>Only <%=user.product[0].stock %> item left
-                                                                        !!</span>
-                                                            </td>
+                                                                <%} %>
+                                                                    <td class="text-center" data-title="Stock">
+                                                                        <div class="detail-qty border radius  m-auto">
+                                                                            <a class="qty-down"
+                                                                                onclick="decreaseQuantity('<%=user.product[0]._id%>')"><i
+                                                                                    class="fi-rs-angle-small-down"></i></a>
+                                                                            <span class="qty-val"
+                                                                                id="<%=user.product[0]._id %>">
+                                                                                <%=user.cart.quantity %>
+                                                                            </span>
+                                                                            <a class="qty-up"
+                                                                                onclick="increaseQuantity('<%=user.product[0]._id%>')"><i
+                                                                                    class="fi-rs-angle-small-up"></i></a>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="text-right" data-title="Cart">
+                                                                        <span class="subTotal"
+                                                                            id="<%=user.product[0]._id %>subTotal">
+                                                                            <%=user.subTotal %>
+                                                                        </span>
+                                                                    </td>
+                                                                    <td class="action" data-title="Remove"><a
+                                                                            onclick="deleteFromCart('<%=user.product[0]._id %>')"
+                                                                            class="text-muted"><i
+                                                                                class="fi-rs-trash"></i></a>
+                                                                    </td>
 
-                                                            <%} %>
+                                                                    <%if(!user.inStock) {%>
+
+                                                                        <td class="text-center" data-title="Stock">
+                                                                            <span
+                                                                                class="text-danger font-weight-bold">Out
+                                                                                of
+                                                                                stock <br>Only <%=user.product[0].stock
+                                                                                    %> item left
+                                                                                    !!</span>
+                                                                        </td>
+
+                                                                        <%} %>
 
                                                     <tr>
 
@@ -157,7 +163,7 @@
                                                                     <td class="cart_total_label">Total</td>
                                                                     <td class="cart_total_amount"><strong><span
                                                                                 class="font-xl fw-900 text-brand"
-                                                                                id="totalAmount">$240.00</span></strong>
+                                                                                id="totalAmount">0</span></strong>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>
@@ -236,8 +242,6 @@
                     function updateSubTotal() {
                         const newQuantity = document.getElementById(productId).innerHTML;
                         const price = document.getElementById(productId + "price").textContent;
-                        console.log(newQuantity);
-                        console.log(price);
 
                         const subTotal = document.getElementById(productId + "subTotal")
                         const newSubTotal = newQuantity * price;
@@ -331,6 +335,7 @@
                     const totalAmount = elements.reduce((accumulator, value) => {
                         return parseInt(value.textContent) + accumulator;
                     }, 0)
+
 
                     let totalAmountBeforeShippingElement = document.getElementById("totalAmountBeforeShipping")
                     totalAmountBeforeShippingElement.textContent = '\u20B9 ' + totalAmount

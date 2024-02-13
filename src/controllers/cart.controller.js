@@ -14,7 +14,44 @@ const addToCartController = asyncHandler(async (req, res) => {
 
     await User.updateOne({ _id: user._id, "cart.product": { $ne: product } }, { $addToSet: { cart: { product, quantity } } })
 
-    return res.status(200).json({ message: "Added to cart successfully" })
+    // Find how many items are there in cart
+    const updatedUser = await User.aggregate([
+        {
+            $match: {
+                _id: user._id
+            }
+        },
+        {
+            $unwind: "$cart"
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "cart.product",
+                foreignField: "_id",
+                as: "product"
+            }
+        }
+    ])
+
+    // We have unwinded the doc with cart array
+    const numberOfProductsInCart = updatedUser.length;
+
+
+    // Finding the total amount of the cart now
+    let totalAmount = 0;
+    console.log(updatedUser);
+    updatedUser.forEach((element, i) => {
+        if (element.product[0].discountedPrice) {
+            totalAmount += (element.cart.quantity * element.product[0].discountedPrice)
+        } else {
+            totalAmount += (element.cart.quantity * element.product[0].price)
+        }
+
+    })
+
+    console.log(totalAmount);
+    return res.status(200).json({ numberOfProductsInCart, totalAmount, message: "Added to cart successfully" })
 })
 
 const viewCartController = asyncHandler(async (req, res) => {
@@ -74,6 +111,8 @@ const viewCartController = asyncHandler(async (req, res) => {
     );
 
     console.log(userCart);
+
+
     return res.render("shop-cart.ejs", { categories: res.locals.categories, userCart })
 })
 

@@ -133,8 +133,6 @@
                     const response = await fetch("/admin/users-filter?" + params)
                     const data = await response.json();
 
-                    console.log(data);
-
                     const tbody = document.getElementById('userTableBody');
 
                     // Clear existing content in tbody
@@ -214,9 +212,7 @@
             <script>
                 async function toggleUserBlock(id, isBlocked) {
 
-                    console.log(isBlocked);
                     const action = isBlocked === "false" ? "Block" : "Unblock";
-                    console.log(action);
 
                     Swal.fire({
                         icon: 'warning',

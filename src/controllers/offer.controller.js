@@ -149,7 +149,7 @@ const updateDiscountedPrice = asyncHandler(async (product) => {
             }
         }
     ])
-    console.log(discountedPrice);
+
     await Product.updateOne(
         {
             _id: product
@@ -315,7 +315,6 @@ const addOfferController = asyncHandler(async (req, res) => {
 
 const deleteOfferController = asyncHandler(async (req, res) => {
 
-    console.log(req.body);
 
     const { offerId } = req.body
     const offerIdObject = new mongoose.Types.ObjectId(offerId)
@@ -344,7 +343,6 @@ const deleteOfferController = asyncHandler(async (req, res) => {
         }
     ])
 
-    console.log(offer);
     // If it is a product offer, remove it from product, and also remove the new price 
     if (offer[0].product.length > 0) {
         await Product.updateOne({ _id: offer[0].product[0]._id }, { $set: { offer: null } })

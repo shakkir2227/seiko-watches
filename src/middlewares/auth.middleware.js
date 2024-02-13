@@ -5,7 +5,7 @@ const isAuth = (req, res, next) => {
     const user = res.locals.user;
 
     if (!user) {
-        return res.redirect(307, "/user/login")
+        return res.redirect(303, "/user/login")
     }
 
     if (user?.isBlocked) {

@@ -584,6 +584,19 @@ const productViewController = {
 
             }
 
+            let availableinWishlist;
+            if (userId) {
+                availableinWishlist = await User.aggregate([
+                    {
+                        $match: {
+                            _id: userIdObject,
+                            wishlist: productIdObject
+                        },
+                    }
+                ])
+
+            }
+
             const productWithVariations = await Product.aggregate([{
                 $match: { name: product.name, isBlocked: false, _id: { $ne: product._id } },
             }])
@@ -598,9 +611,8 @@ const productViewController = {
                 $replaceRoot: { newRoot: "$uniqueProduct" }
             }])
 
-            console.log(product);
 
-            return res.render("shop-product-full.ejs", { product, relatedProducts, availableincart, productWithVariations, categories: res.locals.categories, user: res.locals.user })
+            return res.render("shop-product-full.ejs", { product, relatedProducts, availableincart, availableinWishlist, productWithVariations, categories: res.locals.categories, user: res.locals.user })
 
         }),
 
@@ -659,8 +671,6 @@ const productViewController = {
         }),
 
         getFilteredProducts: asyncHandler(async (req, res) => {
-
-            console.log(req.query);
 
             let { parentCategoryFilters, subCategoryFilters, priceRangeFilters, bandMaterialFilters, dialColorFilters } = req.query
 
@@ -740,9 +750,18 @@ const productViewController = {
                 return element === "under500"
             }))) {
                 priceRange.push({
-                    price: {
-                        $lt: 500
-                    }
+                    $or: [
+                        {
+                            price: {
+                                $lt: 500
+                            },
+                        },
+                        {
+                            discountedPrice: {
+                                $lt: 500
+                            }
+                        }
+                    ]
                 })
             }
 
@@ -750,39 +769,80 @@ const productViewController = {
                 return element === "500to1000"
             }))) {
                 priceRange.push({
-                    price: {
-                        $gte: 500,
-                        $lt: 1000
-                    }
+                    $or: [
+                        {
+                            price: {
+                                $gte: 500,
+                                $lt: 1000
+                            },
+                        },
+                        {
+                            discountedPrice: {
+                                $gte: 500,
+                                $lt: 1000
+                            }
+                        }
+                    ]
                 })
             }
             if (priceRanges.find((element => {
                 return element === "1000to2000"
             }))) {
                 priceRange.push({
-                    price: {
-                        $gte: 1000,
-                        $lt: 2000,
-                    }
+                    $or: [
+                        {
+                            price: {
+                                $gte: 1000,
+                                $lt: 2000,
+                            },
+                        },
+                        {
+                            discountedPrice: {
+                                $gte: 1000,
+                                $lt: 2000,
+                            }
+                        }
+                    ]
                 })
             }
             if (priceRanges.find((element => {
                 return element === "2000to3000"
             }))) {
                 priceRange.push({
-                    price: {
-                        $gte: 2000,
-                        $lt: 3000
-                    }
+                    $or: [
+                        {
+                            price: {
+                                $gte: 2000,
+                                $lt: 3000
+                            },
+                        },
+                        {
+                            discountedPrice: {
+                                $gte: 2000,
+                                $lt: 3000,
+                            }
+                        }
+                    ]
+
                 })
             }
             if (priceRanges.find((element => {
                 return element === "over3000"
             }))) {
                 priceRange.push({
-                    price: {
-                        $gte: 3000
-                    }
+                    $or: [
+                        {
+                            price: {
+                                $gte: 3000
+                            },
+                        },
+                        {
+                            discountedPrice: {
+                                $gte: 3000
+                            }
+                        }
+                    ]
+
                 })
             }
 
@@ -867,11 +927,13 @@ const productViewController = {
                 // Else findout all the products
                 const filteredProductsBeforePagination = await Product.aggregate(commonAggregationPipeline)
 
+                let totalProducts = filteredProductsBeforePagination.length
+
                 const filteredProductsAfterPagination = await Product.aggregate(commonAggregationPipelineWithPagination);
 
                 const totalPages = Math.ceil(filteredProductsBeforePagination.length / limit)
 
-                return res.status(200).json({ filteredProducts: filteredProductsAfterPagination, page, totalPages })
+                return res.status(200).json({ filteredProducts: filteredProductsAfterPagination, totalProducts, page, totalPages })
             }
 
 
@@ -922,14 +984,14 @@ const productViewController = {
 
                 }
 
+                const totalProducts = filteredProducts.length;
+
                 const totalPages = Math.ceil(filteredProducts.length / limit)
 
                 // Pagination using js
                 filteredProducts = filteredProducts.splice(skip, limit)
 
-                console.log(filteredProducts);
-
-                return res.status(200).json({ filteredProducts, page, totalPages })
+                return res.status(200).json({ filteredProducts, totalProducts, page, totalPages })
 
             }
 
@@ -995,13 +1057,14 @@ const productViewController = {
                     filteredProducts.push(...arr)
                 }
 
+                const totalProducts = filteredProducts.length;
 
                 const totalPages = Math.ceil(filteredProducts.length / limit)
 
                 // Pagination using js
                 filteredProducts = filteredProducts.splice(skip, limit)
 
-                return res.status(200).json({ filteredProducts, page, totalPages })
+                return res.status(200).json({ filteredProducts, totalProducts, page, totalPages })
 
             }
 
@@ -1065,13 +1128,14 @@ const productViewController = {
                 filteredProducts.push(...arr)
             }
 
+            const totalProducts = filteredProducts.length;
+
             const totalPages = Math.ceil(filteredProducts.length / limit)
-            console.log("Filtered products are --- " + filteredProducts.length);
 
             // Pagination using js
             filteredProducts = filteredProducts.splice(skip, limit)
 
-            return res.status(200).json({ filteredProducts, page, totalPages })
+            return res.status(200).json({ filteredProducts, totalProducts, page, totalPages })
 
         })
 

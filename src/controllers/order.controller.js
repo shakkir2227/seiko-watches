@@ -149,8 +149,7 @@ const userCheckoutController = {
         const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
         const { productDetails, totalAmount } = req.body;
 
-        console.log(req.body);
-
+ 
         // Before initiating the payment, reducing the stock of each of the products
         // Checking if the stock becomes negative, if it is, return an error. 
         for (const productDetail of productDetails) {
@@ -191,8 +190,6 @@ const userCheckoutController = {
 
     createOrder: asyncHandler(async (req, res) => {
 
-        console.log(req.body);
-
         const user = res.locals.user;
 
         let { selectedAddressIndex, productDetails, totalAmount, paymentMethod, paymentId, discountAmount, appliedCoupon } = req.body;
@@ -220,7 +217,6 @@ const userCheckoutController = {
 
         // If no address selected by user throw error
         if (!selectedAddressIndex) {
-            console.log("HERE");
             return res.status(400).json({ message: "Please select your preferred address for a seamless experience on our platform." })
         }
 
@@ -239,7 +235,6 @@ const userCheckoutController = {
         discountAmount = discountAmount.replace(" - ₹", "")
         discountAmount = parseInt(discountAmount)
 
-        console.log(productDetails);
 
         const order = await Order.create({
             user: user._id,
@@ -322,7 +317,6 @@ const userOrderViewController = asyncHandler(async (req, res) => {
         }
 
     ])
-    console.log(userOrders);
     return res.render("page-orders.ejs", { userOrders })
 })
 
@@ -472,9 +466,6 @@ const userOrderUpdateControler = {
             }
         ])
 
-        console.log("Cancelled product is ");
-        console.log(cancelledProduct);
-
         const cancelledOrderProductCount = cancelledProduct[0].productDetails.quantity;
 
         const product = await Product.findOne({ _id: productIdObject });
@@ -548,8 +539,6 @@ const userOrderUpdateControler = {
 
     returnOrder: asyncHandler(async (req, res) => {
 
-        console.log(req.body);
-
         const { orderId, productId } = req.body;
 
         // converting to mongodb objectid
@@ -588,9 +577,6 @@ const userOrderUpdateControler = {
             }
         ])
 
-        console.log("Retruned product is ");
-        console.log(returnedProduct);
-
         const returnedOrderProductCount = returnedProduct[0].productDetails.quantity;
 
         const product = await Product.findOne({ _id: productIdObject });
@@ -618,7 +604,6 @@ const userOrderUpdateControler = {
             }
         )
 
-        console.log("returned");
 
         return res.status(200).json({ message: "Your request for return has been successfully processed. Amount will be credited to your wallet shortly. If you have any further questions or concerns, please feel free to contact our customer support" })
 
@@ -801,7 +786,7 @@ const adminOrderViewController = asyncHandler(async (req, res) => {
 
 
     ])
-    console.log(orderStatistics);
+
     return res.render("page-orders-detail.ejs", { order, orderStatistics })
 })
 
@@ -877,8 +862,6 @@ const adminOrderDetailedViewController = asyncHandler(async (req, res) => {
 
 
     ])
-
-    console.log(order);
 
     return res.render("page-admin-orders-tracking.ejs", { order })
 
@@ -1004,8 +987,6 @@ const orderFilterController = asyncHandler(async (req, res) => {
             }
         }
     ])
-
-    console.log(totalOrders);
 
     // Finding out total pages
     let totalPages;
@@ -1204,8 +1185,7 @@ const orderFilterController = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log(orders);
-
+  
     const orderStatistics = await Order.aggregate([
         {
             $match: {

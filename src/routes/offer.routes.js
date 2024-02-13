@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { setCategoryData } from "../middlewares/commonData.middleware.js";
+import { isAdmin } from "../middlewares/auth.middleware.js";
 import {
     offerViewController,
     addOfferController,
@@ -9,6 +10,8 @@ import {
 const router = Router();
 
 router.use(setCategoryData)
+
+router.use(isAdmin)
 
 router.route("/view").get(offerViewController)
 router.route("/add").post(addOfferController)
