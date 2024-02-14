@@ -1,16 +1,17 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import mongoose from "mongoose";
+import crypto from "crypto"
 import { User } from "../models/user.model.js";
 import { Product } from "../models/product.model.js";
 import { Category } from "../models/category.model.js";
 import { OTP } from "../models/userOTP.model.js";
 import { Address } from "../models/address.model.js";
+import { Coupon } from "../models/coupon.model.js";
 import { generateCroppedUrl, generateRoundedImageUrl, } from "../utils/cloudinary.js";
 import userValidationSchema from "../utils/validation/user.validation.js";
 import userLoginValidationSchema from "../utils/validation/user.login.validation.js";
 import addressValidationSchema from "../utils/validation/address.validation.js"
 import { tranporter, Mailgenerator } from "../utils/nodemailer.js";
-import { Coupon } from "../models/coupon.model.js";
 
 
 
@@ -36,7 +37,7 @@ const registerController = {
         //if verified, display ALREADY REGISTERED
         //else proceed to sendOTP
 
-        const { name, email, mobileNumber, password } = req.body;
+        const { name, email, mobileNumber, password, ref } = req.body;
 
         //Using JOI for validation
         const { error } = userValidationSchema.validate({ name, email, password, mobileNumber });
@@ -110,7 +111,7 @@ const registerController = {
 
             // return res.send("Verification Email has been sent")
             req.flash('success', `Verification Email has been sent`);
-            return res.redirect("/user/verify")
+            return res.redirect("/user/verify?ref=" + ref)
         };
 
         if (!existedUser.isVerified) {
@@ -155,8 +156,9 @@ const registerController = {
 
             req.session.email = existedUser.email;
 
+
             req.flash('success', `Verification Email has been sent`);
-            return res.redirect("/user/verify")
+            return res.redirect("/user/verify?ref=" + ref)
         };
 
 
@@ -214,7 +216,37 @@ const verifyController = {
         }
 
         await User.updateOne({ email }, { $set: { isVerified: true } })
-        // const verifiedUser = await User.findOne({ _id: userId });
+
+        // ------------------------Referal link validation------------------------------
+
+        // Check any referal is there in the url
+        let ref = req.query.ref;
+        if (ref) {
+            // Finding the user from db who has this referal link, increasing his wallet amount with 100 rupees
+            let referalLinkFromUrl = `${req.headers.host}/user/register?ref=${ref}`
+            const updatedUser = await User.updateOne({ referalLink: referalLinkFromUrl }, { $inc: { wallet: 100 } })
+            console.log(updatedUser);
+        }
+
+
+        // ------------------------Referal link creation ------------------------------
+
+        // Now create a referral registration URL by encrypting the user id
+        const key = crypto.randomBytes(32);
+        const iv = crypto.randomBytes(16);
+
+        //Encrypting text
+        function encrypt(text) {
+            let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+            let encrypted = cipher.update(text);
+            encrypted = Buffer.concat([encrypted, cipher.final()]);
+            return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+        }
+
+        var encryptedUserId = encrypt(user._id.toString())
+        const referalLink = `${req.headers.host}/user/register?ref=${encryptedUserId.encryptedData}-${encryptedUserId.iv}`
+        await User.updateOne({ email }, { $set: { referalLink } })
+
 
         req.session.email = null;
         req.session.userId = user._id;
@@ -333,6 +365,11 @@ const userLoginController = {
         if (user.isBlocked) {
             req.session.userId = null;
             req.flash('error', `We regret to inform you that your account has been temporarily suspended or blocked by the administrator. If you have any concerns or would like to appeal this decision, please contact our support team at [seiko_admin@mail.com]. Thank you for your understanding.`);
+            return res.redirect("/user/login")
+        }
+
+        if (user.isAdmin) {
+            req.flash("error", `Admin, please use the dedicated admin login page for secure access to privileged functionalities. User login is for regular users only. Thank you!`)
             return res.redirect("/user/login")
         }
 
@@ -457,6 +494,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 const userHomeController = asyncHandler(async (req, res) => {
 
+
     //taking userId from session. find the specific user
     //check the user is blocked, if blocked, flash an error message and redirect to login page
     // elsefind the new products and display it
@@ -533,7 +571,6 @@ const userHomeController = asyncHandler(async (req, res) => {
         }
     }
 
-    console.log(newProducts);
 
     const categories = res.locals.categories;
 

@@ -1,6 +1,4 @@
 import mongoose, { Mongoose, Schema, mongo } from "mongoose";
-import mongooseAggregatePaginate from
-    "mongoose-aggregate-paginate-v2";
 import bcrypt from "bcrypt";
 
 
@@ -35,7 +33,11 @@ const userSchema = new Schema({
         required: true,
         default: false
     },
-
+    isAdmin: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     cart: [{
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", },
         quantity: { type: Number, default: 1 }
@@ -53,6 +55,10 @@ const userSchema = new Schema({
     wallet: {
         type: Number,
         default: 0
+    },
+
+    referalLink: {
+        type: String,
     }
 
 }, {

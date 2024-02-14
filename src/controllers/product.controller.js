@@ -6,8 +6,7 @@ import { User } from "../models/user.model.js";
 import { addProductSchema, updateProductSchema } from "../utils/validation/product.validation.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
-import sharp from "sharp";
-import colors from "colors"
+
 
 const addProductController = {
 

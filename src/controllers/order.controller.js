@@ -106,9 +106,9 @@ const userCheckoutController = {
 
 
     addAddress: asyncHandler(async (req, res) => {
-        
+
         const user = res.locals.user;
-        
+
         const { name, mobileNumber, pincode, houseName, area, landmark, town, state } = req.body
 
         const { error } = addressValidationSchema.validate({ name, mobileNumber, pincode, houseName, area, landmark, town, state })
@@ -149,7 +149,7 @@ const userCheckoutController = {
         const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
         const { productDetails, totalAmount } = req.body;
 
- 
+
         // Before initiating the payment, reducing the stock of each of the products
         // Checking if the stock becomes negative, if it is, return an error. 
         for (const productDetail of productDetails) {
@@ -296,12 +296,70 @@ const userOrderViewController = asyncHandler(async (req, res) => {
 
     const user = res.locals.user
 
+    // For pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    // Finding out total products in wishlist
+    const totalOrders = await Order.aggregate([
+        {
+            $match: {
+                user: user._id
+            }
+        },
+        {
+            $unwind: "$productDetails"
+        },
+    ])
+
+    console.log("total orders are");
+    console.log(totalOrders);
+
+    // Finding out total pages
+    let totalPages = 0;
+    if (totalOrders.length > 0) {
+        totalPages = Math.ceil((totalOrders.length) / limit)
+    }
+
+
+
     const userOrders = await Order.aggregate([
-        { $match: { user: user._id } },
-        { $unwind: "$productDetails" },
-        { $lookup: { from: "products", localField: "productDetails.product", foreignField: "_id", as: "product" } },
-        { $lookup: { from: "addresses", localField: "address", foreignField: "_id", as: "address" } },
-        { $sort: { createdAt: -1 } },
+        {
+            $match: {
+                user: user._id
+            }
+        },
+        {
+            $unwind: "$productDetails"
+        },
+        {
+            $skip: skip
+        },
+        {
+            $limit: limit
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "productDetails.product",
+                foreignField: "_id",
+                as: "product"
+            }
+        },
+        {
+            $lookup: {
+                from: "addresses",
+                localField: "address",
+                foreignField: "_id",
+                as: "address"
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        },
         {
             $project: {
                 address: 1,
@@ -317,7 +375,12 @@ const userOrderViewController = asyncHandler(async (req, res) => {
         }
 
     ])
-    return res.render("page-orders.ejs", { userOrders })
+
+    console.log(page);
+    console.log(totalPages);
+    console.log(userOrders);
+
+    return res.render("page-orders.ejs", { page, totalPages, userOrders })
 })
 
 const userOrderDetailedViewController = asyncHandler(async (req, res) => {
@@ -1185,7 +1248,7 @@ const orderFilterController = asyncHandler(async (req, res) => {
 
     ])
 
-  
+
     const orderStatistics = await Order.aggregate([
         {
             $match: {

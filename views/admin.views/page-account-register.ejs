@@ -54,6 +54,10 @@
                                                         type="text" name="name" id="name" oninput="validateFieldName()">
                                                     <div id="nameError" class="text-danger"></div>
                                                 </div> <!-- form-group// -->
+
+                                                <!-- send the referal id -->
+                                                <input type="hidden" name="ref" id="ref">
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Mobile number</label>
                                                     <div class="row gx-2">
@@ -76,12 +80,13 @@
                                                     <label class="form-label">Password</label>
                                                     <input class="form-control error-message" placeholder="Password"
                                                         type="password" name="password"
-                                                        oninput="validateFieldPassword()" id="password" >
+                                                        oninput="validateFieldPassword()" id="password">
 
-                                                        <div style="margin: 10px ; margin-left: 160px;" >      
-                                                            <label for="showPassword">Show Password</label>
-                                                        <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
-                                                        </div>
+                                                    <div style="margin: 10px ; margin-left: 160px;">
+                                                        <label for="showPassword">Show Password</label>
+                                                        <input type="checkbox" id="showPassword"
+                                                            onclick="togglePasswordVisibility()">
+                                                    </div>
 
                                                     <div id="passwordError" class="text-danger"></div>
                                                 </div> <!-- form-group// -->
@@ -95,7 +100,7 @@
                                                     </button>
                                                 </div> <!-- form-group// -->
                                             </form>
-                                            <p class="text-center small text-muted mb-15">or sign up with</p>
+                                            <!-- <p class="text-center small text-muted mb-15">or sign up with</p>
                                             <div class="d-flex gap-2 mb-4">
                                                 <a href="#" class="w-50 btn btn-light font-sm">
                                                     <svg aria-hidden="true" class="icon-svg"
@@ -123,8 +128,9 @@
                                                             fill="#4167B2"></path>
                                                     </svg> Facebook
                                                 </a>
-                                            </div>
-                                            <p class="text-center mb-2">Already have an account? <a href="#">Sign in
+                                            </div> -->
+                                            <p class="text-center mb-2">Already have an account? <a
+                                                    href="/user/login">Sign in
                                                     now</a></p>
                                         </div>
                     </div>
@@ -135,6 +141,15 @@
         </main>
 
         <script>
+
+            // Setting the referel id
+            document.addEventListener("DOMContentLoaded", () => {
+
+                let search = window.location.search;
+                search = search.replace("?ref=", "")
+                document.getElementById("ref").value = search
+
+            })
 
             function validateFieldName() {
                 const element = document.getElementById("name");
@@ -185,7 +200,7 @@
             }
 
 
-           function validateFieldPassword() {
+            function validateFieldPassword() {
                 const passwordElement = document.getElementById("password");
                 const passwordErrorElement = document.getElementById("passwordError");
 
@@ -207,18 +222,20 @@
 
             // This is for showing the user entered password
             function togglePasswordVisibility() {
-                    var passwordField = document.getElementById("password");
-                    var showPasswordCheckbox = document.getElementById("showPassword");
+                var passwordField = document.getElementById("password");
+                var showPasswordCheckbox = document.getElementById("showPassword");
 
-                    if (showPasswordCheckbox.checked) {
-                        passwordField.type = "text";
-                    } else {
-                        passwordField.type = "password";
-                    }
+                if (showPasswordCheckbox.checked) {
+                    passwordField.type = "text";
+                } else {
+                    passwordField.type = "password";
                 }
+            }
 
 
             function validateForm() {
+
+
 
                 // Call individual validation functions
                 validateFieldName();
@@ -234,7 +251,7 @@
 
                 ) {
                     return false
-                    
+
                 }
 
 

@@ -69,14 +69,24 @@
                                     <article class="icontext">
                                         <span class="icon icon-sm rounded-circle bg-warning-light"><i
                                                 class="text-warning material-icons md-qr_code"></i></span>
+
                                         <div class="text">
                                             <h6 class="mb-1 card-title">Products</h6> <span>
-                                                <%=productStatistics[0].totalProduct %>
+                                                <%if(productStatistics.length> 0) {%>
+
+                                                    <%=productStatistics[0].totalProduct %>
+
+                                                        <% }%>
                                             </span>
                                             <span class="text-sm">
                                                 In
-                                                <%=categoryStatistics[0].totalCategories %>
-                                                    Categories
+
+                                                <%if(categoryStatistics.length> 0){ %>
+
+                                                    <%=categoryStatistics[0].totalCategories %>
+                                                        Categories
+
+                                                        <%} %>
                                             </span>
                                         </div>
                                     </article>
@@ -89,7 +99,14 @@
                                                 class="text-info material-icons md-shopping_basket"></i></span>
                                         <div class="text">
                                             <h6 class="mb-1 card-title">Customers</h6> <span>
-                                                <%=userStatistics[0].totalUsers %>
+                                                <%if(userStatistics.length> 0) {%>
+
+                                                    <%=userStatistics[0].totalUsers %>
+
+                                                        <%} else { %>
+
+                                                            0
+                                                            <% }%>
                                             </span>
                                             <span class="text-sm">
                                                 Total number of customers

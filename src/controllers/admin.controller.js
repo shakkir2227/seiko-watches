@@ -30,13 +30,19 @@ const adminLoginController = {
             return res.render("page-account-login.ejs", { message: trimmedMessage })
         }
 
-        if (!(email === process.env.ADMIN_EMAIL) ||
-            !(password === process.env.ADMIN_PASSWORD)
-        ) {
+        // Finding the email in the DB
+        const admin = await User.findOne({ email, isAdmin: true })
+        if (!admin) {
             return res.render("page-account-login.ejs", { message: "Invalid credentials" })
         }
 
-        req.session.adminEmail = process.env.ADMIN_EMAIL;
+        const isCorrect = await admin.isPasswordCorrect(password)
+        if (!isCorrect) {
+            req.flash("error", "Invalid credentials")
+            return res.redirect("/user/login")
+        }
+
+        req.session.adminEmail = admin.email;
         return res.redirect("/admin/home")
     })
 }
@@ -240,7 +246,7 @@ const adminHomeController = asyncHandler(async (req, res) => {
         },
     ])
 
-   
+
     const orderStatistics = await Order.aggregate([
         {
             $match: {
@@ -591,7 +597,7 @@ const adminReportController = asyncHandler(async (req, res) => {
 
         ])
 
-     
+
         const orderStatistics = await Order.aggregate([
             {
                 $match: {

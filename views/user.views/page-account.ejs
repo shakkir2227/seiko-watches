@@ -125,7 +125,49 @@
                                                                             your <a href="#">recent orders</a>, manage
                                                                             your <a href="#">shipping and billing
                                                                                 addresses</a> and <a href="#">edit your
-                                                                                password and account details.</a></p>
+                                                                                password and account details.</a>
+                                                                            <br>
+                                                                            <br>
+                                                                            Did you know you can earn exciting rewards
+                                                                            by inviting your friends to join SEIKO
+                                                                            WATCHES?
+
+                                                                            <br>
+                                                                            <br>
+
+                                                                            🎉 How it works:
+                                                                            <br>
+                                                                            <br>
+
+                                                                            1. Share your unique referral link given
+                                                                            below
+                                                                            <br>
+                                                                            <br>
+                                                                            <%=user.referalLink %>
+
+
+
+                                                                                <br>
+                                                                                <br>
+                                                                                2. Your friends sign up using the link.
+                                                                                <br>
+
+                                                                                3. You earn 100 Rupees as a thank
+                                                                                you!
+                                                                                <br>
+                                                                                <br>
+                                                                                💬 Spread the word and earn together!
+                                                                                <br>
+
+
+
+                                                                                Thank you for being a valued member of
+                                                                                our
+                                                                                community! 🚀
+                                                                        </p>
+                                                                    </div>
+                                                                    <div style="display: none;" id="referalLink">
+                                                                        <%=user.referalLink %>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -589,6 +631,9 @@
 
                                 <script>
 
+
+
+
                                     function copyToClipboard(index) {
 
                                         var copyText = document.getElementById("couponCode" + index);
@@ -612,9 +657,6 @@
                                             console.error('Unable to copy coupon code to clipboard', err);
                                         }
                                     }
-
-
-
 
 
                                     function blockAddress(addressId) {

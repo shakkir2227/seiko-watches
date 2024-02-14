@@ -1,109 +1,158 @@
 <%- include ('./layouts/head.ejs') %>
 
-<body>
+    <body>
 
-            <%- include ('./partials/user.header.ejs') %>
+        <%- include ('./partials/user.header.ejs') %>
 
 
-   
-    <main class="main">
-        <div class="page-header breadcrumb-wrap">
-            <div class="container">
-                <div class="breadcrumb">
-                    <a href="/user/home" rel="nofollow">Home</a>
-                    <span></span> Your Orders
-                </div>
-            </div>
-        </div>
-        <section class="mt-50 mb-50">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="table-responsive">
-                            <table class="table shopping-summery text-center clean">
-                                <thead>
-                                    <tr class="main-heading">
-                                        <th scope="col">Image</th>
-                                        <th scope="col">Name</th>
-                                        
-                                        <th scope="col">Order placed</th>
-                                        <th scope="col">Ship to</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Order Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
 
-                                    <% if(typeof(userOrders)!== "undefined") {%>
-
-                                        <%userOrders.forEach((order) => { %>
-                                            <tr>
-                                                <td class="image product-thumbnail"><a href="/product/view-user/<%=order.product[0]._id%>"><img src="<%=order.product[0].images[0].url %>"
-                                                        alt="#"> </a></td>
-                                                <td style="max-width: 200px;" class="product-des product-name">
-                                                    <h5 class="product-name"><a href="/product/view-user/<%=order.product[0]._id%>">
-                                                            <%=order.product[0].name %>
-                                                        </a></h5>
-        
-                                                </td>
-                                                
-                                                <td class="price" data-title="Price"><span><%=order.createdAt %> </span></td>
-                                                <td class="text-right" data-title="Cart">
-                                                    <span><%=order.address[0].name %> <br><%=order.address[0].houseName %> <br><%=order.address[0].town %></span>
-                                                </td>
-                                                <td class="text-right" data-title="Cart">
-                                                    <h5><span><%=order.productDetails.deliveryStatus %></span></h5>
-                                                </td>
-                                                
-                                                <td class="product-des product-name">
-                                                    <h5 class="product-name"><a href="/order/view-one?orderId=<%=order._id %>&productId=<%=order.product[0]._id%>">
-                                                            View order details
-                                                        </a></h5>
-                                                
-                                                </td>
-                                               
-                                            </tr>
-
-                                            <% })%>
-                                            <% }%>
-                                    
-                                </tbody>
-                            </table>
-                        </div>   
+            <main class="main">
+                <div class="page-header breadcrumb-wrap">
+                    <div class="container">
+                        <div class="breadcrumb">
+                            <a href="/user/home" rel="nofollow">Home</a>
+                            <span></span> Your Orders
+                        </div>
                     </div>
                 </div>
+                <section class="mt-50 mb-50">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table class="table shopping-summery text-center clean">
+                                        <thead>
+                                            <tr class="main-heading">
+                                                <th scope="col">Image</th>
+                                                <th scope="col">Name</th>
+
+                                                <th scope="col">Order placed</th>
+                                                <th scope="col">Ship to</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Order Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <% if(typeof(userOrders)!=="undefined" ) {%>
+
+                                                <%userOrders.forEach((order)=> { %>
+                                                    <tr>
+                                                        <td class="image product-thumbnail"><a
+                                                                href="/product/view-user/<%=order.product[0]._id%>"><img
+                                                                    src="<%=order.product[0].images[0].url %>" alt="#">
+                                                            </a></td>
+                                                        <td style="max-width: 200px;" class="product-des product-name">
+                                                            <h5 class="product-name"><a
+                                                                    href="/product/view-user/<%=order.product[0]._id%>">
+                                                                    <%=order.product[0].name %>
+                                                                </a></h5>
+
+                                                        </td>
+
+                                                        <td class="price" data-title="Price"><span>
+                                                                <%=order.createdAt %>
+                                                            </span></td>
+                                                        <td class="text-right" data-title="Cart">
+                                                            <span>
+                                                                <%=order.address[0].name %> <br>
+                                                                    <%=order.address[0].houseName %> <br>
+                                                                        <%=order.address[0].town %>
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-right" data-title="Cart">
+                                                            <h5><span>
+                                                                    <%=order.productDetails.deliveryStatus %>
+                                                                </span></h5>
+                                                        </td>
+
+                                                        <td class="product-des product-name">
+                                                            <h5 class="product-name"><a
+                                                                    href="/order/view-one?orderId=<%=order._id %>&productId=<%=order.product[0]._id%>">
+                                                                    View order details
+                                                                </a></h5>
+
+                                                        </td>
+
+                                                    </tr>
+
+                                                    <% })%>
+                                                        <% }%>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </section>
+            </main>
+
+
+            <div class="pagination-area mb-100 mb-sm-5 mb-lg-0 " style="display: flex; justify-content: space-around;">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-start">
+
+                          <%if(totalPages>= 1) {%> 
+
+                         <%for(let i=0; i<totalPages; i++) {%> 
+
+                        <li id="li<%=i+1%>" class="page-item"><a class="page-link" href="/order/view?page=<%=i+1%>">0<%=i+1%>
+                            </a></li>
+
+                        <% }%>
+
+
+                            <% }%> 
+
+
+                    </ul>
+                </nav>
             </div>
-            </div>
-        </section>
-    </main>
-   
+
+             <%if(typeof(page) !=="undefined" ) {%>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+
+                        const currentPage = document.getElementById("li" + '<%=page%>')
+                        currentPage.classList.add("active")
+
+                    })
+                </script>
+
+                <%} %> 
 
 
-                <%- include ('./partials/user.footer.ejs') %>
 
 
-    <!-- Vendor JS-->
-    <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>
-    <script src="/user.assets/js/vendor/jquery-3.6.0.min.js"></script>
-    <script src="/user.assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-    <script src="/user.assets/js/vendor/bootstrap.bundle.min.js"></script>
-    <script src="/user.assets/js/plugins/slick.js"></script>
-    <script src="/user.assets/js/plugins/jquery.syotimer.min.js"></script>
-    <script src="/user.assets/js/plugins/wow.js"></script>
-    <script src="/user.assets/js/plugins/jquery-ui.js"></script>
-    <script src="/user.assets/js/plugins/perfect-scrollbar.js"></script>
-    <script src="/user.assets/js/plugins/magnific-popup.js"></script>
-    <script src="/user.assets/js/plugins/select2.min.js"></script>
-    <script src="/user.assets/js/plugins/waypoints.js"></script>
-    <script src="/user.assets/js/plugins/counterup.js"></script>
-    <script src="/user.assets/js/plugins/jquery.countdown.min.js"></script>
-    <script src="/user.assets/js/plugins/images-loaded.js"></script>
-    <script src="/user.assets/js/plugins/isotope.js"></script>
-    <script src="/user.assets/js/plugins/scrollup.js"></script>
-    <script src="/user.assets/js/plugins/jquery.vticker-min.js"></script>
-    <!-- Template  JS -->
-    <script src="/user.assets/js/main.js?v=3.4"></script>
-    <script src="/user.assets/js/shop.js?v=3.4"></script>
-</body>
 
-</html>
+            <%- include ('./partials/user.footer.ejs') %>
+
+
+                <!-- Vendor JS-->
+                <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>
+                <script src="/user.assets/js/vendor/jquery-3.6.0.min.js"></script>
+                <script src="/user.assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+                <script src="/user.assets/js/vendor/bootstrap.bundle.min.js"></script>
+                <script src="/user.assets/js/plugins/slick.js"></script>
+                <script src="/user.assets/js/plugins/jquery.syotimer.min.js"></script>
+                <script src="/user.assets/js/plugins/wow.js"></script>
+                <script src="/user.assets/js/plugins/jquery-ui.js"></script>
+                <script src="/user.assets/js/plugins/perfect-scrollbar.js"></script>
+                <script src="/user.assets/js/plugins/magnific-popup.js"></script>
+                <script src="/user.assets/js/plugins/select2.min.js"></script>
+                <script src="/user.assets/js/plugins/waypoints.js"></script>
+                <script src="/user.assets/js/plugins/counterup.js"></script>
+                <script src="/user.assets/js/plugins/jquery.countdown.min.js"></script>
+                <script src="/user.assets/js/plugins/images-loaded.js"></script>
+                <script src="/user.assets/js/plugins/isotope.js"></script>
+                <script src="/user.assets/js/plugins/scrollup.js"></script>
+                <script src="/user.assets/js/plugins/jquery.vticker-min.js"></script>
+                <!-- Template  JS -->
+                <script src="/user.assets/js/main.js?v=3.4"></script>
+                <script src="/user.assets/js/shop.js?v=3.4"></script>
+    </body>
+
+    </html>
