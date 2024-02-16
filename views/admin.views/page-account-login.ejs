@@ -100,8 +100,8 @@
                                                             </svg> Sign in using Facebook
                                                         </a>
                                                     </div> -->
-                                                    <p class="text-center mb-4">Don't have account? <a
-                                                            href="/user/register">Sign up</a></p>
+                                                    <p class="text-center mb-4" id="newUserRegistration">Don't have
+                                                        account? <a href="/user/register">Sign up</a></p>
                                         </div>
                                     </div>
                                 </section>
@@ -109,6 +109,16 @@
                                 <%- include ('./partials/admin.footer.ejs') %>
 
         </main>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                if (window.location.pathname === "/admin/login") {
+                    const newUserRegistration = document.getElementById("newUserRegistration")
+                    newUserRegistration.style.display = "none"
+                }
+            })
+        </script>
+
         <script src="/admin.assets/js/vendors/jquery-3.6.0.min.js"></script>
         <script src="/admin.assets/js/vendors/bootstrap.bundle.min.js"></script>
         <script src="/admin.assets/js/vendors/jquery.fullscreen.min.js"></script>
