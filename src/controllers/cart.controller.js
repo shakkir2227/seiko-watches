@@ -40,7 +40,6 @@ const addToCartController = asyncHandler(async (req, res) => {
 
     // Finding the total amount of the cart now
     let totalAmount = 0;
-    console.log(updatedUser);
     updatedUser.forEach((element, i) => {
         if (element.product[0].discountedPrice) {
             totalAmount += (element.cart.quantity * element.product[0].discountedPrice)
@@ -50,7 +49,6 @@ const addToCartController = asyncHandler(async (req, res) => {
 
     })
 
-    console.log(totalAmount);
     return res.status(200).json({ numberOfProductsInCart, totalAmount, message: "Added to cart successfully" })
 })
 
@@ -109,9 +107,6 @@ const viewCartController = asyncHandler(async (req, res) => {
 
         ]
     );
-
-    console.log(userCart);
-
 
     return res.render("shop-cart.ejs", { categories: res.locals.categories, userCart })
 })

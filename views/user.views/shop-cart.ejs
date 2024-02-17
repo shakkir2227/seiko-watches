@@ -138,7 +138,8 @@
 
                                         <% if((typeof(userCart)!=="undefined" )&& (userCart.length>0)) {%>
 
-                                            <div class="col-6" style="margin-left: 650px;">
+                                            <div class="col-6"
+                                                style="margin: 0;  @media only screen and (min-width: 500px) { margin-left: 650px; }">
                                                 <div class="border p-md-4 p-30 border-radius cart-totals">
                                                     <div class="heading_s1 mb-3">
                                                         <h4>Cart Totals</h4>
@@ -170,8 +171,8 @@
                                                         </table>
                                                     </div>
                                                     <a href="/order/buy" class="btn "
-                                                        style="margin-left: 150px; margin-top: 20px;"> <i
-                                                            class="fi-rs-box-alt mr-10"></i> Proceed To
+                                                        style="margin: 0px; @media only screen and (min-width: 500px) { margin-left: 150px; margin-top: 20px; }">
+                                                        <i class="fi-rs-box-alt mr-10"></i> Proceed To
                                                         Buy</a>
                                                 </div>
                                             </div>
@@ -185,193 +186,197 @@
                 </section>
             </main>
 
-            <script>
+            <!--footer partial-->
+            <%- include ('./partials/user.footer.ejs') %>
 
 
 
 
-                //For updating quantity at server side
-                function increaseQuantity(productId) {
-                    // When update the quantity, take the element
-                    // Take the innerhtml of it, and store it in quantity
-                    // send a fetch request
-                    let quantity = document.getElementById(productId).innerHTML;
-                    quantity = parseInt(quantity)
 
-                    if (quantity <= 0) {
-                        quantity = 1;
-                    }
+                <script>
 
-                    let data = { quantity, productId, todo: "increase" }
+                    //For updating quantity at server side
+                    function increaseQuantity(productId) {
+                        // When update the quantity, take the element
+                        // Take the innerhtml of it, and store it in quantity
+                        // send a fetch request
+                        let quantity = document.getElementById(productId).innerHTML;
+                        quantity = parseInt(quantity)
 
-                    const jsonData = JSON.stringify(data); fetch("/cart/update", {
-                        method: "PUT", headers: {
-                            'Content-Type'
-                                : 'application/json'
-                        }, body: jsonData,
-                    }).then((res) => {
-                        if (res.ok) {
-                            return res.json()
-
-                        } else {
-                            throw new Error(`OOPS!! Product out of stock. Only few items left!!`);
+                        if (quantity <= 0) {
+                            quantity = 1;
                         }
-                    })
 
-                        .then((data) => {
-                            document.getElementById(productId).innerHTML = data
-                        }).then(updateSubTotal)
-                        .then(loadTotalAmount)
+                        let data = { quantity, productId, todo: "increase" }
 
-                        .catch((error) => {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: `${error}`,
-                                showConfirmButton: true,
-                                confirmButtonText: 'OK',
-                                customClass: {
-                                    confirmButton: 'btn btn-danger', // Add custom class for styling
-                                },
-                            });
-                        });
-
-
-
-                    // Now updating the subtotal amount
-                    function updateSubTotal() {
-                        const newQuantity = document.getElementById(productId).innerHTML;
-                        const price = document.getElementById(productId + "price").textContent;
-
-                        const subTotal = document.getElementById(productId + "subTotal")
-                        const newSubTotal = newQuantity * price;
-                        subTotal.innerHTML = newSubTotal
-                    }
-
-                }
-
-                function decreaseQuantity(productId) {
-                    // When update the quantity, take the element
-                    // Take the innerhtml of it, and store it in quantity
-                    // send a fetch request
-                    let quantity = document.getElementById(productId).innerHTML;
-                    quantity = parseInt(quantity)
-
-                    if (quantity <= 0) {
-                        quantity = 1;
-                    }
-                    let data = { quantity, productId, todo: "decrease" }
-
-                    const jsonData = JSON.stringify(data); fetch("/cart/update", {
-                        method: "PUT", headers: {
-                            'Content-Type'
-                                : 'application/json'
-                        }, body: jsonData,
-                    }).then((res) => {
-                        if (res.ok) {
-                            return res.json()
-
-                        }
-                    })
-                        .then((data) => {
-                            document.getElementById(productId).innerHTML = data
-                        })
-                        .then(updateSubTotal)
-                        .then(loadTotalAmount)
-
-
-
-
-
-                    function updateSubTotal() {
-                        const newQuantity = document.getElementById(productId).innerHTML;
-                        const price = document.getElementById(productId + "price").textContent;
-
-                        const subTotal = document.getElementById(productId + "subTotal")
-                        const newSubTotal = newQuantity * price;
-                        subTotal.innerHTML = newSubTotal
-                    }
-
-                }
-
-
-
-                // When presing remove button, it is making a fetch
-                // request to cart/delete, and deleting the product
-                // from the cart array
-
-                function deleteFromCart(productId) {
-
-                    const data = {
-                        productId
-                    }
-                    const jsonData = JSON.stringify(data)
-
-                    fetch("/cart/delete", {
-                        method: "PUT",
-                        headers: {
-                            'Content-Type'
-                                : 'application/json'
-                        },
-                        body: jsonData,
-
-                    })
-                        .then((res) => {
+                        const jsonData = JSON.stringify(data); fetch("/cart/update", {
+                            method: "PUT", headers: {
+                                'Content-Type'
+                                    : 'application/json'
+                            }, body: jsonData,
+                        }).then((res) => {
                             if (res.ok) {
-                                window.location.reload()
+                                return res.json()
+
+                            } else {
+                                throw new Error(`OOPS!! Product out of stock. Only few items left!!`);
                             }
                         })
-                }
+
+                            .then((data) => {
+                                document.getElementById(productId).innerHTML = data
+                            }).then(updateSubTotal)
+                            .then(loadTotalAmount)
+
+                            .catch((error) => {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: `${error}`,
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-danger', // Add custom class for styling
+                                    },
+                                });
+                            });
 
 
-                // Taking all elements with the class subTotal for calculating total amount
-                document.addEventListener("DOMContentLoaded", loadTotalAmount)
 
-                function loadTotalAmount() {
-                    let elements = document.getElementsByClassName("subTotal")
-                    elements = Array.from(elements)
+                        // Now updating the subtotal amount
+                        function updateSubTotal() {
+                            const newQuantity = document.getElementById(productId).innerHTML;
+                            const price = document.getElementById(productId + "price").textContent;
+
+                            const subTotal = document.getElementById(productId + "subTotal")
+                            const newSubTotal = newQuantity * price;
+                            subTotal.innerHTML = newSubTotal
+                        }
+
+                    }
+
+                    function decreaseQuantity(productId) {
+                        // When update the quantity, take the element
+                        // Take the innerhtml of it, and store it in quantity
+                        // send a fetch request
+                        let quantity = document.getElementById(productId).innerHTML;
+                        quantity = parseInt(quantity)
+
+                        if (quantity <= 0) {
+                            quantity = 1;
+                        }
+                        let data = { quantity, productId, todo: "decrease" }
+
+                        const jsonData = JSON.stringify(data); fetch("/cart/update", {
+                            method: "PUT", headers: {
+                                'Content-Type'
+                                    : 'application/json'
+                            }, body: jsonData,
+                        }).then((res) => {
+                            if (res.ok) {
+                                return res.json()
+
+                            }
+                        })
+                            .then((data) => {
+                                document.getElementById(productId).innerHTML = data
+                            })
+                            .then(updateSubTotal)
+                            .then(loadTotalAmount)
 
 
-                    const totalAmount = elements.reduce((accumulator, value) => {
-                        return parseInt(value.textContent) + accumulator;
-                    }, 0)
 
 
-                    let totalAmountBeforeShippingElement = document.getElementById("totalAmountBeforeShipping")
-                    totalAmountBeforeShippingElement.textContent = '\u20B9 ' + totalAmount
 
-                    let totalAmountElement = document.getElementById("totalAmount")
-                    totalAmountElement.textContent = '\u20B9 ' + totalAmount
+                        function updateSubTotal() {
+                            const newQuantity = document.getElementById(productId).innerHTML;
+                            const price = document.getElementById(productId + "price").textContent;
 
-                }
+                            const subTotal = document.getElementById(productId + "subTotal")
+                            const newSubTotal = newQuantity * price;
+                            subTotal.innerHTML = newSubTotal
+                        }
 
-            </script>
+                    }
 
-            <!-- Vendor JS-->
-            <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>
-            <script src="/user.assets/js/vendor/jquery-3.6.0.min.js"></script>
-            <script src="/user.assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-            <script src="/user.assets/js/vendor/bootstrap.bundle.min.js"></script>
-            <script src="/user.assets/js/plugins/slick.js"></script>
-            <script src="/user.assets/js/plugins/jquery.syotimer.min.js"></script>
-            <script src="/user.assets/js/plugins/wow.js"></script>
-            <script src="/user.assets/js/plugins/jquery-ui.js"></script>
-            <script src="/user.assets/js/plugins/perfect-scrollbar.js"></script>
-            <script src="/user.assets/js/plugins/magnific-popup.js"></script>
-            <script src="/user.assets/js/plugins/select2.min.js"></script>
-            <script src="/user.assets/js/plugins/waypoints.js"></script>
-            <script src="/user.assets/js/plugins/counterup.js"></script>
-            <script src="/user.assets/js/plugins/jquery.countdown.min.js"></script>
-            <script src="/user.assets/js/plugins/images-loaded.js"></script>
-            <script src="/user.assets/js/plugins/isotope.js"></script>
-            <script src="/user.assets/js/plugins/scrollup.js"></script>
-            <script src="/user.assets/js/plugins/jquery.vticker-min.js"></script>
-            <!-- Template  JS -->
-            <script src="/user.assets/js/main.js?v=3.4"></script>
-            <script src="/user.assets/js/shop.js?v=3.4"></script>
 
-            <!--Sweet alert cdn-->
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+
+                    // When presing remove button, it is making a fetch
+                    // request to cart/delete, and deleting the product
+                    // from the cart array
+
+                    function deleteFromCart(productId) {
+
+                        const data = {
+                            productId
+                        }
+                        const jsonData = JSON.stringify(data)
+
+                        fetch("/cart/delete", {
+                            method: "PUT",
+                            headers: {
+                                'Content-Type'
+                                    : 'application/json'
+                            },
+                            body: jsonData,
+
+                        })
+                            .then((res) => {
+                                if (res.ok) {
+                                    window.location.reload()
+                                }
+                            })
+                    }
+
+
+                    // Taking all elements with the class subTotal for calculating total amount
+                    document.addEventListener("DOMContentLoaded", loadTotalAmount)
+
+                    function loadTotalAmount() {
+                        let elements = document.getElementsByClassName("subTotal")
+                        elements = Array.from(elements)
+
+
+                        const totalAmount = elements.reduce((accumulator, value) => {
+                            return parseInt(value.textContent) + accumulator;
+                        }, 0)
+
+
+                        let totalAmountBeforeShippingElement = document.getElementById("totalAmountBeforeShipping")
+                        totalAmountBeforeShippingElement.textContent = '\u20B9 ' + totalAmount
+
+                        let totalAmountElement = document.getElementById("totalAmount")
+                        totalAmountElement.textContent = '\u20B9 ' + totalAmount
+
+                    }
+
+                </script>
+
+                <!-- Vendor JS-->
+                <script src="/user.assets/js/vendor/modernizr-3.6.0.min.js"></script>
+                <script src="/user.assets/js/vendor/jquery-3.6.0.min.js"></script>
+                <script src="/user.assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+                <script src="/user.assets/js/vendor/bootstrap.bundle.min.js"></script>
+                <script src="/user.assets/js/plugins/slick.js"></script>
+                <script src="/user.assets/js/plugins/jquery.syotimer.min.js"></script>
+                <script src="/user.assets/js/plugins/wow.js"></script>
+                <script src="/user.assets/js/plugins/jquery-ui.js"></script>
+                <script src="/user.assets/js/plugins/perfect-scrollbar.js"></script>
+                <script src="/user.assets/js/plugins/magnific-popup.js"></script>
+                <script src="/user.assets/js/plugins/select2.min.js"></script>
+                <script src="/user.assets/js/plugins/waypoints.js"></script>
+                <script src="/user.assets/js/plugins/counterup.js"></script>
+                <script src="/user.assets/js/plugins/jquery.countdown.min.js"></script>
+                <script src="/user.assets/js/plugins/images-loaded.js"></script>
+                <script src="/user.assets/js/plugins/isotope.js"></script>
+                <script src="/user.assets/js/plugins/scrollup.js"></script>
+                <script src="/user.assets/js/plugins/jquery.vticker-min.js"></script>
+                <!-- Template  JS -->
+                <script src="/user.assets/js/main.js?v=3.4"></script>
+                <script src="/user.assets/js/shop.js?v=3.4"></script>
+
+                <!--Sweet alert cdn-->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
     </body>
 
     </html>

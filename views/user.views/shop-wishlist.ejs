@@ -136,124 +136,128 @@
                 </nav>
             </div>
 
-            <%if(typeof(page) !=="undefined" ) {%>
+            <!--footer partial-->
+            <%- include ('./partials/user.footer.ejs') %>
 
-                <script>
-                    document.addEventListener("DOMContentLoaded", () => {
-
-                        const currentPage = document.getElementById("li" + '<%=page%>')
-                        currentPage.classList.add("active")
-
-                    })
-                </script>
-
-                <%} %>
+                <%if(typeof(page) !=="undefined" ) {%>
 
                     <script>
+                        document.addEventListener("DOMContentLoaded", () => {
 
-                        function moveToCart(product) {
-                            let data = {
-                                productId: product,
-                            }
+                            const currentPage = document.getElementById("li" + '<%=page%>')
+                            currentPage.classList.add("active")
 
-                            data = JSON.stringify(data);
-
-                            fetch("/cart/add", {
-                                method: "post",
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: data
-                            })
-                                .then((res) => {
-                                    if (res.ok) {
-
-
-
-                                        const Toast = Swal.mixin({
-                                            toast: true,
-                                            position: "top-end",
-                                            showConfirmButton: false,
-                                            timer: 1500,
-                                            timerProgressBar: true,
-                                            didOpen: (toast) => {
-                                                toast.onmouseenter = Swal.stopTimer;
-                                                toast.onmouseleave = Swal.resumeTimer;
-                                            }
-                                        });
-                                        Toast.fire({
-                                            icon: "success",
-                                            title: "Success! The item has been saved to your Cart."
-                                        });
-
-
-                                        return res.json()
-                                    }
-                                })
-                                .then((data) => {
-                                    console.log(data);
-                                    document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
-                                    document.getElementById('totalAmountInHeader').textContent = data.totalAmount;
-                                })
-
-
-                        }
-
-
-
-
-                        function deleteFromWishlist(product) {
-
-                            let data = {
-                                product,
-                            }
-
-                            data = JSON.stringify(data)
-
-                            fetch("/wishlist/delete", {
-                                method: "DELETE",
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: data,
-                            })
-                                .then((res) => {
-                                    if (res.ok) {
-                                        window.location.reload()
-                                    }
-                                })
-
-
-                        }
+                        })
                     </script>
 
+                    <%} %>
+
+                        <script>
+
+                            function moveToCart(product) {
+                                let data = {
+                                    productId: product,
+                                }
+
+                                data = JSON.stringify(data);
+
+                                fetch("/cart/add", {
+                                    method: "post",
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: data
+                                })
+                                    .then((res) => {
+                                        if (res.ok) {
 
 
-                    <!-- Vendor JS-->
-                    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
-                    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
-                    <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-                    <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
-                    <script src="assets/js/plugins/slick.js"></script>
-                    <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
-                    <script src="assets/js/plugins/wow.js"></script>
-                    <script src="assets/js/plugins/jquery-ui.js"></script>
-                    <script src="assets/js/plugins/perfect-scrollbar.js"></script>
-                    <script src="assets/js/plugins/magnific-popup.js"></script>
-                    <script src="assets/js/plugins/select2.min.js"></script>
-                    <script src="assets/js/plugins/waypoints.js"></script>
-                    <script src="assets/js/plugins/counterup.js"></script>
-                    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
-                    <script src="assets/js/plugins/images-loaded.js"></script>
-                    <script src="assets/js/plugins/isotope.js"></script>
-                    <script src="assets/js/plugins/scrollup.js"></script>
-                    <script src="assets/js/plugins/jquery.vticker-min.js"></script>
-                    <!-- Template  JS -->
-                    <script src="./assets/js/main.js?v=3.4"></script>
-                    <script src="./assets/js/shop.js?v=3.4"></script>
 
-                    <!--Sweet alert -->
-                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+                                            const Toast = Swal.mixin({
+                                                toast: true,
+                                                position: "top-end",
+                                                showConfirmButton: false,
+                                                timer: 1500,
+                                                timerProgressBar: true,
+                                                didOpen: (toast) => {
+                                                    toast.onmouseenter = Swal.stopTimer;
+                                                    toast.onmouseleave = Swal.resumeTimer;
+                                                }
+                                            });
+                                            Toast.fire({
+                                                icon: "success",
+                                                title: "Success! The item has been saved to your Cart."
+                                            });
+
+
+                                            return res.json()
+                                        }
+                                    })
+                                    .then((data) => {
+                                      
+                                        document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
+                                        document.getElementById('totalAmountInHeader').textContent = data.totalAmount;
+                                    })
+
+
+                            }
+
+
+
+
+                            function deleteFromWishlist(product) {
+
+                                let data = {
+                                    product,
+                                }
+
+                                data = JSON.stringify(data)
+
+                                fetch("/wishlist/delete", {
+                                    method: "DELETE",
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: data,
+                                })
+                                    .then((res) => {
+                                        if (res.ok) {
+                                            window.location.reload()
+                                        }
+                                    })
+
+
+                            }
+                        </script>
+
+
+
+                        <!-- Vendor JS-->
+                        <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+                        <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+                        <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+                        <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+                        <script src="assets/js/plugins/slick.js"></script>
+                        <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+                        <script src="assets/js/plugins/wow.js"></script>
+                        <script src="assets/js/plugins/jquery-ui.js"></script>
+                        <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+                        <script src="assets/js/plugins/magnific-popup.js"></script>
+                        <script src="assets/js/plugins/select2.min.js"></script>
+                        <script src="assets/js/plugins/waypoints.js"></script>
+                        <script src="assets/js/plugins/counterup.js"></script>
+                        <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+                        <script src="assets/js/plugins/images-loaded.js"></script>
+                        <script src="assets/js/plugins/isotope.js"></script>
+                        <script src="assets/js/plugins/scrollup.js"></script>
+                        <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+                        <!-- Template  JS -->
+                        <script src="./assets/js/main.js?v=3.4"></script>
+                        <script src="./assets/js/shop.js?v=3.4"></script>
+
+                        <!--Sweet alert -->
+                        <script
+                            src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
 
     </body>
 

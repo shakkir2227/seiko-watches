@@ -50,6 +50,10 @@ import wishlistRouter from "./routes/wishlist.routes.js"
 import couponRouter from "./routes/coupon.routes.js"
 import offerRouter from "./routes/offer.routes.js"
 
+// For root route
+app.get("/", (req, res) => {
+    return res.redirect("/user/home")
+})
 
 //routes declaration
 app.use("/user", userRouter)

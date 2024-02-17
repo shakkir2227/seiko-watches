@@ -225,7 +225,6 @@ const verifyController = {
             // Finding the user from db who has this referal link, increasing his wallet amount with 100 rupees
             let referalLinkFromUrl = `${req.headers.host}/user/register?ref=${ref}`
             const updatedUser = await User.updateOne({ referalLink: referalLinkFromUrl }, { $inc: { wallet: 100 } })
-            console.log(updatedUser);
         }
 
 

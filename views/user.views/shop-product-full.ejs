@@ -446,7 +446,7 @@
                                 return res.json()
                             })
                             .then((data) => {
-                                console.log(data);
+                              
                                 document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
                                 document.getElementById('totalAmountInHeader').textContent = data.totalAmount;
                             })

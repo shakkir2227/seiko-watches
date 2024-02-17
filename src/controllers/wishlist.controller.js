@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { User } from "../models/user.model.js";
+import mongoose from "mongoose";
 
 const addToWishlistController = asyncHandler(async (req, res) => {
 
@@ -90,16 +91,6 @@ const viewWishlistController = asyncHandler(async (req, res) => {
 
     ])
 
-    console.log("page");
-    console.log(page);
-    console.log("total page");
-
-    console.log(totalPages);
-
-    console.log("wishlsit");
-
-    console.log(userWishlist);
-
     return res.render("shop-wishlist.ejs", { page, totalPages, userWishlist, categories: res.locals.categories })
 })
 
@@ -108,11 +99,15 @@ const deleteFromWishlistController = asyncHandler(async (req, res) => {
     const user = res.locals.user
     const { product } = req.body
 
-    await User.updateOne(({ _id: user._id }, {
-        $pull: {
-            wishlist: product
-        }
-    }))
+    await User.updateOne(
+        {
+            _id: user._id
+        },
+        {
+            $pull: {
+                wishlist: product
+            }
+        })
 
     return res.status(200).json({ message: "Removed from wishlist successfully" })
 

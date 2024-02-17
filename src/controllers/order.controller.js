@@ -313,8 +313,6 @@ const userOrderViewController = asyncHandler(async (req, res) => {
         },
     ])
 
-    console.log("total orders are");
-    console.log(totalOrders);
 
     // Finding out total pages
     let totalPages = 0;
@@ -375,10 +373,6 @@ const userOrderViewController = asyncHandler(async (req, res) => {
         }
 
     ])
-
-    console.log(page);
-    console.log(totalPages);
-    console.log(userOrders);
 
     return res.render("page-orders.ejs", { page, totalPages, userOrders })
 })
