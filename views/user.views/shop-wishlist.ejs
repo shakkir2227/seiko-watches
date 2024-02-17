@@ -10,8 +10,7 @@
                 <div class="page-header breadcrumb-wrap">
                     <div class="container">
                         <div class="breadcrumb">
-                            <a href="index.html" rel="nofollow">Home</a>
-                            <span></span> Shop
+                            <a href="/user/home" rel="nofollow">Home</a>
                             <span></span> Wishlist
                         </div>
                     </div>
@@ -97,16 +96,23 @@
 
                                 <%if(userWishlist.length===0) {%>
 
-                                    <div class="cart-action mt-45 " style="margin-left: 350px;">
-                                        <h4>Your SEIKO Wishlist is empty.</h4>
-                                        <p style="margin-top: 30px;">Check your Saved for later items below or continue
-                                            shopping.</p>
-                                        <a style="margin-top: 30px;" class="btn " href="/user/home"><i
-                                                class="fi-rs-shopping-bag mr-10"></i>Continue
-                                            Shopping</a>
-                                    </div>
-                                    <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
+                                    <div class="cart-action mt-150"
+                                        style="margin-left: 25%; max-width: 600px; text-align: center;">
 
+                                        <h4>Your SEIKO Wishlist is empty.</h4>
+
+                                        <p style="margin-top: 15px;">Check your Saved for later items below or continue
+                                            shopping.</p>
+
+                                        <a style="margin-top: 15px; display: block; width: 70%; margin: 0 auto;"
+                                            class="btn" href="/user/home">
+                                            <i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping
+                                        </a>
+
+                                    </div>
+
+                                    <div class="divider center_icon mt-3 mb-3" style="text-align: center;"><i
+                                            class="fi-rs-fingerprint"></i></div>
                                     <% }%>
 
                             </div>
@@ -194,7 +200,7 @@
                                         }
                                     })
                                     .then((data) => {
-                                      
+
                                         document.getElementById('cartCount').textContent = data.numberOfProductsInCart;
                                         document.getElementById('totalAmountInHeader').textContent = data.totalAmount;
                                     })

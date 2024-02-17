@@ -208,7 +208,8 @@ const verifyController = {
         }
 
         const userEnteredOTP = req.body.OTP;
-        const isCorrect = await otp.isOTPCorrect(userEnteredOTP)
+        console.log(req.body.OTP);
+        const isCorrect = await otp.isOTPCorrect(userEnteredOTP.trim())
 
         if (!isCorrect) {
             req.flash('error', `Invalid OTP`);

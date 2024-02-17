@@ -9,7 +9,7 @@
                 <div class="page-header breadcrumb-wrap">
                     <div class="container">
                         <div class="breadcrumb">
-                            <a href="index.html" rel="nofollow">Home</a>
+                            <a href="/user/home" rel="nofollow">Home</a>
                             <span></span> Checkout
                         </div>
                     </div>
@@ -63,8 +63,11 @@
 
                                 <%if(userDefaultAddress.length==0) { %>
 
-                                    <div style="margin-left: 180px; margin-bottom: 20px;">
+                                    <div
+                                        style="margin-left: 1%; max-width: 600px; text-align: center; margin-bottom: 2%;">
+
                                         <h5>No default address set</h5>
+
                                     </div>
                                     <% } %>
 
@@ -295,7 +298,7 @@
 
 
 
-                                        <div class="col-lg-6" style="width: 540px; margin-top: 25px;">
+                                        <div class="col-lg-6" style="max-width: 540px; margin-top: 25px;">
                                             <div class="toggle_info">
                                                 <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a
                                                         coupon?</span> <a href="#coupon" data-bs-toggle="collapse"
@@ -639,7 +642,7 @@
                             totalAmount,
                             productDetails,
                         }
-                   
+
                         onlinePaymentData = JSON.stringify(onlinePaymentData);
 
                         fetch("/order/online-payment", {
@@ -655,7 +658,7 @@
 
                                 if (data.message === "Sorry, the requested quantity is currently unavailable.!") {
 
-                                     // Clear the already available product details
+                                    // Clear the already available product details
                                     productId.length = 0;
                                     quantity.length = 0;
                                     productPrice.length = 0;
@@ -675,7 +678,7 @@
 
                                 } else if (data.message === "Please select your preferred address for a seamless experience on our platform.") {
 
-                                     // Clear the already available product details
+                                    // Clear the already available product details
                                     productId.length = 0;
                                     quantity.length = 0;
                                     productPrice.length = 0;
@@ -806,7 +809,7 @@
                             productDetails.length = 0
 
 
-               
+
                             if (data.message === "Order placed") {
                                 Swal.fire({
                                     icon: 'success',
@@ -1036,7 +1039,7 @@
                     let couponInput = document.getElementById("couponInput").value
                     let totalAmountBeforeDiscount = document.getElementById("totalAmountBeforeShipping").innerText
                     totalAmountBeforeDiscount = totalAmountBeforeDiscount.replace("")
-    
+
                     let couponApplyData = {
                         couponInput,
                         totalAmountBeforeDiscount,
