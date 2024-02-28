@@ -1,5 +1,3 @@
 #ecommerce project
- 
--[Model link](
-    
-)
+
+SEIKO-WATCHES - An Ecommerce app
